@@ -1,0 +1,60 @@
+name: Desplegar en GitHub Pages
+
+on:
+  # Se ejecuta en cada cambio que llega a main (incluye merges de PRs)
+  push:
+    branches: [main]
+  # Permite lanzarlo manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+# Permisos que necesita el despliegue a GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita despliegues concurrentes; deja terminar el que esté en curso
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Compilar Flutter Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Generar archivos de la plataforma web
+        run: flutter create --project-name pitu_app --platforms=web .
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Compilar para web
+        # base-href debe coincidir con la ruta del sitio en Pages:
+        # https://<usuario>.github.io/<repositorio>/
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Subir artefacto de Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Desplegar
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
