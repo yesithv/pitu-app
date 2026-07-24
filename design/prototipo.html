@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#ECE5DB;-webkit-font-smoothing:antialiased}
+  a{color:#14595F;text-decoration:none}
+  a:hover{color:#0E4247}
+  ::-webkit-scrollbar{width:0;height:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+
+<div style="{{ shell }}">
+
+  <header style="max-width:1280px;margin:0 auto 8px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px">
+    <div>
+      <div style="font-family:Nunito,sans-serif;font-weight:800;font-size:30px;letter-spacing:-.5px;color:var(--text)"><span style="color:var(--brand)">Pet</span>Bienestar</div>
+      <div style="font-family:'Nunito Sans',sans-serif;font-size:15px;color:var(--text-2);margin-top:4px">Prototipo · MVP Fase 1 · 21 pantallas · iOS</div>
+    </div>
+    <div role="group" aria-label="Cambiar tema" style="display:flex;gap:4px;background:var(--alt);border:1px solid var(--border);border-radius:999px;padding:4px">
+      <button aria-pressed="{{ isLight }}" onClick="{{ goLight }}" style="{{ lightBtn }}">Claro</button>
+      <button aria-pressed="{{ isDark }}" onClick="{{ goDark }}" style="{{ darkBtn }}">Oscuro</button>
+    </div>
+  </header>
+
+  <div style="display:flex;flex-wrap:wrap;gap:44px 40px;justify-content:center;align-items:flex-start;max-width:1280px;margin:0 auto">
+
+    <!-- ============ 01 BIENVENIDA ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:16px 24px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;min-height:560px">
+          <div style="width:200px;height:172px;margin:22px 0 8px;border-radius:24px;background:var(--brand-soft);display:grid;place-items:center;border:1px dashed color-mix(in srgb,var(--brand) 35%,transparent)">
+            <div style="font-size:52px">🐾</div>
+            <div style="font-family:ui-monospace,monospace;font-size:10px;color:var(--brand);opacity:.75;margin-top:6px">ilustración: perro + gato</div>
+          </div>
+          <div style="font-family:Nunito;font-weight:800;font-size:30px;letter-spacing:-.5px;margin-top:20px"><span style="color:var(--brand)">Pet</span><span style="color:var(--text)">Bienestar</span></div>
+          <p style="font-family:'Nunito Sans';font-size:16px;color:var(--text-2);margin:10px 0 0;max-width:240px;line-height:1.45">El cuidado de tu mascota, siempre al día.</p>
+          <div style="flex:1"></div>
+          <button style="{{ btnPrimary }}">Comenzar</button>
+          <a href="#" style="font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-2);margin-top:18px">Ya tengo un respaldo</a>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">01 · Bienvenida</figcaption>
+    </figure>
+
+    <!-- ============ 02 NOMBRE Y ESPECIE ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 24px;min-height:560px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:14px;padding:6px 0 4px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div style="flex:1;height:6px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:50%;height:100%;background:var(--brand)"></div></div>
+            <span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);white-space:nowrap">Paso 1 de 2</span>
+          </div>
+          <h2 style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text);margin:18px 0 4px" data-comment-anchor="0fc5b1a90b-h2">¿Cómo se llama tu mascota?</h2>
+          <p style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin:0 0 18px">Empecemos por lo básico.</p>
+
+          <div style="{{ fieldLabel }}">Nombre</div>
+          <div style="{{ field }}"><span>Pitufo</span><span style="width:2px;height:20px;background:var(--brand);border-radius:1px"></span></div>
+
+          <div style="{{ fieldLabel }}">Especie</div>
+          <div style="display:flex;gap:10px;margin-bottom:18px">
+            <div style="flex:1;border:2px solid var(--brand);background:var(--brand-soft);border-radius:14px;padding:16px 8px;text-align:center;color:var(--brand)"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10 5.5c0 1.5-1 3-2.5 3S5 7.5 5 6s1-2.5 2.5-2.5S10 4 10 5.5M19 6c0 1.5-1 2.5-2.5 2.5S14 7 14 5.5 15 3 16.5 3 19 4.5 19 6M6.5 12C5 12 4 13 4 14.2s1 2 2 2M20 14.2c0-1.2-1-2.2-2.5-2.2M8 18.5c0-2.5 1.8-4.5 4-4.5s4 2 4 4.5-1.8 3.5-4 3.5-4-1-4-3.5"/></svg><div style="font-family:Nunito;font-weight:700;font-size:14px;margin-top:6px">Perro</div></div>
+            <div style="flex:1;border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center;color:var(--text-2)"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 4l2.5 3M19 4l-2.5 3M5 4c-.5 3-.5 6 0 8 .5 3 3 6 7 6s6.5-3 7-6c.5-2 .5-5 0-8l-2.5 3h-9z"/><path d="M10 13h.01M14 13h.01M12 15l-1 1M12 15l1 1"/></svg><div style="font-family:Nunito;font-weight:700;font-size:14px;margin-top:6px">Gato</div></div>
+            <div style="flex:1;border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center;color:var(--text-2)"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4M12 16h.01"/></svg><div style="font-family:Nunito;font-weight:700;font-size:14px;margin-top:6px">Otro</div></div>
+          </div>
+
+          <div style="{{ note }}"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>La especie define el plan de cuidados que prepararemos.</span></div>
+          <div style="flex:1"></div>
+          <button style="{{ btnPrimary }};margin-top:18px">Continuar</button>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">02 · Nombre y especie</figcaption>
+    </figure>
+
+    <!-- ============ 03 AGREGAR MASCOTA ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 24px;min-height:560px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:14px;padding:6px 0 4px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div style="flex:1;height:6px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:100%;height:100%;background:var(--brand)"></div></div>
+            <span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);white-space:nowrap">Paso 2 de 2</span>
+          </div>
+          <h2 style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text);margin:18px 0 4px">Cuéntanos sobre Pitufo</h2>
+          <p style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin:0 0 18px">Con esto preparamos su plan de cuidados.</p>
+
+          <div style="{{ fieldLabel }}">Fecha de nacimiento o edad</div>
+          <div style="{{ field }}"><span>4 años</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+
+          <div style="{{ fieldLabel }}">Peso</div>
+          <div style="display:flex;gap:10px;margin-bottom:16px">
+            <div style="{{ field }};flex:1;margin-bottom:0"><span>28</span><span style="color:var(--text-3);font-size:13px">valor</span></div>
+            <div style="display:inline-flex;background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:4px">
+              <span style="padding:8px 14px;border-radius:9px;background:var(--brand);color:var(--on-brand);font-family:Nunito;font-weight:700;font-size:14px">kg</span>
+              <span style="padding:8px 14px;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-2)">lb</span>
+            </div>
+          </div>
+
+          <div style="{{ fieldLabel }}">Raza (opcional)</div>
+          <div style="{{ field }}"><span style="color:var(--text-3)">Labrador</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+
+          <div style="{{ note }}"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Prepararemos un plan de cuidados según la especie.</span></div>
+          <div style="flex:1"></div>
+          <button style="{{ btnPrimary }};margin-top:18px">Finalizar</button>
+          <button style="{{ btnSec }}">Personalizar cuidados</button>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">03 · Agregar mascota</figcaption>
+    </figure>
+
+    <!-- ============ 04 PLAN DE CUIDADOS ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 96px">
+          <div style="display:flex;align-items:center;gap:14px;padding:6px 0 4px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:17px;color:var(--text)">Personalizar cuidados</span>
+          </div>
+          <h2 style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text);margin:14px 0 4px">Plan de Pitufo</h2>
+          <p style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin:0 0 16px">Cuidados recomendados para <strong style="color:var(--text)">perros</strong>. Ajusta la frecuencia o agrega los que necesites.</p>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="{{ planRow }}"><span style="{{ planIco }};background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand)"><svg viewBox="0 0 24 24" style="{{ ico18 }};stroke:currentColor"><path d="M12 2l2 4 4 .6-3 3 .7 4.4L12 16l-3.6 2 .7-4.4-3-3 4-.6z"/></svg></span><div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Vacunas</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Cada 6 meses</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6" transform="rotate(180 12 12)"/><path d="M9 6l6 6-6 6"/></svg></div>
+            <div style="{{ planRow }}"><span style="{{ planIco }};background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand)"><svg viewBox="0 0 24 24" style="{{ ico18 }};stroke:currentColor"><path d="M6 12h12M12 4c-2 3-2 13 0 16M8 6c-1 4-1 8 0 12M16 6c1 4 1 8 0 12"/></svg></span><div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Limpieza dental</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Cada 12 meses</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6" transform="rotate(180 12 12)"/><path d="M9 6l6 6-6 6"/></svg></div>
+            <div style="{{ planRow }}"><span style="{{ planIco }};background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand)"><svg viewBox="0 0 24 24" style="{{ ico18 }};stroke:currentColor"><path d="M4 12a8 8 0 0 1 16 0M12 8v8M9 12h6"/></svg></span><div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Desparasitación</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Cada 4 meses</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6" transform="rotate(180 12 12)"/><path d="M9 6l6 6-6 6"/></svg></div>
+            <div style="{{ planRow }}"><span style="{{ planIco }};background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand)"><svg viewBox="0 0 24 24" style="{{ ico18 }};stroke:currentColor"><path d="M6 14c0-3 3-6 6-6s6 3 6 6M4 18h16M9 8V5M15 8V5"/></svg></span><div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Baño</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Cada 2 meses</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6" transform="rotate(180 12 12)"/><path d="M9 6l6 6-6 6"/></svg></div>
+          </div>
+
+          <button style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:13px;border-radius:12px;border:1.5px dashed var(--border-strong);background:transparent;color:var(--brand);font-family:Nunito,sans-serif;font-weight:700;font-size:15px;cursor:pointer"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>Agregar cuidado</button>
+
+          <div style="{{ note }};margin-top:16px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Puedes editar esto cuando quieras desde el perfil de tu mascota.</span></div>
+        </div>
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px 22px;background:linear-gradient(to top,var(--bg) 70%,transparent);display:flex;flex-direction:column">
+          <button style="{{ btnPrimary }}">Guardar plan</button>
+        </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">04 · Personalizar plan de cuidados</figcaption>
+    </figure>
+
+    <!-- ============ 03 INICIO ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 90px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">
+            <div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Martes 22 de julio</div><div style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text)">Hola, Yesith</div></div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button aria-label="Notificaciones" style="{{ iconBtn }};position:relative"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span style="position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:999px;background:var(--over);border:2px solid var(--bg)"></span></button>
+              <div style="width:40px;height:40px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:18px">🧑</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-bottom:4px">
+            <button style="{{ chipOn }}"><span style="{{ chipAv }}">🐾</span>Todas</button>
+            <button style="{{ chip }}"><span style="{{ chipAv }}">🐕</span>Firulais</button>
+            <button style="{{ chip }}"><span style="{{ chipAv }}">🐈</span>Luna</button>
+          </div>
+
+          <div style="background:var(--brand-soft);border-radius:16px;padding:16px;margin-top:16px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:9px;height:9px;border-radius:999px;background:var(--ok);flex:none"></span><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand)">Firulais está al día</span></div>
+            <div style="font-family:'Nunito Sans';font-size:13px;color:var(--brand);opacity:.85;margin:4px 0 10px">8 de 10 cuidados</div>
+            <div style="height:8px;border-radius:999px;background:color-mix(in srgb,var(--brand) 18%,transparent);overflow:hidden"><div style="width:80%;height:100%;background:var(--brand)"></div></div>
+          </div>
+
+          <div style="{{ sectionH }}">Hoy</div>
+
+          <article style="{{ task }}"><div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--over)"></div>
+            <div style="display:flex;gap:12px"><div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div><div><div style="{{ taskName }}">Desparasitación</div><div style="{{ taskPet }}">Firulais</div></div></div>
+            <span style="{{ tag }};background:var(--over-soft);color:var(--over)"><svg viewBox="0 0 24 24" style="{{ tagIco }};stroke:var(--over)"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Venció hace 5 días</span>
+            <button style="{{ btnSec }}">Marcar como hecha</button>
+          </article>
+
+          <article style="{{ task }}"><div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--due)"></div>
+            <div style="display:flex;gap:12px"><div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><div><div style="{{ taskName }}">Vacuna antirrábica</div><div style="{{ taskPet }}">Luna</div></div></div>
+            <span style="{{ tag }};background:var(--due-soft);color:var(--due)"><svg viewBox="0 0 24 24" style="{{ tagIco }};stroke:var(--due)"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>En 3 días</span>
+            <button style="{{ btnSec }}">Marcar como hecha</button>
+          </article>
+
+          <div style="{{ sectionH }}">Próximos 7 días</div>
+          <div style="{{ card }};display:flex;align-items:center;gap:12px;padding:14px 16px">
+            <div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M7 13c0-3 2-5 5-5s5 2 5 5-2 6-5 6-5-3-5-6M12 8V4M12 4c-1.5 0-2.5-1-2.5-1M12 4c1.5 0 2.5-1 2.5-1"/></svg></div>
+            <div style="flex:1"><div style="{{ taskName }};font-size:15px">Baño</div><div style="{{ taskPet }}">Firulais</div></div>
+            <span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">sábado</span>
+          </div>
+        </div>
+          <button aria-label="Agregar" style="position:absolute;right:18px;bottom:80px;width:56px;height:56px;border-radius:999px;border:0;background:var(--brand);color:var(--on-brand);box-shadow:var(--shadow-fab);display:grid;place-items:center;cursor:pointer"><svg viewBox="0 0 24 24" style="width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <nav style="{{ nav }}">
+            <div style="{{ navOn }}"><svg viewBox="0 0 24 24" style="{{ navIcoOn }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span style="{{ navLabelOn }}">Inicio</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="5" cy="14" r="2"/><circle cx="19" cy="14" r="2"/><path d="M12 12c-2.5 0-4.5 2.5-4.5 5S9 21 12 21s4.5-1.5 4.5-4-2-5-4.5-5"/></svg><span style="{{ navLabel }}">Mascotas</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span style="{{ navLabel }}">Calendario</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 2.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 9 6.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7-1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 21.4 11a2 2 0 1 1 0 4"/></svg><span style="{{ navLabel }}">Ajustes</span></div>
+          </nav>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">05 · Inicio / Dashboard</figcaption>
+    </figure>
+
+    <!-- ============ 04 DETALLE DE MASCOTA ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 24px;min-height:604px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button aria-label="Más" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+          </div>
+          <div style="text-align:center;margin-top:6px">
+            <div style="width:96px;height:96px;border-radius:999px;background:var(--brand-soft);margin:0 auto;display:grid;place-items:center;font-size:44px;border:1px dashed color-mix(in srgb,var(--brand) 30%,transparent)">🐕</div>
+            <div style="font-family:Nunito;font-weight:700;font-size:28px;color:var(--text);margin-top:12px">Firulais</div>
+            <div style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin-top:2px">Perro · Labrador · 4 años · 28 kg</div>
+          </div>
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin:18px 0 4px">
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--brand);border-bottom:2px solid var(--brand);margin-bottom:-1px">Resumen</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)">Cuidados</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)">Historial</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)" data-comment-anchor="0284ea3cb3-div">Docs</div>
+          </div>
+
+          <div style="{{ card }};padding:16px;margin-top:16px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Cumplimiento</span><span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-2)">8 de 10 al día</span></div>
+            <div style="height:8px;border-radius:999px;background:var(--alt);overflow:hidden;margin-top:10px"><div style="width:80%;height:100%;background:var(--ok)"></div></div>
+          </div>
+
+          <div style="{{ sectionH }}">Condiciones activas</div>
+          <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:12px">
+            <span style="font-family:Nunito;font-weight:700;font-size:12px;padding:5px 11px;border-radius:999px;background:var(--dx-active);color:#fff;flex:none">Activo</span>
+            <div><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Dermatitis leve</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">desde mayo 2026</div></div>
+          </div>
+
+          <div style="{{ sectionH }}">Próximas tareas</div>
+          <div style="{{ card }};overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div><span style="flex:1;font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Desparasitación</span><span style="font-family:'Nunito Sans';font-size:13px;color:var(--over)">Atrasada</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M12 3c-3 0-5 2-5 5 0 3 2 4 2 7h6c0-3 2-4 2-7 0-3-2-5-5-5M9 19h6M10 22h4"/></svg></div><span style="flex:1;font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Limpieza dental</span><span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">15 oct</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M7 13c0-3 2-5 5-5s5 2 5 5-2 6-5 6-5-3-5-6M12 8V4"/></svg></div><span style="flex:1;font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Baño</span><span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">sábado</span></div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px"><span style="font-family:Nunito;font-weight:700;font-size:18px;color:var(--text)">Peso</span><button style="font-family:Nunito;font-weight:700;font-size:13px;color:var(--brand);background:var(--brand-soft);border:0;border-radius:999px;padding:7px 14px;cursor:pointer">+ Registrar</button></div>
+          <div style="{{ card }};padding:16px">
+            <svg viewBox="0 0 260 90" style="width:100%;height:90px;overflow:visible">
+              <polyline points="4,64 56,58 108,46 160,50 212,36 256,30" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="256" cy="30" r="4" fill="var(--brand)"/>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-family:'Nunito Sans';font-size:11px;color:var(--text-3);margin-top:6px"><span>feb</span><span>abr</span><span>jun</span><span>jul · 28 kg</span></div>
+          </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">06 · Detalle de mascota</figcaption>
+    </figure>
+
+    <!-- ============ 05 REGISTRAR CUIDADO ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="min-height:604px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px">
+            <button style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand);background:none;border:0;cursor:pointer">Cancelar</button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Registrar cuidado</span>
+            <span style="width:52px"></span>
+          </div>
+          <div style="padding:6px 16px 24px;flex:1">
+            <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:12px;background:var(--alt)">
+              <div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div>
+              <div><div style="{{ taskName }}">Desparasitación</div><div style="{{ taskPet }}">Firulais</div></div>
+            </div>
+            <div style="{{ fieldLabel }};margin-top:20px">Fecha</div>
+            <div style="{{ field }}"><span>Hoy, 22 de julio de 2026</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+            <div style="{{ fieldLabel }}">Notas (opcional)</div>
+            <div style="background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:13px 14px;min-height:84px;font-family:'Nunito Sans';font-size:14px;color:var(--text-3)">Añade una nota…</div>
+            <div style="{{ fieldLabel }};margin-top:16px">Adjuntos</div>
+            <div style="border:1.5px dashed var(--border-strong);border-radius:12px;padding:22px;text-align:center;color:var(--text-2)"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--text-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><div style="font-family:'Nunito Sans';font-size:14px;margin-top:8px">Agregar foto o documento</div></div>
+            <div style="{{ note }};margin-top:16px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Al guardar, calcularemos la próxima fecha automáticamente.</span></div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)"><button style="{{ btnPrimary }}">Guardar</button></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">07 · Registrar cuidado</figcaption>
+    </figure>
+
+    <!-- ============ 06 HISTORIAL ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 24px;min-height:604px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Firulais</span>
+            <button aria-label="Más" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+          </div>
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin:8px 0 14px">
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)">Resumen</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)" data-comment-anchor="ff0e29b66a-div">Cuidados</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--brand);border-bottom:2px solid var(--brand);margin-bottom:-1px">Historial</div>
+            <div style="flex:1;text-align:center;padding:10px 0;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-3)">Docs</div>
+          </div>
+          <div style="{{ field }};margin-bottom:12px"><span style="color:var(--text-3)">Buscar en el historial</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-bottom:6px;margin-bottom:8px">
+            <span style="{{ fchipOn }}">Todo</span><span style="{{ fchip }}">Visitas</span><span style="{{ fchip }}">Vacunas</span><span style="{{ fchip }}">Diagnósticos</span>
+          </div>
+
+          <div style="position:relative;padding-left:34px">
+            <div style="position:absolute;left:15px;top:8px;bottom:8px;width:2px;background:var(--border)"></div>
+
+            <div style="position:relative;margin-bottom:14px"><div style="{{ tlDot }}"><svg viewBox="0 0 24 24" style="{{ ico16 }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+              <div style="{{ card }};padding:12px 14px"><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Vacuna antirrábica</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:2px">12 jul 2026 · Clínica Veterinaria del Norte</div></div>
+            </div>
+
+            <div style="position:relative;margin-bottom:14px"><div style="{{ tlDot }}"><svg viewBox="0 0 24 24" style="{{ ico16 }}"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1M14 4v5h5"/></svg></div>
+              <div style="{{ card }};padding:12px 14px"><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Visita médica — Control dermatológico</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin:2px 0 8px">28 jun 2026</div><span style="font-family:Nunito;font-weight:700;font-size:11px;padding:4px 10px;border-radius:999px;background:var(--dx-active);color:#fff">Diagnóstico: Dermatitis leve</span></div>
+            </div>
+
+            <div style="position:relative;margin-bottom:14px"><div style="{{ tlDot }}"><svg viewBox="0 0 24 24" style="{{ ico16 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div>
+              <div style="{{ card }};padding:12px 14px"><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Desparasitación</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:2px">15 abr 2026</div></div>
+            </div>
+
+            <div style="position:relative"><div style="{{ tlDot }}"><svg viewBox="0 0 24 24" style="{{ ico16 }}"><path d="M3 17l5-5 4 3 6-7M21 8V4h-4"/></svg></div>
+              <div style="{{ card }};padding:12px 14px"><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Peso registrado: 28 kg</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:2px">10 abr 2026</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">08 · Historial clínico</figcaption>
+    </figure>
+
+    <!-- ============ 07 PLANES ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 28px;min-height:604px">
+          <div style="padding:6px 0"><button aria-label="Cerrar" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+          <h2 style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text);margin:8px 0 4px;line-height:1.25">Desbloquea todo el cuidado de tus mascotas</h2>
+          <p style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin:0 0 18px">Un solo pago. Para siempre. Sin suscripción.</p>
+
+          <div style="{{ card }};padding:16px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:Nunito;font-weight:800;font-size:19px;color:var(--text)">Free</span><span style="font-family:Nunito;font-weight:800;font-size:26px;color:var(--text)">$0</span></div>
+            <ul style="list-style:none;margin:12px 0 14px;padding:0">
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>1 mascota</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Recordatorios y catálogo</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Historial básico · respaldo</li>
+              <li style="{{ liNo }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--text-3)"><path d="M5 12h14"/></svg>Mascotas ilimitadas</li>
+              <li style="{{ liNo }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--text-3)"><path d="M5 12h14"/></svg>Panel de cumplimiento</li>
+            </ul>
+            <button style="width:100%;padding:12px;border-radius:999px;border:1px solid var(--border);background:var(--alt);color:var(--text-2);font-family:Nunito;font-weight:700;font-size:15px;cursor:default">Plan actual</button>
+          </div>
+
+          <div style="{{ card }};padding:16px;border:2px solid var(--brand);position:relative">
+            <span style="display:inline-block;font-family:Nunito;font-weight:800;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#8a6a1f;background:color-mix(in srgb,var(--accent) 22%,transparent);padding:5px 11px;border-radius:999px;margin-bottom:12px">Pago único · Para siempre</span>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:Nunito;font-weight:800;font-size:19px;color:var(--text)">Pro</span><span style="font-family:Nunito;font-weight:800;font-size:28px;color:var(--text)">$34.900</span></div>
+            <ul style="list-style:none;margin:12px 0 14px;padding:0">
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Mascotas ilimitadas</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Adjuntos y tareas ilimitadas</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Panel recomendado vs. realizado</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Reporte PDF para el veterinario</li>
+              <li style="{{ liYes }}"><svg viewBox="0 0 24 24" style="{{ liChk }};stroke:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>Recordatorios avanzados</li>
+            </ul>
+            <button style="{{ btnPrimary }}">Desbloquear Pro</button>
+          </div>
+          <a href="#" style="display:block;text-align:center;font-family:Nunito;font-weight:700;font-size:13px;color:var(--text-3);margin-top:16px">Restaurar compra</a>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">09 · Planes / Paywall</figcaption>
+    </figure>
+
+    <!-- ============ 08 AJUSTES ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 90px">
+          <h1 style="font-family:Nunito;font-weight:700;font-size:28px;color:var(--text);margin:8px 0 16px">Ajustes</h1>
+
+          <div style="{{ card }};overflow:hidden;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px"><div style="width:44px;height:44px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:20px">🧑</div><div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Yesith</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Perfil local</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg></div>
+          </div>
+
+          <div style="{{ groupH }}">Suscripción</div>
+          <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Plan Free</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">1 mascota · funciones básicas</div></div>
+            <button style="font-family:Nunito;font-weight:800;font-size:13px;color:#8a6a1f;background:color-mix(in srgb,var(--accent) 22%,transparent);border:0;border-radius:999px;padding:9px 15px;cursor:pointer">Desbloquear Pro</button>
+          </div>
+
+          <div style="{{ groupH }}">Notificaciones</div>
+          <div style="{{ card }};overflow:hidden;margin-bottom:16px">
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }}">Recordatorios</span><div style="{{ swOn }}"><div style="{{ swKnobOn }}"></div></div></div>
+            <div style="{{ setRow }}"><span style="{{ setLbl }}">Anticipación por defecto</span><span style="font-family:Nunito;font-weight:700;font-size:11px;color:#8a6a1f;background:color-mix(in srgb,var(--accent) 22%,transparent);padding:4px 10px;border-radius:999px">Pro</span></div>
+          </div>
+
+          <div style="{{ groupH }}">Seguridad</div>
+          <div style="{{ card }};margin-bottom:16px"><div style="{{ setRow }}"><span style="{{ setLbl }}">Desbloqueo con huella / Face ID</span><div style="{{ swOff }}"><div style="{{ swKnobOff }}"></div></div></div></div>
+
+          <div style="{{ groupH }}">Datos</div>
+          <div style="{{ card }};overflow:hidden;margin-bottom:16px">
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }};color:var(--brand);font-weight:700">Crear respaldo</span><svg viewBox="0 0 24 24" style="{{ ico18m }};stroke:var(--brand)"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }};color:var(--brand);font-weight:700">Restaurar respaldo</span><svg viewBox="0 0 24 24" style="{{ ico18m }};stroke:var(--brand)"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div style="{{ setRow }}"><span style="{{ setLbl }};color:var(--text-3)">Último respaldo: hace 34 días</span></div>
+          </div>
+
+          <div style="{{ note }};margin-bottom:20px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg><span>Toda la información se guarda solo en este dispositivo. No la enviamos a ningún servidor.</span></div>
+
+          <p style="text-align:center;font-family:'Nunito Sans';font-size:12px;color:var(--text-3)">Hecho con cariño, en memoria de Pitufo 🐾</p>
+        </div>
+          <nav style="{{ nav }}">
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span style="{{ navLabel }}">Inicio</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="5" cy="14" r="2"/><circle cx="19" cy="14" r="2"/><path d="M12 12c-2.5 0-4.5 2.5-4.5 5S9 21 12 21s4.5-1.5 4.5-4-2-5-4.5-5"/></svg><span style="{{ navLabel }}">Mascotas</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span style="{{ navLabel }}">Calendario</span></div>
+            <div style="{{ navOn }}"><svg viewBox="0 0 24 24" style="{{ navIcoOn }}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 2.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 9 6.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7-1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 21.4 11a2 2 0 1 1 0 4"/></svg><span style="{{ navLabelOn }}">Ajustes</span></div>
+          </nav>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">10 · Ajustes</figcaption>
+    </figure>
+
+    <!-- ============ 09 MASCOTAS ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 90px">
+          <h1 style="font-family:Nunito;font-weight:700;font-size:28px;color:var(--text);margin:8px 0 18px">Mis mascotas</h1>
+
+          <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div style="width:60px;height:60px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:28px;flex:none;border:1px dashed color-mix(in srgb,var(--brand) 30%,transparent)">🐕</div>
+            <div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:18px;color:var(--text)">Firulais</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:1px">Perro · Labrador · 4 años</div></div>
+            <span style="display:inline-flex;align-items:center;gap:5px;font-family:'Nunito Sans';font-size:13px;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:5px 10px;border-radius:999px"><span style="width:8px;height:8px;border-radius:999px;background:var(--ok)"></span>Al día</span>
+          </div>
+
+          <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div style="width:60px;height:60px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:28px;flex:none;border:1px dashed color-mix(in srgb,var(--brand) 30%,transparent)">🐈</div>
+            <div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:18px;color:var(--text)">Luna</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:1px">Gato · Criollo · 2 años</div></div>
+            <span style="display:inline-flex;align-items:center;gap:5px;font-family:'Nunito Sans';font-size:13px;font-weight:700;color:var(--due);background:var(--due-soft);padding:5px 10px;border-radius:999px"><span style="width:8px;height:8px;border-radius:999px;background:var(--due)"></span>1 próxima</span>
+          </div>
+
+          <button style="width:100%;border:1.5px dashed var(--border-strong);background:transparent;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--brand);font-family:Nunito;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>Agregar mascota</button>
+
+          <a href="#" style="display:block;text-align:center;font-family:Nunito;font-weight:700;font-size:14px;color:var(--text-2);margin-top:22px">Ver mascotas archivadas</a>
+        </div>
+          <nav style="{{ nav }}">
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span style="{{ navLabel }}">Inicio</span></div>
+            <div style="{{ navOn }}"><svg viewBox="0 0 24 24" style="{{ navIcoOn }}"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="5" cy="14" r="2"/><circle cx="19" cy="14" r="2"/><path d="M12 12c-2.5 0-4.5 2.5-4.5 5S9 21 12 21s4.5-1.5 4.5-4-2-5-4.5-5"/></svg><span style="{{ navLabelOn }}">Mascotas</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span style="{{ navLabel }}">Calendario</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 2.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 9 6.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7-1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 21.4 11a2 2 0 1 1 0 4"/></svg><span style="{{ navLabel }}">Ajustes</span></div>
+          </nav>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">11 · Mascotas</figcaption>
+    </figure>
+
+    <!-- ============ 10 CALENDARIO ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 90px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 16px">
+            <h1 style="font-family:Nunito;font-weight:700;font-size:28px;color:var(--text)">Calendario</h1>
+            <div style="display:inline-flex;background:var(--alt);border:1px solid var(--border);border-radius:999px;padding:3px">
+              <span style="padding:7px 14px;border-radius:999px;background:var(--card);color:var(--brand);font-family:Nunito;font-weight:700;font-size:13px;box-shadow:var(--shadow-rest)">Mes</span>
+              <span style="padding:7px 14px;font-family:Nunito;font-weight:700;font-size:13px;color:var(--text-2)">Lista</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+            <span style="{{ chipOn }}"><span style="{{ chipAv }}">🐾</span>Todas</span>
+            <span style="{{ chip }}"><span style="{{ chipAv }}">🐕</span>Firulais</span>
+            <span style="{{ chip }}"><span style="{{ chipAv }}">🐈</span>Luna</span>
+          </div>
+
+          <div style="{{ card }};padding:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M15 6l-6 6 6 6"/></svg>
+              <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Julio 2026</span>
+              <svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-family:Nunito;font-weight:700;font-size:11px;color:var(--text-3);margin-bottom:6px"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-family:'Nunito Sans';font-size:13px;color:var(--text)">
+              <span></span><span></span>
+              <span style="{{ calCell }}">1</span><span style="{{ calCell }}">2</span><span style="{{ calCell }}">3</span><span style="{{ calCell }}">4</span><span style="{{ calCell }}">5</span>
+              <span style="{{ calCell }}">6</span><span style="{{ calCell }}">7</span><span style="{{ calCell }}">8</span><span style="{{ calCell }}">9</span><span style="{{ calCell }}">10</span><span style="{{ calCell }}">11</span><span style="{{ calCell }}">12<span style="{{ calDot }};background:var(--over)"></span></span>
+              <span style="{{ calCell }}">13</span><span style="{{ calCell }}">14</span><span style="{{ calCell }}">15<span style="{{ calDot }};background:var(--over)"></span></span><span style="{{ calCell }}">16</span><span style="{{ calCell }}">17</span><span style="{{ calCell }}">18</span><span style="{{ calCell }}">19</span>
+              <span style="{{ calCell }}">20<span style="{{ calDot }};background:var(--due)"></span></span><span style="{{ calCell }}">21</span><span style="{{ calCell }}"><span style="width:30px;height:30px;border-radius:999px;background:var(--brand);color:var(--on-brand);display:flex;align-items:center;justify-content:center;font-family:Nunito;font-weight:700">22</span></span><span style="{{ calCell }}">23</span><span style="{{ calCell }}">24</span><span style="{{ calCell }}">25<span style="{{ calDot }};background:var(--ok)"></span></span><span style="{{ calCell }}">26</span>
+              <span style="{{ calCell }}">27</span><span style="{{ calCell }}">28<span style="{{ calDot }};background:var(--due)"></span></span><span style="{{ calCell }}">29</span><span style="{{ calCell }}">30<span style="{{ calDot }};background:var(--over)"></span></span><span style="{{ calCell }}">31</span>
+            </div>
+          </div>
+
+          <div style="{{ sectionH }}">Martes 22 de julio</div>
+          <article style="{{ task }}"><div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--over)"></div>
+            <div style="display:flex;gap:12px"><div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div><div><div style="{{ taskName }}">Desparasitación</div><div style="{{ taskPet }}">Firulais</div></div></div>
+            <span style="{{ tag }};background:var(--over-soft);color:var(--over)"><svg viewBox="0 0 24 24" style="{{ tagIco }};stroke:var(--over)"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Venció hace 5 días</span>
+          </article>
+          <div style="{{ card }};display:flex;align-items:center;gap:12px;padding:14px 16px"><div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><div style="flex:1"><div style="{{ taskName }};font-size:15px">Vacuna antirrábica</div><div style="{{ taskPet }}">Luna</div></div><span style="display:inline-flex;align-items:center;gap:5px;font-family:'Nunito Sans';font-size:13px;font-weight:700;color:var(--due);background:var(--due-soft);padding:5px 10px;border-radius:999px">En 3 días</span></div>
+        </div>
+          <nav style="{{ nav }}">
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span style="{{ navLabel }}">Inicio</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="5" cy="14" r="2"/><circle cx="19" cy="14" r="2"/><path d="M12 12c-2.5 0-4.5 2.5-4.5 5S9 21 12 21s4.5-1.5 4.5-4-2-5-4.5-5"/></svg><span style="{{ navLabel }}">Mascotas</span></div>
+            <div style="{{ navOn }}"><svg viewBox="0 0 24 24" style="{{ navIcoOn }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span style="{{ navLabelOn }}">Calendario</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 2.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 9 6.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7-1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 21.4 11a2 2 0 1 1 0 4"/></svg><span style="{{ navLabel }}">Ajustes</span></div>
+          </nav>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">12 · Calendario</figcaption>
+    </figure>
+
+    <!-- ============ 13 CALENDARIO LISTA ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+        <div style="padding:6px 16px 90px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 16px">
+            <h1 style="font-family:Nunito;font-weight:700;font-size:28px;color:var(--text)">Calendario</h1>
+            <div style="display:inline-flex;background:var(--alt);border:1px solid var(--border);border-radius:999px;padding:3px">
+              <span style="padding:7px 14px;font-family:Nunito;font-weight:700;font-size:13px;color:var(--text-2)">Mes</span>
+              <span style="padding:7px 14px;border-radius:999px;background:var(--card);color:var(--brand);font-family:Nunito;font-weight:700;font-size:13px;box-shadow:var(--shadow-rest)">Lista</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <span style="{{ chipOn }}"><span style="{{ chipAv }}">🐾</span>Todas</span>
+            <span style="{{ chip }}"><span style="{{ chipAv }}">🐕</span>Firulais</span>
+            <span style="{{ chip }}"><span style="{{ chipAv }}">🐈</span>Luna</span>
+          </div>
+
+          <div style="{{ sectionH }};color:var(--over)">Vencidas</div>
+          <article style="{{ task }}"><div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--over)"></div>
+            <div style="display:flex;gap:12px"><div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg></div><div><div style="{{ taskName }}">Desparasitación</div><div style="{{ taskPet }}">Firulais · 17 jul</div></div></div>
+            <span style="{{ tag }};background:var(--over-soft);color:var(--over)"><svg viewBox="0 0 24 24" style="{{ tagIco }};stroke:var(--over)"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Hace 5 días</span>
+          </article>
+
+          <div style="{{ sectionH }}">Esta semana</div>
+          <div style="{{ card }};overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><div style="flex:1"><div style="{{ taskName }};font-size:15px">Vacuna antirrábica</div><div style="{{ taskPet }}">Luna · vie 25 jul</div></div><span style="display:inline-flex;align-items:center;gap:5px;font-family:'Nunito Sans';font-size:13px;font-weight:700;color:var(--due);background:var(--due-soft);padding:5px 10px;border-radius:999px">En 3 días</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 16px"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M6 14c0-3 3-6 6-6s6 3 6 6M4 18h16M9 8V5M15 8V5"/></svg></div><div style="flex:1"><div style="{{ taskName }};font-size:15px">Baño</div><div style="{{ taskPet }}">Firulais · dom 27 jul</div></div><span style="display:inline-flex;align-items:center;gap:5px;font-family:'Nunito Sans';font-size:13px;font-weight:700;color:var(--due);background:var(--due-soft);padding:5px 10px;border-radius:999px">En 5 días</span></div>
+          </div>
+
+          <div style="{{ sectionH }}">Más adelante</div>
+          <div style="{{ card }};overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M12 2l2 4 4 .6-3 3 .7 4.4L12 16l-3.6 2 .7-4.4-3-3 4-.6z"/></svg></div><div style="flex:1"><div style="{{ taskName }};font-size:15px">Vacuna polivalente</div><div style="{{ taskPet }}">Firulais · 6 ago</div></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">6 ago</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 16px"><div style="{{ taskIcoSm }}"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M6 12h12M12 4c-2 3-2 13 0 16M8 6c-1 4-1 8 0 12M16 6c1 4 1 8 0 12"/></svg></div><div style="flex:1"><div style="{{ taskName }};font-size:15px">Limpieza dental</div><div style="{{ taskPet }}">Luna · 12 ago</div></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">12 ago</span></div>
+          </div>
+        </div>
+          <nav style="{{ nav }}">
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span style="{{ navLabel }}">Inicio</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><circle cx="5" cy="14" r="2"/><circle cx="19" cy="14" r="2"/><path d="M12 12c-2.5 0-4.5 2.5-4.5 5S9 21 12 21s4.5-1.5 4.5-4-2-5-4.5-5"/></svg><span style="{{ navLabel }}">Mascotas</span></div>
+            <div style="{{ navOn }}"><svg viewBox="0 0 24 24" style="{{ navIcoOn }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span style="{{ navLabelOn }}">Calendario</span></div>
+            <div style="{{ navI }}"><svg viewBox="0 0 24 24" style="{{ navIco }}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 2.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 9 6.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7-1.1 2 2 0 1 1 2.8 2.8A1.6 1.6 0 0 0 21.4 11a2 2 0 1 1 0 4"/></svg><span style="{{ navLabel }}">Ajustes</span></div>
+          </nav>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">13 · Calendario (lista)</figcaption>
+    </figure>
+
+    <!-- ============ 11 COMPARTIR CON VETERINARIO ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="min-height:604px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 10px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Compartir con el veterinario</span>
+          </div>
+          <div style="padding:6px 16px 24px;flex:1">
+            <p style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin:0 0 20px;line-height:1.45">Genera un PDF con el historial de Firulais para llevar o enviar a tu veterinario.</p>
+
+            <div style="{{ fieldLabel }}">¿Qué incluir?</div>
+            <div style="border:2px solid var(--brand);background:var(--brand-soft);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px">
+              <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--brand);display:grid;place-items:center;flex:none"><span style="width:10px;height:10px;border-radius:999px;background:var(--brand)"></span></span>
+              <div><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand)">Historial completo</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--brand);opacity:.8">Visitas, vacunas, diagnósticos y peso</div></div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px">
+              <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--border-strong);flex:none"></span>
+              <div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Solo vacunas</div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px">
+              <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--border-strong);flex:none"></span>
+              <div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Rango de fechas</div>
+            </div>
+
+            <div style="{{ fieldLabel }};margin-top:22px">Vista previa</div>
+            <div style="{{ card }};padding:16px;display:flex;gap:14px;align-items:flex-start">
+              <div style="width:72px;height:94px;border-radius:8px;background:var(--alt);border:1px solid var(--border);flex:none;padding:8px;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:16px;border-radius:999px;background:var(--brand-soft)"></div><div style="height:5px;flex:1;border-radius:2px;background:var(--border-strong)"></div></div>
+                <div style="height:3px;width:80%;border-radius:2px;background:var(--border)"></div>
+                <div style="height:3px;width:95%;border-radius:2px;background:var(--border)"></div>
+                <div style="height:3px;width:70%;border-radius:2px;background:var(--border)"></div>
+                <div style="height:3px;width:88%;border-radius:2px;background:var(--border)"></div>
+                <div style="height:3px;width:60%;border-radius:2px;background:var(--border)"></div>
+              </div>
+              <div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Historial de Firulais</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:3px">Documento clínico · 3 páginas</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3);margin-top:2px">Generado en tu dispositivo</div></div>
+            </div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)">
+            <button style="{{ btnPrimary }};display:flex;align-items:center;justify-content:center;gap:9px"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v13M8 7l4-4 4 4"/></svg>Generar y compartir PDF</button>
+            <p style="text-align:center;font-family:'Nunito Sans';font-size:12px;color:var(--text-3);margin:10px 0 0">Función <strong style="color:var(--text-2)">Pro</strong> · el reporte no sale de tu dispositivo hasta que lo compartas.</p>
+          </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">14 · Compartir con veterinario</figcaption>
+    </figure>
+
+    <!-- ============ 12 RECORDATORIOS AVANZADOS (PRO) ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 28px;min-height:604px">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0 10px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Recordatorios</span>
+          </div>
+
+          <div style="{{ card }};margin-bottom:20px"><div style="{{ setRow }}"><span style="{{ setLbl }}">Recordatorios activados</span><div style="{{ swOn }}"><div style="{{ swKnobOn }}"></div></div></div></div>
+
+          <div style="display:flex;align-items:center;gap:8px;margin:0 0 8px 4px">
+            <span style="font-family:Nunito,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">Anticipación</span>
+            <span style="font-family:Nunito;font-weight:800;font-size:10px;letter-spacing:.4px;color:#8a6a1f;background:color-mix(in srgb,var(--accent) 22%,transparent);padding:3px 8px;border-radius:999px">PRO</span>
+          </div>
+          <p style="font-family:'Nunito Sans';font-size:13px;color:var(--text-2);margin:0 0 12px 4px;line-height:1.4">Elige con cuánto tiempo quieres que te avisemos antes de cada cuidado.</p>
+
+          <div style="{{ card }};overflow:hidden;margin-bottom:20px">
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }}">El mismo día</span><span style="{{ ckOn }}"><svg viewBox="0 0 24 24" style="{{ ckIco }}"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }}">1 día antes</span><span style="{{ ckOn }}"><svg viewBox="0 0 24 24" style="{{ ckIco }}"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+            <div style="{{ setRow }};border-bottom:1px solid var(--border)"><span style="{{ setLbl }}">3 días antes</span><span style="{{ ckOn }}"><svg viewBox="0 0 24 24" style="{{ ckIco }}"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+            <div style="{{ setRow }}"><span style="{{ setLbl }};color:var(--text-2)">7 días antes</span><span style="{{ ckOff }}"></span></div>
+          </div>
+
+          <div style="{{ fieldLabel }}">Hora preferida</div>
+          <div style="{{ field }}"><span>9:00 a.m.</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+
+          <div style="{{ note }}"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Reprogramamos tus avisos automáticamente al marcar un cuidado como hecho.</span></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">15 · Recordatorios avanzados (Pro)</figcaption>
+    </figure>
+
+    <!-- ============ 13 PANEL RECOMENDADO VS REALIZADO (PRO) ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="padding:6px 16px 28px;min-height:604px">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0 10px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Cumplimiento</span>
+            <span style="font-family:Nunito;font-weight:800;font-size:10px;letter-spacing:.4px;color:#8a6a1f;background:color-mix(in srgb,var(--accent) 22%,transparent);padding:3px 8px;border-radius:999px">PRO</span>
+          </div>
+
+          <div style="{{ card }};padding:20px;display:flex;align-items:center;gap:18px;margin-bottom:8px">
+            <div style="position:relative;width:88px;height:88px;flex:none">
+              <svg viewBox="0 0 36 36" style="width:88px;height:88px;transform:rotate(-90deg)">
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--alt)" stroke-width="4"/>
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ok)" stroke-width="4" stroke-linecap="round" stroke-dasharray="77.9 97.4"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:Nunito;font-weight:800;font-size:24px;color:var(--text);line-height:1">80%</span><span style="font-family:'Nunito Sans';font-size:11px;color:var(--text-3)">al día</span></div>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:Nunito;font-weight:700;font-size:18px;color:var(--text)">Firulais está al día</div>
+              <div style="font-family:'Nunito Sans';font-size:14px;color:var(--text-2);margin-top:2px">Realizaste <strong style="color:var(--text)">8</strong> de los <strong style="color:var(--text)">10</strong> cuidados recomendados.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;margin:12px 0 18px 2px">
+            <span style="display:inline-flex;align-items:center;gap:6px;font-family:'Nunito Sans';font-size:12px;color:var(--text-2)"><span style="width:11px;height:11px;border-radius:3px;background:var(--ok)"></span>Realizado</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;font-family:'Nunito Sans';font-size:12px;color:var(--text-2)"><span style="width:11px;height:11px;border-radius:3px;background:var(--alt);border:1px solid var(--border-strong)"></span>Recomendado</span>
+          </div>
+
+          <div style="{{ sectionH }};margin-top:0">Por tipo de cuidado</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M19 4h-2V2m-10 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2M7 2v2M3 9h18"/></svg><span style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Vacunas</span></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--ok);font-weight:700">3 / 3</span></div>
+              <div style="height:8px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:100%;height:100%;background:var(--ok)"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M12 2v6M9 5h6M6 10h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/></svg><span style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Desparasitación</span></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--over);font-weight:700">1 / 2</span></div>
+              <div style="height:8px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:50%;height:100%;background:var(--over)"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M7 13c0-3 2-5 5-5s5 2 5 5-2 6-5 6-5-3-5-6M12 8V4"/></svg><span style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Baño</span></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--ok);font-weight:700">3 / 3</span></div>
+              <div style="height:8px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:100%;height:100%;background:var(--ok)"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" style="{{ ico18 }}"><path d="M12 3c-3 0-5 2-5 5 0 3 2 4 2 7h6c0-3 2-4 2-7 0-3-2-5-5-5M9 19h6M10 22h4"/></svg><span style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:var(--text)">Limpieza dental</span></div><span style="font-family:'Nunito Sans';font-size:13px;color:var(--due);font-weight:700">1 / 2</span></div>
+              <div style="height:8px;border-radius:999px;background:var(--alt);overflow:hidden"><div style="width:50%;height:100%;background:var(--due)"></div></div>
+            </div>
+
+          </div>
+
+          <div style="{{ note }};margin-top:20px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Comparamos lo recomendado para un Labrador de 4 años con lo que has registrado.</span></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">16 · Panel recomendado vs. realizado (Pro)</figcaption>
+    </figure>
+
+    <!-- ============ 14 ARCHIVAR MASCOTA (FALLECIMIENTO) ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="min-height:604px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 10px">
+            <button aria-label="Atrás" style="{{ iconBtn }}"><svg viewBox="0 0 24 24" style="{{ ico22 }}"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)" data-comment-anchor="0e1a0b2d7e-span">Archivar a Firulais</span>
+          </div>
+          <div style="padding:8px 16px 24px;flex:1">
+            <div style="text-align:center;margin:6px 0 20px">
+              <div style="width:76px;height:76px;border-radius:999px;background:var(--alt);margin:0 auto;display:grid;place-items:center;font-size:34px;filter:grayscale(1);opacity:.85">🐕</div>
+              <p style="font-family:'Nunito Sans';font-size:15px;color:var(--text-2);margin:16px auto 0;max-width:250px;line-height:1.5">Al archivar, se detienen los recordatorios y Firulais sale del panel y del conteo de tu plan.</p>
+              <p style="font-family:'Nunito Sans';font-size:15px;color:var(--text);font-weight:700;margin:10px auto 0;max-width:250px;line-height:1.5">Su historial y documentos se conservan íntegros.</p>
+            </div>
+
+            <div style="{{ fieldLabel }}">Motivo (opcional)</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="border:2px solid var(--brand);background:var(--brand-soft);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--brand);display:grid;place-items:center;flex:none"><span style="width:10px;height:10px;border-radius:999px;background:var(--brand)"></span></span>
+                <span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand)">Falleció</span>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--border-strong);flex:none"></span>
+                <span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Cambió de hogar</span>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--border-strong);flex:none"></span>
+                <span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Otro</span>
+              </div>
+            </div>
+
+            <div style="background:var(--brand-soft);border-radius:14px;padding:16px;margin-top:18px;text-align:center">
+              <p style="font-family:'Nunito Sans';font-size:14px;color:var(--brand);line-height:1.5;margin:0">Lamentamos tu pérdida. Guardaremos con cuidado los recuerdos de Firulais por si algún día quieres volver a verlos. 🐾</p>
+            </div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)">
+            <button style="{{ btnPrimary }}">Archivar a Firulais</button>
+            <button style="display:block;width:100%;margin-top:10px;padding:12px;border:0;background:transparent;color:var(--text-2);font-family:Nunito;font-weight:700;font-size:15px;cursor:pointer">Cancelar</button>
+            <p style="text-align:center;font-family:'Nunito Sans';font-size:12px;color:var(--text-3);margin:8px 0 0">Podrás desarchivarlo cuando quieras.</p>
+          </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">17 · Archivar mascota (fallecimiento)</figcaption>
+    </figure>
+
+    <!-- ============ 15 CONFIGURAR CUIDADO (FRECUENCIA) ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="min-height:604px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px">
+            <button style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand);background:none;border:0;cursor:pointer">Cancelar</button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Editar cuidado</span>
+            <span style="width:52px"></span>
+          </div>
+          <div style="padding:6px 16px 24px;flex:1">
+            <div style="{{ card }};padding:14px 16px;display:flex;align-items:center;gap:12px;background:var(--alt);margin-bottom:20px">
+              <div style="{{ taskIco }}"><svg viewBox="0 0 24 24" style="{{ ico20 }}"><path d="M12 3c-3 0-5 2-5 5 0 3 2 4 2 7h6c0-3 2-4 2-7 0-3-2-5-5-5M9 19h6M10 22h4"/></svg></div>
+              <div><div style="{{ taskName }}">Limpieza dental</div><div style="{{ taskPet }}">Firulais</div></div>
+            </div>
+
+            <div style="{{ fieldLabel }}">Frecuencia</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+              <div style="border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--border-strong);flex:none"></span>
+                <div style="flex:1"><div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Recomendada</div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Cada 12 meses · según especie y edad</div></div>
+              </div>
+              <div style="border:2px solid var(--brand);background:var(--brand-soft);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:999px;border:2px solid var(--brand);display:grid;place-items:center;flex:none"><span style="width:10px;height:10px;border-radius:999px;background:var(--brand)"></span></span>
+                <div style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand)">Personalizada</div>
+              </div>
+            </div>
+
+            <div style="{{ fieldLabel }}">Repetir cada</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="display:flex;align-items:center;background:var(--alt);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+                <button style="width:44px;height:48px;border:0;background:transparent;color:var(--brand);font-size:22px;cursor:pointer">−</button>
+                <span style="min-width:38px;text-align:center;font-family:Nunito;font-weight:800;font-size:20px;color:var(--text)">2</span>
+                <button style="width:44px;height:48px;border:0;background:transparent;color:var(--brand);font-size:22px;cursor:pointer">+</button>
+              </div>
+              <div style="display:flex;gap:6px;flex:1">
+                <span style="flex:1;text-align:center;padding:12px 4px;border-radius:10px;border:1px solid var(--border);font-family:Nunito;font-weight:700;font-size:13px;color:var(--text-2)">Semanas</span>
+                <span style="flex:1;text-align:center;padding:12px 4px;border-radius:10px;border:1px solid var(--border);font-family:Nunito;font-weight:700;font-size:13px;color:var(--text-2)">Meses</span>
+                <span style="flex:1;text-align:center;padding:12px 4px;border-radius:10px;border:1px solid transparent;background:var(--brand);color:var(--on-brand);font-family:Nunito;font-weight:700;font-size:13px">Años</span>
+              </div>
+            </div>
+
+            <div style="{{ fieldLabel }}">Próxima fecha</div>
+            <div style="{{ field }}"><span>15 de octubre de 2026</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+
+            <div style="{{ card }};margin-bottom:16px"><div style="{{ setRow }}"><span style="{{ setLbl }}">Recordatorio activado</span><div style="{{ swOn }}"><div style="{{ swKnobOn }}"></div></div></div></div>
+
+            <div style="{{ note }};border-left-color:var(--due)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex:none;stroke:var(--due);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><span>Lo recomendado para un Labrador es cada 12 meses. Con cada 2 años recibirás menos avisos de los sugeridos.</span></div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)"><button style="{{ btnPrimary }}">Guardar cambios</button></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">18 · Configurar cuidado (frecuencia)</figcaption>
+    </figure>
+
+    <!-- ============ 16 MENÚ DEL FAB (BOTTOM SHEET) ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="position:relative;min-height:604px">
+          <!-- dashboard atenuado detrás -->
+          <div style="padding:6px 16px;filter:blur(1px);opacity:.5">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">
+              <div><div style="font-family:'Nunito Sans';font-size:13px;color:var(--text-3)">Martes 22 de julio</div><div style="font-family:Nunito;font-weight:700;font-size:22px;color:var(--text)">Hola, Yesith</div></div>
+              <div style="width:40px;height:40px;border-radius:999px;background:var(--brand-soft)"></div>
+            </div>
+            <div style="background:var(--brand-soft);border-radius:16px;height:96px"></div>
+            <div style="{{ sectionH }}">Hoy</div>
+            <div style="{{ card }};height:120px;margin-bottom:12px"></div>
+            <div style="{{ card }};height:120px"></div>
+          </div>
+          <!-- scrim -->
+          <div style="position:absolute;inset:0;background:rgba(20,15,10,.32)"></div>
+          <!-- bottom sheet -->
+          <div style="position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:24px 24px 0 0;box-shadow:var(--shadow-up);padding:10px 16px 22px">
+            <div style="width:40px;height:5px;border-radius:999px;background:var(--border-strong);margin:0 auto 14px"></div>
+            <div style="font-family:Nunito;font-weight:700;font-size:18px;color:var(--text);margin:0 4px 12px">¿Qué quieres registrar?</div>
+            <div style="display:flex;flex-direction:column">
+              <button style="{{ sheetRow }};border-bottom:1px solid var(--border)"><span style="{{ sheetIco }};background:var(--brand-soft)"><svg viewBox="0 0 24 24" style="{{ sheetIcoSvg }}"><path d="M20 6 9 17l-5-5"/></svg></span><div style="flex:1;text-align:left"><div style="{{ sheetLbl }}">Registrar cuidado</div><div style="{{ sheetSub }}">Marcar una tarea como hecha</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg></button>
+              <button style="{{ sheetRow }};border-bottom:1px solid var(--border)"><span style="{{ sheetIco }};background:var(--brand-soft)"><svg viewBox="0 0 24 24" style="{{ sheetIcoSvg }}"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div style="flex:1;text-align:left"><div style="{{ sheetLbl }}">Agregar visita médica</div><div style="{{ sheetSub }}">Consulta, diagnóstico o vacuna</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg></button>
+              <button style="{{ sheetRow }};border-bottom:1px solid var(--border)"><span style="{{ sheetIco }};background:var(--brand-soft)"><svg viewBox="0 0 24 24" style="{{ sheetIcoSvg }}"><path d="M3 17l5-5 4 3 6-7M21 8V4h-4"/></svg></span><div style="flex:1;text-align:left"><div style="{{ sheetLbl }}">Registrar peso</div><div style="{{ sheetSub }}">Actualiza la curva de peso</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg></button>
+              <button style="{{ sheetRow }}"><span style="{{ sheetIco }};background:var(--brand-soft)"><svg viewBox="0 0 24 24" style="{{ sheetIcoSvg }}"><path d="M12 5v14M5 12h14"/></svg></span><div style="flex:1;text-align:left"><div style="{{ sheetLbl }}">Nueva mascota</div><div style="{{ sheetSub }}">Agregar otra al hogar</div></div><svg viewBox="0 0 24 24" style="{{ ico18m }}"><path d="M9 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">19 · Menú del botón + (bottom sheet)</figcaption>
+    </figure>
+
+    <!-- ============ 17 AGREGAR VISITA MÉDICA ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px">
+            <button style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand);background:none;border:0;cursor:pointer">Cancelar</button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Visita médica</span>
+            <span style="width:52px"></span>
+          </div>
+          <div style="padding:6px 16px 24px">
+            <div style="{{ card }};padding:12px 16px;display:flex;align-items:center;gap:12px;background:var(--alt);margin-bottom:20px">
+              <div style="width:34px;height:34px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:17px;flex:none">🐕</div>
+              <span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Firulais</span>
+            </div>
+
+            <div style="{{ fieldLabel }}">Fecha</div>
+            <div style="{{ field }}"><span>Hoy, 22 de julio de 2026</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+
+            <div style="{{ fieldLabel }}">Veterinario / clínica</div>
+            <div style="{{ field }}"><span style="color:var(--text-3)">Clínica Veterinaria del Norte</span></div>
+
+            <div style="{{ fieldLabel }}">Motivo de la visita</div>
+            <div style="{{ field }}"><span style="color:var(--text-3)">Control dermatológico</span></div>
+
+            <div style="{{ fieldLabel }}">Diagnóstico</div>
+            <div style="{{ field }};margin-bottom:8px"><span>Dermatitis leve</span></div>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <span style="font-family:Nunito;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;background:var(--dx-active);color:#fff">Activo</span>
+              <span style="font-family:Nunito;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--border-strong);color:var(--text-2)">En tratamiento</span>
+              <span style="font-family:Nunito;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--border-strong);color:var(--text-2)">Crónico</span>
+            </div>
+
+            <div style="{{ fieldLabel }}">Tratamiento</div>
+            <div style="background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:13px 14px;min-height:72px;font-family:'Nunito Sans';font-size:14px;color:var(--text)">Champú medicado 2 veces por semana durante 3 semanas.</div>
+
+            <div style="{{ fieldLabel }};margin-top:16px">Adjuntos</div>
+            <div style="border:1.5px dashed var(--border-strong);border-radius:12px;padding:20px;text-align:center;color:var(--text-2)"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--text-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21.4 11.05 12.25 20.2a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-8.49 8.49a1 1 0 0 1-1.41-1.41l7.78-7.78"/></svg><div style="font-family:'Nunito Sans';font-size:14px;margin-top:8px">Adjuntar receta o resultado</div></div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)"><button style="{{ btnPrimary }}">Guardar visita</button></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">20 · Agregar visita médica</figcaption>
+    </figure>
+
+    <!-- ============ 18 REGISTRAR PESO ============ -->
+    <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="{{ bezel }}"><div style="{{ screen }}">
+        <div style="{{ statusbar }}"><span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">9:41</span><div style="{{ island }}"></div><span style="display:flex;gap:6px;align-items:center;color:var(--text)"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="currentColor"/><rect x="2.8" y="2.8" width="14" height="5.4" rx="1.2" fill="currentColor"/><rect x="22.5" y="3.4" width="1.5" height="4.2" rx=".75" fill="currentColor"/></svg></span></div>
+        <div style="min-height:604px;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px">
+            <button style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--brand);background:none;border:0;cursor:pointer">Cancelar</button>
+            <span style="font-family:Nunito;font-weight:700;font-size:16px;color:var(--text)">Registrar peso</span>
+            <span style="width:52px"></span>
+          </div>
+          <div style="padding:6px 16px 24px;flex:1">
+            <div style="{{ card }};padding:12px 16px;display:flex;align-items:center;gap:12px;background:var(--alt);margin-bottom:20px">
+              <div style="width:34px;height:34px;border-radius:999px;background:var(--brand-soft);display:grid;place-items:center;font-size:17px;flex:none">🐕</div>
+              <span style="font-family:Nunito;font-weight:700;font-size:15px;color:var(--text)">Firulais</span>
+            </div>
+
+            <div style="{{ fieldLabel }};text-align:center">Peso actual</div>
+            <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:16px">
+              <span style="font-family:Nunito;font-weight:800;font-size:52px;color:var(--text);line-height:1">28.0</span>
+              <div style="display:inline-flex;background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:4px">
+                <span style="padding:8px 14px;border-radius:9px;background:var(--brand);color:var(--on-brand);font-family:Nunito;font-weight:700;font-size:15px">kg</span>
+                <span style="padding:8px 14px;font-family:Nunito;font-weight:700;font-size:15px;color:var(--text-2)">lb</span>
+              </div>
+            </div>
+
+            <div style="{{ fieldLabel }}">Fecha</div>
+            <div style="{{ field }}"><span>Hoy, 22 de julio de 2026</span><svg viewBox="0 0 24 24" style="{{ ico18m }}"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+
+            <div style="{{ fieldLabel }}">Nota (opcional)</div>
+            <div style="background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:13px 14px;min-height:60px;font-family:'Nunito Sans';font-size:14px;color:var(--text-3)">Añade una nota…</div>
+
+            <div style="{{ fieldLabel }};margin-top:18px">Evolución</div>
+            <div style="{{ card }};padding:16px">
+              <svg viewBox="0 0 260 90" style="width:100%;height:90px;overflow:visible">
+                <polyline points="4,64 56,58 108,46 160,50 212,36 256,30" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="256" cy="30" r="5" fill="var(--brand)"/>
+                <circle cx="256" cy="30" r="9" fill="none" stroke="var(--brand)" stroke-width="1.5" opacity=".4"/>
+              </svg>
+              <div style="display:flex;justify-content:space-between;font-family:'Nunito Sans';font-size:11px;color:var(--text-3);margin-top:6px"><span>feb</span><span>abr</span><span>jun</span><span>hoy · 28 kg</span></div>
+            </div>
+          </div>
+          <div style="padding:12px 16px 18px;border-top:1px solid var(--border);background:var(--bg)"><button style="{{ btnPrimary }}">Guardar</button></div>
+        </div>
+        <div style="{{ homebar }}"><div style="{{ homepill }}"></div></div>
+      </div></div>
+      <figcaption style="{{ cap }}">21 · Registrar peso</figcaption>
+    </figure>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Tema&quot;}}">
+class Component extends DCLogic {
+  state = { theme: null };
+
+  renderVals() {
+    const theme = this.state.theme ?? this.props.defaultTheme ?? 'light';
+    const dark = theme === 'dark';
+
+    const light = {
+      '--brand':'#14595F','--brand-hover':'#0E4247','--brand-soft':'#D8EAEB','--accent':'#E8B04B',
+      '--bg':'#FAF7F2','--card':'#FFFFFF','--alt':'#F3EEE6','--border':'#E4DCD0','--border-strong':'#CFC4B4',
+      '--text':'#2A2724','--text-2':'#6B645C','--text-3':'#948C82','--on-brand':'#FFFFFF',
+      '--ok':'#47935B','--ok-soft':'#E3F1E6','--due':'#C98518','--due-soft':'#FBEEDA','--over':'#C2473D','--over-soft':'#FAE3E1',
+      '--dx-active':'#7B5EA7','--dx-treat':'#4A7BC8','--dx-chronic':'#6B645C','--dx-resolved':'#948C82',
+      '--shadow-rest':'0 1px 3px rgba(42,39,36,.06)','--shadow-up':'0 4px 16px rgba(42,39,36,.10)','--shadow-fab':'0 6px 20px rgba(20,89,95,.24)'
+    };
+    const darkV = {
+      '--brand':'#4FA8AD','--brand-hover':'#7EC4C8','--brand-soft':'#1C3D40','--accent':'#E8B04B',
+      '--bg':'#1A1917','--card':'#232120','--alt':'#2C2927','--border':'#3A3633','--border-strong':'#4A4541',
+      '--text':'#F0EBE4','--text-2':'#B0A89E','--text-3':'#847C73','--on-brand':'#10302F',
+      '--ok':'#63B377','--ok-soft':'#1E3527','--due':'#E0A548','--due-soft':'#3A2E17','--over':'#E07A6E','--over-soft':'#3B221F',
+      '--dx-active':'#A98BD1','--dx-treat':'#7BA6E8','--dx-chronic':'#B0A89E','--dx-resolved':'#847C73',
+      '--shadow-rest':'0 1px 3px rgba(0,0,0,.3)','--shadow-up':'0 4px 16px rgba(0,0,0,.4)','--shadow-fab':'0 6px 20px rgba(0,0,0,.5)'
+    };
+    const vars = dark ? darkV : light;
+
+    const shell = Object.assign({
+      minHeight:'100vh', padding:'40px 24px 72px',
+      background: dark ? '#141310' : '#ECE5DB',
+      fontFamily:"'Nunito Sans', system-ui, sans-serif"
+    }, vars);
+
+    const tglBase = { border:0, cursor:'pointer', fontFamily:'Nunito, sans-serif', fontWeight:700, fontSize:'14px', padding:'8px 18px', borderRadius:'999px', transition:'all .2s' };
+    const on = { background:'var(--brand)', color:'var(--on-brand)' };
+    const off = { background:'transparent', color:'var(--text-2)' };
+
+    return {
+      shell,
+      isLight: !dark, isDark: dark,
+      goLight: () => this.setState({ theme:'light' }),
+      goDark: () => this.setState({ theme:'dark' }),
+      lightBtn: Object.assign({}, tglBase, dark ? off : on),
+      darkBtn: Object.assign({}, tglBase, dark ? on : off),
+
+      cap: 'font-family:Nunito,sans-serif;font-weight:700;font-size:13px;color:' + (dark ? '#8f857a' : '#8a7f70'),
+
+      bezel: 'width:344px;background:#0e0f11;border-radius:46px;padding:11px;box-shadow:0 34px 60px -22px rgba(0,0,0,.5),0 10px 24px rgba(0,0,0,.18)',
+      screen: 'position:relative;width:322px;border-radius:37px;overflow:hidden;background:var(--bg);color:var(--text);font-family:\'Nunito Sans\',sans-serif;line-height:1.45',
+      statusbar: 'position:relative;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 28px;z-index:2',
+      island: 'position:absolute;left:50%;top:11px;transform:translateX(-50%);width:84px;height:26px;background:#000;border-radius:999px',
+      sbicons: '', // filled per-screen inline where needed; kept simple
+      homebar: 'height:22px;display:flex;justify-content:center;align-items:center',
+      homepill: 'width:120px;height:5px;border-radius:999px;background:var(--text);opacity:.28',
+
+      iconBtn: 'width:40px;height:40px;border-radius:999px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--text-2)',
+      ico22: 'width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      ico20: 'width:20px;height:20px;stroke:var(--text-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      planRow: 'display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:14px',
+      planIco: 'width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:none',
+      ico18: 'width:18px;height:18px;stroke:var(--text-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      ico18m: 'width:18px;height:18px;stroke:var(--text-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      ico16: 'width:15px;height:15px;stroke:var(--text-2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+
+      btnPrimary: 'display:block;width:100%;padding:14px;border-radius:999px;border:0;background:var(--brand);color:var(--on-brand);font-family:Nunito,sans-serif;font-weight:700;font-size:16px;cursor:pointer;box-shadow:var(--shadow-rest)',
+      btnSec: 'display:block;width:100%;margin-top:14px;padding:11px;border-radius:12px;border:1px solid var(--border-strong);background:transparent;color:var(--text);font-family:Nunito,sans-serif;font-size:15px;font-weight:700;cursor:pointer',
+
+      fieldLabel: 'font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:8px',
+      field: 'background:var(--alt);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-family:\'Nunito Sans\';font-size:15px;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px',
+      note: 'background:var(--alt);border-radius:12px;border-left:3px solid var(--brand);padding:13px 14px;font-family:\'Nunito Sans\';font-size:13px;color:var(--text-2);display:flex;gap:10px;line-height:1.4',
+      card: 'background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-rest)',
+
+      sectionH: 'font-family:Nunito,sans-serif;font-weight:700;font-size:18px;color:var(--text);margin:22px 0 10px',
+      calCell: 'position:relative;height:38px;display:flex;align-items:center;justify-content:center',
+      calDot: 'position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:999px',
+      groupH: 'font-family:Nunito,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);margin:0 0 8px 4px',
+
+      chip: 'flex:none;display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;border:1px solid var(--border);font-family:Nunito,sans-serif;font-size:14px;font-weight:700;color:var(--text-2);background:transparent;cursor:pointer',
+      chipOn: 'flex:none;display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;border:1px solid transparent;font-family:Nunito,sans-serif;font-size:14px;font-weight:700;color:var(--brand);background:var(--brand-soft);cursor:pointer',
+      chipAv: 'width:28px;height:28px;border-radius:999px;background:var(--alt);display:grid;place-items:center;font-size:14px',
+      fchip: 'flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--border);font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:var(--text-2);background:transparent',
+      fchipOn: 'flex:none;padding:7px 14px;border-radius:999px;border:1px solid transparent;font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:var(--brand);background:var(--brand-soft)',
+
+      task: 'position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 16px 16px 20px;box-shadow:var(--shadow-rest);margin-bottom:12px;overflow:hidden',
+      taskIco: 'width:38px;height:38px;flex:none;border-radius:10px;background:var(--alt);display:grid;place-items:center',
+      taskIcoSm: 'width:34px;height:34px;flex:none;border-radius:9px;background:var(--alt);display:grid;place-items:center',
+      taskName: 'font-family:Nunito,sans-serif;font-size:17px;font-weight:700;color:var(--text);line-height:1.3',
+      taskPet: 'font-family:\'Nunito Sans\';font-size:13px;color:var(--text-3);margin-top:2px',
+      tag: 'display:inline-flex;align-items:center;gap:5px;font-family:\'Nunito Sans\';font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;margin-top:12px',
+      tagIco: 'width:14px;height:14px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round',
+      tlDot: 'position:absolute;left:-34px;top:2px;width:30px;height:30px;border-radius:999px;background:var(--alt);border:2px solid var(--bg);display:grid;place-items:center',
+
+      liYes: 'display:flex;align-items:flex-start;gap:9px;font-family:\'Nunito Sans\';font-size:14px;color:var(--text-2);padding:4px 0',
+      liNo: 'display:flex;align-items:flex-start;gap:9px;font-family:\'Nunito Sans\';font-size:14px;color:var(--text-3);padding:4px 0',
+      liChk: 'width:17px;height:17px;flex:none;margin-top:1px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round',
+
+      nav: 'position:absolute;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--border);padding:8px 4px 6px',
+      navI: 'flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text-3)',
+      navOn: 'flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand)',
+      navIco: 'width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      navIcoOn: 'width:24px;height:24px;fill:currentColor;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round',
+      navLabel: 'font-family:Nunito,sans-serif;font-size:11px;font-weight:400',
+      navLabelOn: 'font-family:Nunito,sans-serif;font-size:11px;font-weight:700',
+
+      setRow: 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px',
+      setLbl: 'font-family:\'Nunito Sans\';font-size:15px;color:var(--text)',
+      swOn: 'width:46px;height:28px;border-radius:999px;background:var(--brand);padding:3px;display:flex;justify-content:flex-end;flex:none',
+      swOff: 'width:46px;height:28px;border-radius:999px;background:var(--border-strong);padding:3px;display:flex;justify-content:flex-start;flex:none',
+      swKnobOn: 'width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)',
+      swKnobOff: 'width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)',
+      ckOn: 'width:26px;height:26px;border-radius:8px;background:var(--brand);display:grid;place-items:center;flex:none',
+      ckOff: 'width:26px;height:26px;border-radius:8px;border:2px solid var(--border-strong);flex:none',
+      ckIco: 'width:15px;height:15px;stroke:var(--on-brand);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round',
+      sheetRow: 'display:flex;align-items:center;gap:14px;padding:13px 4px;border:0;background:transparent;cursor:pointer;width:100%',
+      sheetIco: 'width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none',
+      sheetIcoSvg: 'width:22px;height:22px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round',
+      sheetLbl: 'font-family:Nunito,sans-serif;font-weight:700;font-size:16px;color:var(--text)',
+      sheetSub: 'font-family:\'Nunito Sans\';font-size:13px;color:var(--text-3);margin-top:1px'
+    };
+  }
+}
+</script>
+</body>
+</html>
