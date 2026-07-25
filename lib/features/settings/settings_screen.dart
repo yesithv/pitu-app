@@ -10,6 +10,7 @@ import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/domain/plan.dart';
 import '../plan/presentation/plans_screen.dart';
+import '../reminders/application/reminders_providers.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -109,7 +110,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SwitchRow(
                 label: 'Recordatorios',
                 value: _reminders,
-                onChanged: (v) => setState(() => _reminders = v),
+                onChanged: _onRemindersToggle,
                 divider: true,
               ),
               _Row(
@@ -185,6 +186,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(const SnackBar(content: Text('Respaldo · próximamente')));
+  }
+
+  Future<void> _onRemindersToggle(bool value) async {
+    setState(() => _reminders = value);
+    if (!value) return;
+    final scheduler = ref.read(reminderSchedulerProvider);
+    if (!scheduler.isSupported) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(
+            content: Text(
+                'Los recordatorios funcionan en la app móvil (Android / iOS).')));
+      return;
+    }
+    await scheduler.requestPermission();
   }
 }
 

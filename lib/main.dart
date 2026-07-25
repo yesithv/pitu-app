@@ -9,6 +9,9 @@ import 'core/data/seed.dart';
 import 'core/di/providers.dart';
 import 'core/utils/clock.dart';
 import 'core/utils/id_generator.dart';
+import 'features/reminders/application/reminders_coordinator.dart';
+import 'features/reminders/application/reminders_providers.dart';
+import 'features/reminders/data/reminder_scheduler_factory.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +29,34 @@ Future<void> main() async {
   }
   persistence.attachAutosave(db);
 
+  // Recordatorios locales (no-op en web, reales en móvil). Se reprograman ante
+  // cada cambio de la base.
+  final scheduler = createReminderScheduler();
+  await scheduler.init();
+  final reminders = RemindersCoordinator(db, scheduler, const SystemClock());
+  _attachReminderResync(db, reminders);
+  await reminders.resync();
+
   runApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWith((ref) => db),
+        reminderSchedulerProvider.overrideWithValue(scheduler),
       ],
       child: const PituApp(),
     ),
   );
+}
+
+/// Reprograma recordatorios ante cambios, agrupando ráfagas por microtask.
+void _attachReminderResync(InMemoryDatabase db, RemindersCoordinator reminders) {
+  var scheduled = false;
+  db.addListener(() {
+    if (scheduled) return;
+    scheduled = true;
+    Future.microtask(() {
+      scheduled = false;
+      reminders.resync();
+    });
+  });
 }
