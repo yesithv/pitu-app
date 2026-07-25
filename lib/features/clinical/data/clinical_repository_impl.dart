@@ -96,6 +96,18 @@ class InMemoryClinicalRepository implements ClinicalRepository {
   }
 
   @override
+  void addVaccine(Vaccine vaccine) {
+    _db.vaccines.add(vaccine);
+    _db.bump();
+  }
+
+  @override
+  void addDiagnosis(Diagnosis diagnosis) {
+    _db.diagnoses.add(diagnosis);
+    _db.bump();
+  }
+
+  @override
   void updateDiagnosisStatus(String diagnosisId, DiagnosisStatus status) {
     final i = _db.diagnoses.indexWhere((d) => d.id == diagnosisId);
     if (i >= 0) {

@@ -10,10 +10,12 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/care_icons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/status_pill.dart';
-import '../../care/presentation/care_actions.dart';
 import '../../care/presentation/care_providers.dart';
 import '../../clinical/domain/entities/diagnosis.dart';
 import '../../clinical/domain/entities/timeline_entry.dart';
+import '../../clinical/presentation/medical_visit_form_screen.dart';
+import '../../clinical/presentation/vaccine_form_screen.dart';
+import '../../clinical/presentation/weight_form_screen.dart';
 import '../../plan/application/entitlement_controller.dart';
 import '../domain/entities/pet.dart';
 import 'pets_providers.dart';
@@ -167,7 +169,10 @@ class _SummaryTab extends ConsumerWidget {
           )
         else
           for (final d in diagnoses) ...[
-            _DiagnosisCard(diagnosis: d),
+            _DiagnosisCard(
+              diagnosis: d,
+              onChangeStatus: () => _pickDiagnosisStatus(context, ref, d),
+            ),
             const SizedBox(height: 10),
           ],
         const SectionHeader('Próximas tareas'),
@@ -214,7 +219,7 @@ class _SummaryTab extends ConsumerWidget {
             Text('Peso', style: AppText.title2(c.text)),
             _SmallPillButton(
               label: '+ Registrar',
-              onTap: () => _showComingSoon(context, 'Registrar peso'),
+              onTap: () => WeightFormScreen.open(context, petId),
             ),
           ],
         ),
@@ -231,13 +236,15 @@ class _SummaryTab extends ConsumerWidget {
 }
 
 class _DiagnosisCard extends StatelessWidget {
-  const _DiagnosisCard({required this.diagnosis});
+  const _DiagnosisCard({required this.diagnosis, this.onChangeStatus});
   final Diagnosis diagnosis;
+  final VoidCallback? onChangeStatus;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return AppCard(
+      onTap: onChangeStatus,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
@@ -253,10 +260,49 @@ class _DiagnosisCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onChangeStatus != null)
+            Icon(Icons.edit_outlined, size: 18, color: c.text3),
         ],
       ),
     );
   }
+}
+
+/// Selector de estado de un diagnóstico (RF-21); el cambio queda en el historial.
+Future<void> _pickDiagnosisStatus(
+    BuildContext context, WidgetRef ref, Diagnosis diagnosis) {
+  final c = context.colors;
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+            child: Text('Estado de "${diagnosis.condition}"',
+                style: AppText.title2(c.text)),
+          ),
+          for (final s in DiagnosisStatus.values)
+            ListTile(
+              leading: _DxTag(status: s),
+              trailing: s == diagnosis.status
+                  ? Icon(Icons.check, color: c.brand)
+                  : null,
+              onTap: () {
+                ref
+                    .read(clinicalRepositoryProvider)
+                    .updateDiagnosisStatus(diagnosis.id, s);
+                Navigator.of(sheetContext).pop();
+              },
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 Color dxColor(BuildContext context, DiagnosisStatus s) {
@@ -463,7 +509,11 @@ class _PetMenu extends ConsumerWidget {
             ref.read(petRepositoryProvider).archive(petId);
             Navigator.of(context).pop();
           case 'weight':
-            _showComingSoon(context, 'Registrar peso');
+            WeightFormScreen.open(context, petId);
+          case 'visit':
+            MedicalVisitFormScreen.open(context, petId);
+          case 'vaccine':
+            VaccineFormScreen.open(context, petId);
           case 'share':
             _showComingSoon(context, 'Compartir con veterinario (PDF)');
           case 'edit':
@@ -471,8 +521,10 @@ class _PetMenu extends ConsumerWidget {
         }
       },
       itemBuilder: (context) => const [
-        PopupMenuItem(value: 'edit', child: Text('Editar')),
+        PopupMenuItem(value: 'visit', child: Text('Agregar visita médica')),
+        PopupMenuItem(value: 'vaccine', child: Text('Registrar vacuna')),
         PopupMenuItem(value: 'weight', child: Text('Registrar peso')),
+        PopupMenuItem(value: 'edit', child: Text('Editar')),
         PopupMenuItem(value: 'share', child: Text('Compartir con veterinario')),
         PopupMenuItem(value: 'archive', child: Text('Archivar')),
       ],

@@ -5,8 +5,11 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
 import '../calendar/calendar_screen.dart';
+import '../clinical/presentation/medical_visit_form_screen.dart';
+import '../clinical/presentation/weight_form_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../pets/presentation/pet_form_screen.dart';
+import '../pets/presentation/pet_picker.dart';
 import '../pets/presentation/pets_list_screen.dart';
 import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
@@ -54,15 +57,28 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       context: context,
       showDragHandle: true,
       builder: (sheetContext) => _ActionSheet(
-        onNewPet: () {
+        onAction: (key) async {
           Navigator.of(sheetContext).pop();
-          _addPet(context);
-        },
-        onOther: (label) {
-          Navigator.of(sheetContext).pop();
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(SnackBar(content: Text('$label · próximamente')));
+          switch (key) {
+            case 'newpet':
+              _addPet(context);
+            case 'weight':
+              {
+                final id = await pickPetId(context, ref);
+                if (id != null && mounted) WeightFormScreen.open(context, id);
+              }
+            case 'visit':
+              {
+                final id = await pickPetId(context, ref);
+                if (id != null && mounted) MedicalVisitFormScreen.open(context, id);
+              }
+            case 'care':
+              ScaffoldMessenger.of(context)
+                ..clearSnackBars()
+                ..showSnackBar(const SnackBar(
+                    content: Text(
+                        'Marca un cuidado como hecho desde su tarjeta en Inicio')));
+          }
         },
       ),
     );
@@ -185,9 +201,8 @@ class _NavItem extends StatelessWidget {
 }
 
 class _ActionSheet extends StatelessWidget {
-  const _ActionSheet({required this.onNewPet, required this.onOther});
-  final VoidCallback onNewPet;
-  final ValueChanged<String> onOther;
+  const _ActionSheet({required this.onAction});
+  final ValueChanged<String> onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -208,25 +223,25 @@ class _ActionSheet extends StatelessWidget {
               icon: Icons.check_circle_outline,
               title: 'Registrar cuidado',
               subtitle: 'Marcar una tarea como hecha',
-              onTap: () => onOther('Registrar cuidado'),
+              onTap: () => onAction('care'),
             ),
             _SheetRow(
               icon: Icons.medical_services_outlined,
               title: 'Agregar visita médica',
-              subtitle: 'Consulta, diagnóstico o vacuna',
-              onTap: () => onOther('Agregar visita médica'),
+              subtitle: 'Consulta, diagnóstico o tratamiento',
+              onTap: () => onAction('visit'),
             ),
             _SheetRow(
               icon: Icons.monitor_weight_outlined,
               title: 'Registrar peso',
               subtitle: 'Actualiza la curva de peso',
-              onTap: () => onOther('Registrar peso'),
+              onTap: () => onAction('weight'),
             ),
             _SheetRow(
               icon: Icons.add,
               title: 'Nueva mascota',
               subtitle: 'Agregar otra al hogar',
-              onTap: onNewPet,
+              onTap: () => onAction('newpet'),
             ),
           ],
         ),

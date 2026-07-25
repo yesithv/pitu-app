@@ -16,5 +16,7 @@ abstract interface class ClinicalRepository {
 
   void addWeight(WeightRecord record);
   void addVisit(MedicalVisit visit);
+  void addVaccine(Vaccine vaccine);
+  void addDiagnosis(Diagnosis diagnosis);
   void updateDiagnosisStatus(String diagnosisId, DiagnosisStatus status);
 }
