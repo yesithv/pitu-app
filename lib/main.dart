@@ -12,6 +12,8 @@ import 'core/utils/id_generator.dart';
 import 'features/reminders/application/reminders_coordinator.dart';
 import 'features/reminders/application/reminders_providers.dart';
 import 'features/reminders/data/reminder_scheduler_factory.dart';
+import 'features/purchases/application/purchases_providers.dart';
+import 'features/purchases/data/purchase_service_factory.dart';
 import 'features/security/application/security_providers.dart';
 import 'features/security/data/app_lock_factory.dart';
 
@@ -42,6 +44,10 @@ Future<void> main() async {
   // Bloqueo biométrico (no-op en web, real en móvil).
   final appLock = createAppLock();
 
+  // Compras dentro de la app (no-op en web, reales en móvil).
+  final purchases = createPurchaseService();
+  await purchases.init();
+
   runApp(
     ProviderScope(
       overrides: [
@@ -49,6 +55,7 @@ Future<void> main() async {
         persistenceProvider.overrideWithValue(persistence),
         reminderSchedulerProvider.overrideWithValue(scheduler),
         appLockProvider.overrideWithValue(appLock),
+        purchaseServiceProvider.overrideWithValue(purchases),
       ],
       child: const PituApp(),
     ),

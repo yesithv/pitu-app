@@ -7,12 +7,14 @@ import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/common.dart';
+import '../../purchases/application/purchases_providers.dart';
+import '../../purchases/domain/purchase_service.dart';
 import '../application/entitlement_controller.dart';
 import '../domain/plan.dart';
 
 /// Pantalla de planes (RF-50). En Fase 1 solo Free y Pro (pago único). Lenguaje
 /// "Desbloquear" (no "suscribirse"); candados honestos por función.
-class PlansScreen extends ConsumerWidget {
+class PlansScreen extends ConsumerStatefulWidget {
   const PlansScreen({super.key, this.blockedFeature});
   final String? blockedFeature;
 
@@ -24,7 +26,28 @@ class PlansScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlansScreen> createState() => _PlansScreenState();
+}
+
+class _PlansScreenState extends ConsumerState<PlansScreen> {
+  bool _busy = false;
+  String? _priceLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrice();
+  }
+
+  Future<void> _loadPrice() async {
+    final product = await ref.read(purchaseServiceProvider).loadProProduct();
+    if (mounted && product != null) {
+      setState(() => _priceLabel = product.price);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final plan = ref.watch(entitlementProvider).plan;
 
@@ -41,36 +64,96 @@ class PlansScreen extends ConsumerWidget {
             Text('Un solo pago. Para siempre. Sin suscripción.',
                 style: AppText.body(c.text2)),
             const SizedBox(height: 18),
-            if (blockedFeature != null) ...[
-              InfoNote('Disponible en Pro: $blockedFeature', icon: Icons.lock_outline),
+            if (widget.blockedFeature != null) ...[
+              InfoNote('Disponible en Pro: ${widget.blockedFeature}',
+                  icon: Icons.lock_outline),
               const SizedBox(height: 14),
             ],
             _FreeCard(current: plan == PlanType.free),
             const SizedBox(height: 14),
             _ProCard(
               isCurrent: plan == PlanType.pro,
-              onUnlock: () {
-                ref.read(entitlementProvider.notifier).unlockPro();
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context)
-                  ..clearSnackBars()
-                  ..showSnackBar(const SnackBar(
-                      content: Text('¡Pro desbloqueado! Gracias 🐾')));
-              },
+              priceLabel: _priceLabel ?? '\$34.900',
+              busy: _busy,
+              onUnlock: _unlock,
             ),
             const SizedBox(height: 16),
             Center(
               child: TextButton(
-                onPressed: () =>
-                    ref.read(entitlementProvider.notifier).restore(),
-                child: Text('Restaurar compra',
-                    style: AppText.metaStrong(c.text3)),
+                onPressed: _busy ? null : _restore,
+                child:
+                    Text('Restaurar compra', style: AppText.metaStrong(c.text3)),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _unlock() async {
+    final purchases = ref.read(purchaseServiceProvider);
+    final entitlement = ref.read(entitlementProvider.notifier);
+
+    // En web/escritorio sin tienda, se mantiene el desbloqueo de demostración.
+    if (!purchases.isSupported) {
+      entitlement.unlockPro();
+      _finishSuccess();
+      return;
+    }
+
+    setState(() => _busy = true);
+    final result = await purchases.buyPro();
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    if (result.grantsPro) {
+      entitlement.unlockPro();
+      _finishSuccess();
+    } else if (result.status == PurchaseStatus.cancelled) {
+      // El usuario canceló: sin ruido.
+    } else if (result.status == PurchaseStatus.pending) {
+      _snack('Tu compra quedó pendiente de confirmación.');
+    } else {
+      _snack(result.message.isEmpty
+          ? 'No se pudo completar la compra.'
+          : result.message);
+    }
+  }
+
+  Future<void> _restore() async {
+    final purchases = ref.read(purchaseServiceProvider);
+    final entitlement = ref.read(entitlementProvider.notifier);
+
+    if (!purchases.isSupported) {
+      _snack('Restaurar compras está disponible en la app móvil.');
+      return;
+    }
+
+    setState(() => _busy = true);
+    final result = await purchases.restore();
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    if (result.grantsPro) {
+      entitlement.unlockPro();
+      _finishSuccess(restored: true);
+    } else {
+      _snack('No encontramos compras para restaurar.');
+    }
+  }
+
+  void _finishSuccess({bool restored = false}) {
+    Navigator.of(context).pop();
+    _snack(restored
+        ? 'Compra restaurada. ¡Bienvenido a Pro! 🐾'
+        : '¡Pro desbloqueado! Gracias 🐾');
+  }
+
+  void _snack(String message) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -120,9 +203,16 @@ class _FreeCard extends StatelessWidget {
 }
 
 class _ProCard extends StatelessWidget {
-  const _ProCard({required this.isCurrent, required this.onUnlock});
+  const _ProCard({
+    required this.isCurrent,
+    required this.onUnlock,
+    required this.priceLabel,
+    required this.busy,
+  });
   final bool isCurrent;
   final VoidCallback onUnlock;
+  final String priceLabel;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +238,7 @@ class _ProCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text('Pro', style: AppText.title2(c.text)),
-              Text('\$34.900', style: AppText.display(c.text)),
+              Text(priceLabel, style: AppText.display(c.text)),
             ],
           ),
           const SizedBox(height: 12),
@@ -170,7 +260,10 @@ class _ProCard extends StatelessWidget {
               child: Text('Pro · Comprado', style: AppText.button(c.brand).copyWith(fontSize: 15)),
             )
           else
-            PrimaryButton(label: 'Desbloquear Pro', onPressed: onUnlock),
+            PrimaryButton(
+              label: busy ? 'Procesando…' : 'Desbloquear Pro',
+              onPressed: busy ? null : onUnlock,
+            ),
         ],
       ),
     );
