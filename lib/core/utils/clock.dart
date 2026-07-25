@@ -16,7 +16,8 @@ class FixedClock implements Clock {
   FixedClock(this._now);
   DateTime _now;
 
-  set now(DateTime value) => _now = value;
+  /// Ajusta la hora simulada.
+  void setTo(DateTime value) => _now = value;
 
   @override
   DateTime now() => _now;
