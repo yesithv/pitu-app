@@ -28,6 +28,9 @@ class InMemoryDatabase extends ChangeNotifier {
 
   String ownerName = 'Yesith';
 
+  /// Preferencia de bloqueo biométrico (RNF-11).
+  bool biometricLockEnabled = false;
+
   /// Notifica a los observadores tras una mutación.
   void bump() => notifyListeners();
 }

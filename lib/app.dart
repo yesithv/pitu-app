@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
+import 'features/security/presentation/app_lock_gate.dart';
 import 'features/shell/home_shell.dart';
 
 /// Raíz de la aplicación PituApp (PetBienestar). Tema claro/oscuro con la
@@ -16,7 +17,7 @@ class PituApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      home: const HomeShell(),
+      home: const AppLockGate(child: HomeShell()),
     );
   }
 }

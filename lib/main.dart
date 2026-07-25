@@ -12,6 +12,8 @@ import 'core/utils/id_generator.dart';
 import 'features/reminders/application/reminders_coordinator.dart';
 import 'features/reminders/application/reminders_providers.dart';
 import 'features/reminders/data/reminder_scheduler_factory.dart';
+import 'features/security/application/security_providers.dart';
+import 'features/security/data/app_lock_factory.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,11 +39,15 @@ Future<void> main() async {
   _attachReminderResync(db, reminders);
   await reminders.resync();
 
+  // Bloqueo biométrico (no-op en web, real en móvil).
+  final appLock = createAppLock();
+
   runApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWith((ref) => db),
         reminderSchedulerProvider.overrideWithValue(scheduler),
+        appLockProvider.overrideWithValue(appLock),
       ],
       child: const PituApp(),
     ),

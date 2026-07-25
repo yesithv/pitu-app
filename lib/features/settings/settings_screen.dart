@@ -11,6 +11,8 @@ import '../plan/application/entitlement_controller.dart';
 import '../plan/domain/plan.dart';
 import '../plan/presentation/plans_screen.dart';
 import '../reminders/application/reminders_providers.dart';
+import '../security/application/security_providers.dart';
+import '../../core/di/providers.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -21,7 +23,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _reminders = true;
-  bool _biometric = false;
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +128,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           padding: EdgeInsets.zero,
           child: _SwitchRow(
             label: 'Desbloqueo con huella / Face ID',
-            value: _biometric,
-            onChanged: (v) => setState(() => _biometric = v),
+            value: ref.watch(biometricEnabledProvider),
+            onChanged: _onBiometricToggle,
           ),
         ),
         const SizedBox(height: 20),
@@ -201,6 +202,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       return;
     }
     await scheduler.requestPermission();
+  }
+
+  Future<void> _onBiometricToggle(bool value) async {
+    final lock = ref.read(appLockProvider);
+    final db = ref.read(databaseProvider);
+    if (value) {
+      if (!lock.isSupported) {
+        _snack('El bloqueo biométrico funciona en la app móvil (Android / iOS).');
+        return;
+      }
+      if (!await lock.canAuthenticate()) {
+        _snack('No hay biometría configurada en este dispositivo.');
+        return;
+      }
+      if (!await lock.authenticate('Confirma para activar el bloqueo')) return;
+    }
+    db.biometricLockEnabled = value;
+    db.bump();
+  }
+
+  void _snack(String message) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }
 

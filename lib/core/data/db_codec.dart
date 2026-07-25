@@ -23,6 +23,7 @@ abstract class DbCodec {
   static Map<String, dynamic> encode(InMemoryDatabase db) => {
         'schemaVersion': schemaVersion,
         'ownerName': db.ownerName,
+        'biometricLockEnabled': db.biometricLockEnabled,
         'pets': db.pets.map(_petToJson).toList(),
         'careTypes': db.careTypes.map(_careTypeToJson).toList(),
         'schedules': db.schedules.map(_scheduleToJson).toList(),
@@ -59,6 +60,7 @@ abstract class DbCodec {
       ..clear()
       ..addAll(_list(json['vaccines']).map(_vaccineFromJson));
     db.ownerName = (json['ownerName'] as String?) ?? db.ownerName;
+    db.biometricLockEnabled = json['biometricLockEnabled'] as bool? ?? false;
   }
 
   // ---- helpers ----------------------------------------------------------
