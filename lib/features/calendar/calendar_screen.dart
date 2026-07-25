@@ -27,8 +27,9 @@ class CalendarScreen extends ConsumerWidget {
         filter == null ? all : all.where((v) => v.pet.id == filter).toList();
 
     final overdue = views.where((v) => v.daysUntil < 0).toList();
+    final today = views.where((v) => v.daysUntil == 0).toList();
     final thisWeek =
-        views.where((v) => v.daysUntil >= 0 && v.daysUntil <= 7).toList();
+        views.where((v) => v.daysUntil >= 1 && v.daysUntil <= 7).toList();
     final later = views.where((v) => v.daysUntil > 7).toList();
 
     return ListView(
@@ -41,15 +42,19 @@ class CalendarScreen extends ConsumerWidget {
         const PetChips(),
         const SizedBox(height: 8),
         if (overdue.isNotEmpty) ...[
-          SectionHeader('Vencidas', color: c.over),
+          SectionHeader('Vencidas · ${overdue.length}', color: c.over),
           for (final v in overdue) _CalRow(view: v, showStatus: true),
         ],
+        if (today.isNotEmpty) ...[
+          SectionHeader('Hoy · ${today.length}'),
+          for (final v in today) _CalRow(view: v, showStatus: true),
+        ],
         if (thisWeek.isNotEmpty) ...[
-          const SectionHeader('Esta semana'),
+          SectionHeader('Esta semana · ${thisWeek.length}'),
           for (final v in thisWeek) _CalRow(view: v, showStatus: true),
         ],
         if (later.isNotEmpty) ...[
-          const SectionHeader('Más adelante'),
+          SectionHeader('Más adelante · ${later.length}'),
           for (final v in later) _CalRow(view: v, showStatus: false),
         ],
         if (views.isEmpty)

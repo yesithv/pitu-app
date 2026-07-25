@@ -20,6 +20,7 @@ import '../pets/presentation/pets_providers.dart';
 import '../pets/presentation/widgets/pet_chips.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/presentation/plans_screen.dart';
+import '../settings/profile_edit_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -38,6 +39,7 @@ class DashboardScreen extends ConsumerWidget {
         ? all
         : all.where((v) => v.pet.id == filter).toList();
     final pending = views.where((v) => v.isPending).toList();
+    final overdueCount = views.where((v) => v.daysUntil < 0).length;
     final upcoming =
         views.where((v) => v.daysUntil > 3 && v.daysUntil <= 7).toList();
 
@@ -48,7 +50,14 @@ class DashboardScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.screenH, 6, Gap.screenH, 100),
       children: [
-        _Header(owner: owner, date: AppDates.longWeekday(now)),
+        _Header(
+          owner: owner,
+          date: AppDates.longWeekday(now),
+          pendingCount: pending.length,
+          overdueCount: overdueCount,
+          onEditProfile: () => ProfileEditScreen.open(context),
+          onBell: () => _showRemindersInfo(context),
+        ),
         const SizedBox(height: 14),
         const PetChips(),
         const SizedBox(height: 16),
@@ -87,13 +96,29 @@ class DashboardScreen extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.owner, required this.date});
+  const _Header({
+    required this.owner,
+    required this.date,
+    required this.pendingCount,
+    required this.overdueCount,
+    required this.onEditProfile,
+    required this.onBell,
+  });
   final String owner;
   final String date;
+  final int pendingCount;
+  final int overdueCount;
+  final VoidCallback onEditProfile;
+  final VoidCallback onBell;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final summary = pendingCount == 0
+        ? 'Todo al día por hoy 🐾'
+        : 'Tienes $pendingCount pendiente${pendingCount == 1 ? '' : 's'}';
+    final summaryColor = overdueCount > 0 ? c.over : c.text3;
+
     return Row(
       children: [
         Expanded(
@@ -102,24 +127,43 @@ class _Header extends StatelessWidget {
             children: [
               Text(date, style: AppText.meta(c.text3)),
               Text('Hola, $owner', style: AppText.title1(c.text)),
+              const SizedBox(height: 2),
+              Text(summary, style: AppText.meta(summaryColor)),
             ],
           ),
         ),
         IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.notifications_none, color: c.text2),
-          tooltip: 'Notificaciones',
+          onPressed: onBell,
+          icon: Badge(
+            isLabelVisible: overdueCount > 0,
+            backgroundColor: c.over,
+            child: Icon(Icons.notifications_none, color: c.text2),
+          ),
+          tooltip: 'Recordatorios',
         ),
-        Container(
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: c.brandSoft, shape: BoxShape.circle),
-          child: const Text('🧑', style: TextStyle(fontSize: 18)),
+        GestureDetector(
+          onTap: onEditProfile,
+          child: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration:
+                BoxDecoration(color: c.brandSoft, shape: BoxShape.circle),
+            child: const Text('🧑', style: TextStyle(fontSize: 18)),
+          ),
         ),
       ],
     );
   }
+}
+
+void _showRemindersInfo(BuildContext context) {
+  ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(const SnackBar(
+      content: Text(
+          'Los recordatorios se envían desde la app móvil. Actívalos en Ajustes.'),
+    ));
 }
 
 class _ComplianceCard extends StatelessWidget {

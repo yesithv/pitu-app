@@ -12,6 +12,7 @@ import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/domain/plan.dart';
 import '../plan/presentation/plans_screen.dart';
+import 'profile_edit_screen.dart';
 import '../reminders/application/reminders_providers.dart';
 import '../security/application/security_providers.dart';
 import '../../core/di/providers.dart';
@@ -43,6 +44,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
         // Perfil local
         AppCard(
+          onTap: () => ProfileEditScreen.open(context),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
