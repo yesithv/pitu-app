@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -10,15 +11,23 @@ import '../application/pet_onboarding_service.dart';
 import '../domain/entities/pet.dart';
 import '../domain/entities/species.dart';
 
-/// Alta de mascota (RF-01). Un solo paso, alineado con el onboarding del
-/// prototipo: nombre, especie, edad, peso y raza; al guardar se precarga el
-/// plan de cuidados según la especie.
+/// Alta y edición de mascota (RF-01, RF-02). Un solo paso: nombre, especie,
+/// edad, peso y raza. Al crear, precarga el plan de cuidados según la especie.
 class PetFormScreen extends ConsumerStatefulWidget {
-  const PetFormScreen({super.key});
+  const PetFormScreen({super.key, this.petId});
+
+  /// Si es no nulo, la pantalla edita esa mascota en vez de crear una nueva.
+  final String? petId;
 
   static Future<void> open(BuildContext context) {
     return Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const PetFormScreen()),
+    );
+  }
+
+  static Future<void> openEdit(BuildContext context, String petId) {
+    return Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PetFormScreen(petId: petId)),
     );
   }
 
@@ -33,6 +42,30 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   final _breed = TextEditingController();
   Species _species = Species.dog;
   WeightUnit _unit = WeightUnit.kg;
+  Pet? _existing;
+
+  bool get _isEdit => widget.petId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.petId != null) {
+      final pet = ref.read(petRepositoryProvider).findById(widget.petId!);
+      if (pet != null) {
+        _existing = pet;
+        _name.text = pet.name;
+        _species = pet.species;
+        _age.text = pet.ageText ?? '';
+        _breed.text = pet.breed ?? '';
+        _unit = pet.weightUnit;
+        if (pet.weight != null) {
+          _weight.text = pet.weight == pet.weight!.roundToDouble()
+              ? pet.weight!.toInt().toString()
+              : pet.weight.toString();
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -46,28 +79,43 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   bool get _valid => _name.text.trim().isNotEmpty;
 
   void _save() {
-    final service = ref.read(petOnboardingServiceProvider);
-    final pet = service.createPet(
-      name: _name.text,
-      species: _species,
-      breed: _breed.text,
-      ageText: _age.text,
-      weight: double.tryParse(_weight.text.replaceAll(',', '.')),
-      weightUnit: _unit,
-    );
+    final String message;
+    if (_isEdit && _existing != null) {
+      final updated = _existing!.copyWith(
+        name: _name.text.trim(),
+        species: _species,
+        ageText: _age.text.trim(),
+        breed: _breed.text.trim(),
+        weight: double.tryParse(_weight.text.replaceAll(',', '.')),
+        weightUnit: _unit,
+      );
+      ref.read(petRepositoryProvider).update(updated);
+      message = 'Datos de ${updated.name} actualizados';
+    } else {
+      final pet = ref.read(petOnboardingServiceProvider).createPet(
+            name: _name.text,
+            species: _species,
+            breed: _breed.text,
+            ageText: _age.text,
+            weight: double.tryParse(_weight.text.replaceAll(',', '.')),
+            weightUnit: _unit,
+          );
+      message = 'Preparamos el plan de cuidados de ${pet.name} 🐾';
+    }
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(content: Text('Preparamos el plan de cuidados de ${pet.name} 🐾')),
-      );
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Scaffold(
-      appBar: AppBar(title: const Text('Nueva mascota'), leading: const CloseButton()),
+      appBar: AppBar(
+        title: Text(_isEdit ? 'Editar mascota' : 'Nueva mascota'),
+        leading: const CloseButton(),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -130,7 +178,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                 border: Border(top: BorderSide(color: c.border)),
               ),
               child: PrimaryButton(
-                label: 'Finalizar',
+                label: _isEdit ? 'Guardar' : 'Finalizar',
                 onPressed: _valid ? _save : null,
               ),
             ),

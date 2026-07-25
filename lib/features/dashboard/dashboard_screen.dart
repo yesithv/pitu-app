@@ -12,11 +12,11 @@ import '../../core/widgets/common.dart';
 import '../../core/di/providers.dart';
 import '../care/presentation/care_actions.dart';
 import '../care/presentation/care_providers.dart';
+import '../care/presentation/care_register_screen.dart';
 import '../care/presentation/schedule_view.dart';
 import '../care/presentation/widgets/task_card.dart';
 import '../pets/presentation/pet_view.dart';
 import '../pets/presentation/pets_providers.dart';
-import '../pets/presentation/pet_detail_screen.dart';
 import '../pets/presentation/widgets/pet_chips.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/presentation/plans_screen.dart';
@@ -65,7 +65,13 @@ class DashboardScreen extends ConsumerWidget {
               view: v,
               showPet: filter == null,
               onMarkDone: () => markCareDone(context, ref, v),
-              onTap: () => PetDetailScreen.open(context, v.pet.id),
+              onTap: () => CareRegisterScreen.open(
+                context,
+                scheduleId: v.schedule.id,
+                careName: v.name,
+                petName: v.pet.name,
+                petEmoji: v.pet.species.emoji,
+              ),
             ),
         ] else ...[
           const SectionHeader('Hoy'),

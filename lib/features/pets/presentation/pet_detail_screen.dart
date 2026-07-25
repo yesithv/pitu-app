@@ -18,6 +18,8 @@ import '../../clinical/presentation/vaccine_form_screen.dart';
 import '../../clinical/presentation/weight_form_screen.dart';
 import '../../plan/application/entitlement_controller.dart';
 import '../domain/entities/pet.dart';
+import 'archive_pet_screen.dart';
+import 'pet_form_screen.dart';
 import 'pets_providers.dart';
 import 'widgets/weight_chart.dart';
 
@@ -506,8 +508,7 @@ class _PetMenu extends ConsumerWidget {
       onSelected: (value) {
         switch (value) {
           case 'archive':
-            ref.read(petRepositoryProvider).archive(petId);
-            Navigator.of(context).pop();
+            ArchivePetScreen.open(context, petId);
           case 'weight':
             WeightFormScreen.open(context, petId);
           case 'visit':
@@ -517,7 +518,7 @@ class _PetMenu extends ConsumerWidget {
           case 'share':
             _showComingSoon(context, 'Compartir con veterinario (PDF)');
           case 'edit':
-            _showComingSoon(context, 'Editar mascota');
+            PetFormScreen.openEdit(context, petId);
         }
       },
       itemBuilder: (context) => const [
