@@ -1,8 +1,16 @@
 import '../entities/care_execution.dart';
+import '../entities/care_frequency.dart';
 import '../entities/care_schedule.dart';
 
 abstract interface class CareRepository {
   List<CareSchedule> schedulesForPet(String petId);
+
+  /// Crea un cuidado personalizado (RF-11) con su tipo y programación.
+  void createCustomCare({
+    required String petId,
+    required String name,
+    required CareFrequency frequency,
+  });
 
   /// Todas las programaciones activas de mascotas activas (para el dashboard).
   List<CareSchedule> allActiveSchedules();

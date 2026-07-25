@@ -6,11 +6,16 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/utils/app_dates.dart';
+import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/care_icons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/status_pill.dart';
+import '../../care/domain/entities/care_kind.dart';
 import '../../care/presentation/care_providers.dart';
+import '../../care/presentation/care_schedule_form_screen.dart';
+import '../../plan/domain/plan.dart';
+import '../../plan/presentation/plans_screen.dart';
 import '../../clinical/domain/entities/diagnosis.dart';
 import '../../clinical/domain/entities/timeline_entry.dart';
 import '../../clinical/presentation/medical_visit_form_screen.dart';
@@ -356,6 +361,8 @@ class _CaresTab extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.md),
             child: AppCard(
+              onTap: () => CareScheduleFormScreen.openEdit(
+                  context, petId, v.schedule.id),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
@@ -383,8 +390,28 @@ class _CaresTab extends ConsumerWidget {
               ),
             ),
           ),
+        const SizedBox(height: 4),
+        DashedActionButton(
+          label: 'Agregar cuidado',
+          onPressed: () => _onAddCustomCare(context, ref, schedules.length),
+        ),
       ],
     );
+  }
+
+  void _onAddCustomCare(BuildContext context, WidgetRef ref, int currentCount) {
+    final limits = ref.read(entitlementProvider).limits;
+    final max = limits.maxCustomCaresPerPet;
+    final customCount = ref
+        .read(careRepositoryProvider)
+        .schedulesForPet(petId)
+        .where((s) => s.kind == CareKind.custom)
+        .length;
+    if (max != null && customCount >= max) {
+      PlansScreen.open(context, blockedFeature: 'Cuidados personalizados ilimitados');
+      return;
+    }
+    CareScheduleFormScreen.openCreate(context, petId);
   }
 }
 

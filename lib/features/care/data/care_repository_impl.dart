@@ -5,7 +5,10 @@ import '../../../core/domain/sync_metadata.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/id_generator.dart';
 import '../domain/entities/care_execution.dart';
+import '../domain/entities/care_frequency.dart';
+import '../domain/entities/care_kind.dart';
 import '../domain/entities/care_schedule.dart';
+import '../domain/entities/care_type.dart';
 import '../domain/repositories/care_repository.dart';
 import '../domain/services/scheduling_service.dart';
 
@@ -43,6 +46,33 @@ class InMemoryCareRepository implements CareRepository {
   @override
   void addSchedule(CareSchedule schedule) {
     _db.schedules.add(schedule);
+    _db.bump();
+  }
+
+  @override
+  void createCustomCare({
+    required String petId,
+    required String name,
+    required CareFrequency frequency,
+  }) {
+    final now = _clock.now();
+    final careType = CareType(
+      meta: SyncMetadata.create(id: _ids.newId(), now: now),
+      name: name,
+      kind: CareKind.custom,
+      suggestedFrequency: frequency,
+      isCustom: true,
+    );
+    _db.careTypes.add(careType);
+    _db.schedules.add(CareSchedule(
+      meta: SyncMetadata.create(id: _ids.newId(), now: now),
+      petId: petId,
+      careTypeId: careType.id,
+      name: name,
+      kind: CareKind.custom,
+      frequency: frequency,
+      nextDate: frequency.addTo(now),
+    ));
     _db.bump();
   }
 
