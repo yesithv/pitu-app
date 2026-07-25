@@ -6,6 +6,8 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/common.dart';
+import '../backup/application/backup_providers.dart';
+import '../backup/domain/backup_result.dart';
 import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/domain/plan.dart';
@@ -140,10 +142,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              _LinkRow(label: 'Crear respaldo', onTap: () => _soon(context), divider: true),
-              _LinkRow(label: 'Restaurar respaldo', onTap: () => _soon(context), divider: true),
+              _LinkRow(label: 'Crear respaldo', onTap: _onCreateBackup, divider: true),
+              _LinkRow(label: 'Restaurar respaldo', onTap: _onRestoreBackup, divider: true),
               _Row(
-                label: 'Último respaldo: hace 34 días',
+                label: 'El respaldo es un archivo .json que puedes guardar donde quieras.',
                 labelColor: c.text3,
               ),
             ],
@@ -183,10 +185,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _soon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Respaldo · próximamente')));
+  Future<void> _onCreateBackup() async {
+    final path = await ref.read(backupServiceProvider).export();
+    _snack(path == null
+        ? 'Respaldo descargado (revisa tus descargas).'
+        : 'Respaldo guardado en: $path');
+  }
+
+  Future<void> _onRestoreBackup() async {
+    final service = ref.read(backupServiceProvider);
+    if (!service.canImport) {
+      _snack('La restauración desde archivo está disponible en la versión web '
+          'por ahora.');
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Restaurar respaldo'),
+        content: const Text(
+            'Se reemplazarán los datos actuales de este dispositivo con los '
+            'del respaldo. Esta acción no se puede deshacer. ¿Continuar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Restaurar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final result = await service.import();
+    switch (result.status) {
+      case BackupImportStatus.success:
+        _snack('Respaldo restaurado: ${result.pets} mascota(s) y '
+            '${result.records} registro(s).');
+      case BackupImportStatus.invalid:
+        _snack(result.message ?? 'No se pudo restaurar el respaldo.');
+      case BackupImportStatus.cancelled:
+        break;
+    }
   }
 
   Future<void> _onRemindersToggle(bool value) async {

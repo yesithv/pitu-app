@@ -16,6 +16,7 @@ import '../../care/presentation/care_providers.dart';
 import '../../care/presentation/care_schedule_form_screen.dart';
 import '../../plan/domain/plan.dart';
 import '../../plan/presentation/plans_screen.dart';
+import '../../reports/application/reports_providers.dart';
 import '../../clinical/domain/entities/diagnosis.dart';
 import '../../clinical/domain/entities/timeline_entry.dart';
 import '../../clinical/presentation/medical_visit_form_screen.dart';
@@ -543,7 +544,7 @@ class _PetMenu extends ConsumerWidget {
           case 'vaccine':
             VaccineFormScreen.open(context, petId);
           case 'share':
-            _showComingSoon(context, 'Compartir con veterinario (PDF)');
+            _shareReport(context, ref, petId);
           case 'edit':
             PetFormScreen.openEdit(context, petId);
         }
@@ -603,8 +604,22 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
       oldDelegate.background != background;
 }
 
-void _showComingSoon(BuildContext context, String feature) {
-  ScaffoldMessenger.of(context)
+/// Genera y comparte el reporte veterinario en PDF (RF-38/39). Es una función
+/// Pro: en plan Free abre el paywall. En web el PDF se descarga; en móvil se
+/// guarda como archivo (pendiente de validación en dispositivo).
+Future<void> _shareReport(
+    BuildContext context, WidgetRef ref, String petId) async {
+  final isPro = ref.read(entitlementProvider).isPro;
+  if (!isPro) {
+    PlansScreen.open(context, blockedFeature: 'Reporte para el veterinario (PDF)');
+    return;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  messenger
     ..clearSnackBars()
-    ..showSnackBar(SnackBar(content: Text('$feature · próximamente')));
+    ..showSnackBar(const SnackBar(content: Text('Generando reporte PDF…')));
+  final result = await ref.read(petReportServiceProvider).generate(petId);
+  messenger
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(result.message)));
 }
