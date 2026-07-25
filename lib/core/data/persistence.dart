@@ -33,6 +33,18 @@ class Persistence {
     _prefs.setString(_key, jsonEncode(DbCodec.encode(db)));
   }
 
+  /// Intenta persistir devolviendo si tuvo éxito. Útil para operaciones que
+  /// pueden exceder la cuota del almacenamiento (p. ej. adjuntos grandes en
+  /// `localStorage`): el llamador puede revertir el cambio si falla.
+  bool trySave(InMemoryDatabase db) {
+    try {
+      save(db);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Persiste automáticamente ante cada cambio, agrupando ráfagas por microtask
   /// para no serializar más de una vez por frame lógico.
   void attachAutosave(InMemoryDatabase db) {

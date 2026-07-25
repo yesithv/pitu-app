@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +13,9 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/care_icons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/status_pill.dart';
+import '../../attachments/application/attachment_service.dart';
+import '../../attachments/application/attachments_providers.dart';
+import '../../attachments/domain/entities/attachment.dart';
 import '../../care/domain/entities/care_kind.dart';
 import '../../care/presentation/care_providers.dart';
 import '../../care/presentation/care_schedule_form_screen.dart';
@@ -87,7 +92,7 @@ class PetDetailScreen extends ConsumerWidget {
               _SummaryTab(petId: petId),
               _CaresTab(petId: petId),
               _HistoryTab(petId: petId),
-              const _DocsTab(),
+              _DocsTab(petId: petId),
             ],
           ),
         ),
@@ -499,30 +504,240 @@ class _TimelineTile extends StatelessWidget {
   }
 }
 
-class _DocsTab extends StatelessWidget {
-  const _DocsTab();
+class _DocsTab extends ConsumerWidget {
+  const _DocsTab({required this.petId});
+  final String petId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final docs = ref.watch(attachmentsForPetProvider(petId));
+    final limits = ref.watch(entitlementProvider).limits;
+    final max = limits.maxAttachmentsPerPet;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      children: [
+        if (docs.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 40, bottom: 24),
+            child: Column(
+              children: [
+                Icon(Icons.folder_open_outlined, size: 40, color: c.text3),
+                const SizedBox(height: 12),
+                Text('Sin documentos todavía',
+                    style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
+                const SizedBox(height: 4),
+                Text('Adjunta fotos y PDFs de tu mascota (hasta '
+                    '${AttachmentService.maxLabel} cada uno).',
+                    textAlign: TextAlign.center, style: AppText.meta(c.text3)),
+              ],
+            ),
+          )
+        else ...[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              max == null
+                  ? '${docs.length} documento(s)'
+                  : '${docs.length} de $max documento(s) · plan Free',
+              style: AppText.meta(c.text3),
+            ),
+          ),
+          for (final a in docs) ...[
+            _DocRow(petId: petId, attachment: a),
+            const SizedBox(height: Gap.md),
+          ],
+        ],
+        const SizedBox(height: 4),
+        DashedActionButton(
+          label: 'Agregar documento',
+          onPressed: () => _onAdd(context, ref, docs.length, max),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onAdd(
+      BuildContext context, WidgetRef ref, int current, int? max) async {
+    final service = ref.read(attachmentServiceProvider);
+    if (!service.canAdd) {
+      _snack(context,
+          'Adjuntar documentos está disponible en la versión web por ahora.');
+      return;
+    }
+    if (max != null && current >= max) {
+      PlansScreen.open(context, blockedFeature: 'Documentos ilimitados');
+      return;
+    }
+    final result = await service.pickAndAdd(petId);
+    switch (result.status) {
+      case AddAttachmentStatus.success:
+        _snack(context, 'Documento agregado.');
+      case AddAttachmentStatus.tooLarge:
+      case AddAttachmentStatus.quota:
+        _snack(context, result.message);
+      case AddAttachmentStatus.cancelled:
+        break;
+    }
+  }
+}
+
+class _DocRow extends ConsumerWidget {
+  const _DocRow({required this.petId, required this.attachment});
+  final String petId;
+  final Attachment attachment;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    return AppCard(
+      onTap: () => _open(context, ref),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        children: [
+          _Thumb(attachment: attachment),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(attachment.filename,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.bodyStrong(c.text)),
+                const SizedBox(height: 2),
+                Text('${_kindLabel(attachment.kind)} · ${_size(attachment.sizeBytes)}',
+                    style: AppText.meta(c.text3)),
+              ],
+            ),
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: c.text3),
+            onSelected: (v) {
+              if (v == 'open') _open(context, ref);
+              if (v == 'delete') _confirmDelete(context, ref);
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'open', child: Text('Abrir / Descargar')),
+              PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    if (attachment.kind == AttachmentKind.image) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => Dialog(
+          insetPadding: const EdgeInsets.all(16),
+          backgroundColor: Colors.black,
+          child: Stack(
+            children: [
+              InteractiveViewer(
+                child: Center(
+                  child: Image.memory(base64Decode(attachment.dataBase64)),
+                ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+    await ref.read(attachmentServiceProvider).download(attachment);
+    _snack(context, 'Descargando ${attachment.filename}…');
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar documento'),
+        content: Text('Se eliminará "${attachment.filename}" de este '
+            'dispositivo. Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      ref.read(attachmentRepositoryProvider).remove(attachment.id);
+    }
+  }
+
+  static String _kindLabel(AttachmentKind k) => switch (k) {
+        AttachmentKind.image => 'Imagen',
+        AttachmentKind.pdf => 'PDF',
+        AttachmentKind.other => 'Archivo',
+      };
+
+  static String _size(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(0)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+}
+
+class _Thumb extends StatelessWidget {
+  const _Thumb({required this.attachment});
+  final Attachment attachment;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.folder_open_outlined, size: 40, color: c.text3),
-            const SizedBox(height: 12),
-            Text('Sin documentos todavía',
-                style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
-            const SizedBox(height: 4),
-            Text('Adjunta fotos y PDFs desde visitas y cuidados.',
-                textAlign: TextAlign.center, style: AppText.meta(c.text3)),
-          ],
+    if (attachment.kind == AttachmentKind.image) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        child: Image.memory(
+          base64Decode(attachment.dataBase64),
+          width: 46,
+          height: 46,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
         ),
+      );
+    }
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: c.alt,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Icon(
+        attachment.kind == AttachmentKind.pdf
+            ? Icons.picture_as_pdf_outlined
+            : Icons.insert_drive_file_outlined,
+        color: c.text2,
+        size: 22,
       ),
     );
   }
+}
+
+void _snack(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }
 
 class _PetMenu extends ConsumerWidget {

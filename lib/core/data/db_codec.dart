@@ -1,3 +1,4 @@
+import '../../features/attachments/domain/entities/attachment.dart';
 import '../../features/care/domain/entities/care_execution.dart';
 import '../../features/care/domain/entities/care_frequency.dart';
 import '../../features/care/domain/entities/care_kind.dart';
@@ -17,8 +18,9 @@ import 'in_memory_database.dart';
 /// pensado para servir también como formato de respaldo (RF-41) y de migración
 /// a la API de la Fase 2 (RF-54).
 abstract class DbCodec {
-  /// Versión del esquema del snapshot/respaldo.
-  static const int schemaVersion = 1;
+  /// Versión del esquema del snapshot/respaldo. v2 añade `attachments`; los
+  /// respaldos v1 (sin adjuntos) siguen restaurándose (la lista queda vacía).
+  static const int schemaVersion = 2;
 
   static Map<String, dynamic> encode(InMemoryDatabase db) => {
         'schemaVersion': schemaVersion,
@@ -32,6 +34,7 @@ abstract class DbCodec {
         'weights': db.weights.map(_weightToJson).toList(),
         'visits': db.visits.map(_visitToJson).toList(),
         'vaccines': db.vaccines.map(_vaccineToJson).toList(),
+        'attachments': db.attachments.map(_attachmentToJson).toList(),
       };
 
   static void decodeInto(InMemoryDatabase db, Map<String, dynamic> json) {
@@ -59,6 +62,9 @@ abstract class DbCodec {
     db.vaccines
       ..clear()
       ..addAll(_list(json['vaccines']).map(_vaccineFromJson));
+    db.attachments
+      ..clear()
+      ..addAll(_list(json['attachments']).map(_attachmentFromJson));
     db.ownerName = (json['ownerName'] as String?) ?? db.ownerName;
     db.biometricLockEnabled = json['biometricLockEnabled'] as bool? ?? false;
   }
@@ -271,5 +277,29 @@ abstract class DbCodec {
         nextDoseDate: _date(j['nextDoseDate']),
         clinic: j['clinic'] as String?,
         attachment: j['attachment'] as String?,
+      );
+
+  // ---- attachments ------------------------------------------------------
+
+  static Map<String, dynamic> _attachmentToJson(Attachment a) => {
+        'meta': a.meta.toJson(),
+        'petId': a.petId,
+        'filename': a.filename,
+        'mimeType': a.mimeType,
+        'sizeBytes': a.sizeBytes,
+        'dataBase64': a.dataBase64,
+        'addedAt': _iso(a.addedAt),
+        'source': a.source,
+      };
+
+  static Attachment _attachmentFromJson(Map<String, dynamic> j) => Attachment(
+        meta: SyncMetadata.fromJson((j['meta'] as Map).cast<String, dynamic>()),
+        petId: j['petId'] as String,
+        filename: j['filename'] as String,
+        mimeType: j['mimeType'] as String,
+        sizeBytes: (j['sizeBytes'] as num?)?.toInt() ?? 0,
+        dataBase64: j['dataBase64'] as String,
+        addedAt: _dateReq(j['addedAt']),
+        source: j['source'] as String?,
       );
 }

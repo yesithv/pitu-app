@@ -102,6 +102,9 @@ class BackupService {
     _db.vaccines
       ..clear()
       ..addAll(src.vaccines);
+    _db.attachments
+      ..clear()
+      ..addAll(src.attachments);
     _db.ownerName = src.ownerName;
     _db.biometricLockEnabled = src.biometricLockEnabled;
   }

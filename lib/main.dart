@@ -46,6 +46,7 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         databaseProvider.overrideWith((ref) => db),
+        persistenceProvider.overrideWithValue(persistence),
         reminderSchedulerProvider.overrideWithValue(scheduler),
         appLockProvider.overrideWithValue(appLock),
       ],

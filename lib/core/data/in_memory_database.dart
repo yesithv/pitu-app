@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../features/attachments/domain/entities/attachment.dart';
 import '../../features/care/domain/entities/care_execution.dart';
 import '../../features/care/domain/entities/care_schedule.dart';
 import '../../features/care/domain/entities/care_type.dart';
@@ -25,6 +26,7 @@ class InMemoryDatabase extends ChangeNotifier {
   final List<WeightRecord> weights = [];
   final List<MedicalVisit> visits = [];
   final List<Vaccine> vaccines = [];
+  final List<Attachment> attachments = [];
 
   String ownerName = 'Yesith';
 

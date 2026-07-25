@@ -1,8 +1,18 @@
+import 'dart:typed_data';
+
 /// Archivo de texto seleccionado por el usuario para importar.
 class PickedTextFile {
   const PickedTextFile(this.name, this.content);
   final String name;
   final String content;
+}
+
+/// Archivo binario seleccionado (por ejemplo, una foto o un PDF adjunto).
+class PickedBinaryFile {
+  const PickedBinaryFile(this.name, this.mimeType, this.bytes);
+  final String name;
+  final String mimeType;
+  final Uint8List bytes;
 }
 
 /// Puente de plataforma para descargar/guardar archivos y seleccionarlos.
@@ -28,4 +38,8 @@ abstract interface class FileTransfer {
   /// Abre un selector y devuelve el contenido de texto elegido, o `null` si se
   /// canceló o la plataforma no lo soporta.
   Future<PickedTextFile?> pickTextFile({String accept});
+
+  /// Abre un selector y devuelve el archivo binario elegido (foto o PDF), o
+  /// `null` si se canceló o la plataforma no lo soporta.
+  Future<PickedBinaryFile?> pickBinaryFile({String accept});
 }

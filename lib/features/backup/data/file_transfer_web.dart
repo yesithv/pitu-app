@@ -67,4 +67,51 @@ class WebFileTransfer implements FileTransfer {
     input.click();
     return completer.future;
   }
+
+  @override
+  Future<PickedBinaryFile?> pickBinaryFile(
+      {String accept = 'image/*,application/pdf'}) {
+    final completer = Completer<PickedBinaryFile?>();
+    final input = html.FileUploadInputElement()..accept = accept;
+    input.onChange.listen((_) {
+      final files = input.files;
+      if (files == null || files.isEmpty) {
+        if (!completer.isCompleted) completer.complete(null);
+        return;
+      }
+      final file = files.first;
+      final reader = html.FileReader();
+      reader.onError.listen((_) {
+        if (!completer.isCompleted) completer.complete(null);
+      });
+      reader.onLoadEnd.listen((_) {
+        if (completer.isCompleted) return;
+        final result = reader.result;
+        final Uint8List bytes;
+        if (result is ByteBuffer) {
+          bytes = result.asUint8List();
+        } else if (result is List<int>) {
+          bytes = Uint8List.fromList(result);
+        } else {
+          bytes = Uint8List(0);
+        }
+        final mime =
+            file.type.isNotEmpty ? file.type : _guessMime(file.name);
+        completer.complete(PickedBinaryFile(file.name, mime, bytes));
+      });
+      reader.readAsArrayBuffer(file);
+    });
+    input.click();
+    return completer.future;
+  }
+
+  String _guessMime(String name) {
+    final n = name.toLowerCase();
+    if (n.endsWith('.png')) return 'image/png';
+    if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+    if (n.endsWith('.gif')) return 'image/gif';
+    if (n.endsWith('.webp')) return 'image/webp';
+    if (n.endsWith('.pdf')) return 'application/pdf';
+    return 'application/octet-stream';
+  }
 }

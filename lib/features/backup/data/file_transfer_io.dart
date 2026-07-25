@@ -31,4 +31,7 @@ class IoFileTransfer implements FileTransfer {
 
   @override
   Future<PickedTextFile?> pickTextFile({String accept = ''}) async => null;
+
+  @override
+  Future<PickedBinaryFile?> pickBinaryFile({String accept = ''}) async => null;
 }
