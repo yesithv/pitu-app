@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/utils/app_dates.dart';
+import '../../../core/utils/image_compressor.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/care_icons.dart';
@@ -16,6 +17,7 @@ import '../../../core/widgets/status_pill.dart';
 import '../../attachments/application/attachment_service.dart';
 import '../../attachments/application/attachments_providers.dart';
 import '../../attachments/domain/entities/attachment.dart';
+import '../../backup/application/backup_providers.dart';
 import '../../care/domain/entities/care_kind.dart';
 import '../../care/presentation/care_providers.dart';
 import '../../care/presentation/care_schedule_form_screen.dart';
@@ -103,18 +105,44 @@ class PetDetailScreen extends ConsumerWidget {
   }
 }
 
-class _PetHeader extends StatelessWidget {
+class _PetHeader extends ConsumerWidget {
   const _PetHeader({required this.pet});
   final Pet pet;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
       child: Column(
         children: [
-          PetAvatar(emoji: pet.species.emoji, photoBase64: pet.photoBase64, size: 96),
+          GestureDetector(
+            onTap: () => _onTapPhoto(context, ref),
+            child: Stack(
+              children: [
+                PetAvatar(
+                    emoji: pet.species.emoji,
+                    photoBase64: pet.photoBase64,
+                    size: 96),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: c.brand,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: c.bg, width: 2),
+                    ),
+                    child: Icon(Icons.photo_camera_outlined,
+                        size: 16, color: c.onBrand),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           Text(pet.name, style: AppText.display(c.text)),
           const SizedBox(height: 2),
@@ -122,6 +150,74 @@ class _PetHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Cambiar o quitar la foto de la mascota desde su detalle.
+  Future<void> _onTapPhoto(BuildContext context, WidgetRef ref) async {
+    final hasPhoto = pet.photoBase64 != null && pet.photoBase64!.isNotEmpty;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(hasPhoto ? 'Cambiar foto' : 'Agregar foto'),
+              onTap: () => Navigator.of(sheet).pop('pick'),
+            ),
+            if (hasPhoto)
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Quitar foto'),
+                onTap: () => Navigator.of(sheet).pop('remove'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (action == null) return;
+
+    final repo = ref.read(petRepositoryProvider);
+    if (action == 'remove') {
+      repo.update(pet.copyWith(clearPhoto: true));
+      return;
+    }
+
+    final files = ref.read(fileTransferProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    if (!files.canPickFile) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(
+            content: Text(
+                'Cambiar la foto está disponible en la versión web por ahora.')));
+      return;
+    }
+    final picked = await files.pickBinaryFile(accept: 'image/*');
+    if (picked == null) return;
+    if (!picked.mimeType.startsWith('image/')) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(content: Text('Elige una imagen (JPG o PNG).')));
+      return;
+    }
+    final compressed =
+        compressImage(picked.bytes, mimeType: picked.mimeType, maxDim: 720);
+    const maxBytes = 1536 * 1024; // 1.5 MB
+    if (compressed.bytes.length > maxBytes) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(
+            content: Text('La imagen es demasiado grande incluso tras comprimir.')));
+      return;
+    }
+    repo.update(pet.copyWith(photoBase64: base64Encode(compressed.bytes)));
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(const SnackBar(content: Text('Foto actualizada')));
   }
 }
 
