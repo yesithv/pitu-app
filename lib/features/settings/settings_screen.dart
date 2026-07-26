@@ -118,9 +118,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onChanged: _onRemindersToggle,
                 divider: true,
               ),
-              _Row(
-                label: 'Anticipación por defecto',
-                trailing: const ProBadge(),
+              InkWell(
+                onTap: () => _onAnticipation(isPro),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: Text('Anticipación por defecto',
+                              style: AppText.body(c.text))),
+                      if (isPro) ...[
+                        Text(_leadLabel(ref.watch(databaseProvider).reminderLeadDays),
+                            style: AppText.meta(c.text3)),
+                        const SizedBox(width: 4),
+                        Icon(Icons.chevron_right, color: c.text3),
+                      ] else
+                        const ProBadge(),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -271,6 +287,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  static String _leadLabel(int d) => switch (d) {
+        0 => 'Mismo día',
+        1 => '1 día antes',
+        _ => '$d días antes',
+      };
+
+  Future<void> _onAnticipation(bool isPro) async {
+    if (!isPro) {
+      PlansScreen.open(context, blockedFeature: 'Anticipación configurable');
+      return;
+    }
+    final choice = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final d in const [0, 1, 3, 7])
+              ListTile(
+                title: Text(_leadLabel(d)),
+                onTap: () => Navigator.of(sheetContext).pop(d),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null) return;
+    final db = ref.read(databaseProvider);
+    db.reminderLeadDays = choice;
+    db.bump();
   }
 }
 

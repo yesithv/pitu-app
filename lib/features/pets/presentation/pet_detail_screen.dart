@@ -21,6 +21,7 @@ import '../../care/presentation/care_providers.dart';
 import '../../care/presentation/care_schedule_form_screen.dart';
 import '../../plan/domain/plan.dart';
 import '../../plan/presentation/plans_screen.dart';
+import '../../reports/application/pet_report_service.dart';
 import '../../reports/application/reports_providers.dart';
 import '../../clinical/domain/entities/diagnosis.dart';
 import '../../clinical/domain/entities/timeline_entry.dart';
@@ -829,12 +830,71 @@ Future<void> _shareReport(
     PlansScreen.open(context, blockedFeature: 'Reporte para el veterinario (PDF)');
     return;
   }
+  final options = await _pickReportScope(context);
+  if (options == null) return;
   final messenger = ScaffoldMessenger.of(context);
   messenger
     ..clearSnackBars()
     ..showSnackBar(const SnackBar(content: Text('Generando reporte PDF…')));
-  final result = await ref.read(petReportServiceProvider).generate(petId);
+  final result =
+      await ref.read(petReportServiceProvider).generate(petId, options: options);
   messenger
     ..clearSnackBars()
     ..showSnackBar(SnackBar(content: Text(result.message)));
+}
+
+/// Selector de alcance del reporte (RF-38): completo, solo vacunas o rango.
+Future<ReportOptions?> _pickReportScope(BuildContext context) async {
+  final choice = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.description_outlined),
+            title: const Text('Historial completo'),
+            onTap: () => Navigator.of(sheetContext).pop('full'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.vaccines_outlined),
+            title: const Text('Solo vacunas'),
+            onTap: () => Navigator.of(sheetContext).pop('vac'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.date_range_outlined),
+            title: const Text('Rango de fechas'),
+            onTap: () => Navigator.of(sheetContext).pop('range'),
+          ),
+        ],
+      ),
+    ),
+  );
+  switch (choice) {
+    case 'full':
+      return ReportOptions.full;
+    case 'vac':
+      return const ReportOptions(onlyVaccines: true);
+    case 'range':
+      final now = DateTime.now();
+      final range = await showDateRangePicker(
+        context: context,
+        firstDate: DateTime(now.year - 20),
+        lastDate: now,
+        initialDateRange: DateTimeRange(
+          start: DateTime(now.year, now.month, now.day)
+              .subtract(const Duration(days: 180)),
+          end: now,
+        ),
+      );
+      if (range == null) return null;
+      return ReportOptions(
+        from: DateTime(range.start.year, range.start.month, range.start.day),
+        to: DateTime(range.end.year, range.end.month, range.end.day, 23, 59, 59),
+      );
+    default:
+      return null;
+  }
 }

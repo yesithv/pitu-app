@@ -9,6 +9,7 @@ import '../../features/clinical/domain/entities/medical_visit.dart';
 import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
 import '../../features/pets/domain/entities/pet.dart';
+import '../../features/plan/domain/plan.dart';
 
 /// Almacén local en memoria para la Fase 1 (MVP). Es la única "fuente de
 /// verdad" del prototipo y se comporta como un stub de la futura BD Drift:
@@ -32,6 +33,16 @@ class InMemoryDatabase extends ChangeNotifier {
 
   /// Preferencia de bloqueo biométrico (RNF-11).
   bool biometricLockEnabled = false;
+
+  /// Entitlement persistido localmente (RD-12). Por defecto Free; una compra
+  /// (o el desbloqueo de demostración) lo eleva a Pro y se conserva.
+  PlanType planType = PlanType.free;
+  String? purchaseSource;
+  DateTime? purchasedAt;
+
+  /// Anticipación (en días) de los recordatorios (RF-35, función Pro). 0 = el
+  /// mismo día.
+  int reminderLeadDays = 0;
 
   /// Notifica a los observadores tras una mutación.
   void bump() => notifyListeners();

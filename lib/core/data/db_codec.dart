@@ -10,6 +10,7 @@ import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
 import '../../features/pets/domain/entities/pet.dart';
 import '../../features/pets/domain/entities/species.dart';
+import '../../features/plan/domain/plan.dart';
 import '../domain/sync_metadata.dart';
 import 'in_memory_database.dart';
 
@@ -27,6 +28,10 @@ abstract class DbCodec {
         'schemaVersion': schemaVersion,
         'ownerName': db.ownerName,
         'biometricLockEnabled': db.biometricLockEnabled,
+        'planType': db.planType.name,
+        'purchaseSource': db.purchaseSource,
+        'purchasedAt': _iso(db.purchasedAt),
+        'reminderLeadDays': db.reminderLeadDays,
         'pets': db.pets.map(_petToJson).toList(),
         'careTypes': db.careTypes.map(_careTypeToJson).toList(),
         'schedules': db.schedules.map(_scheduleToJson).toList(),
@@ -68,6 +73,13 @@ abstract class DbCodec {
       ..addAll(_list(json['attachments']).map(_attachmentFromJson));
     db.ownerName = (json['ownerName'] as String?) ?? db.ownerName;
     db.biometricLockEnabled = json['biometricLockEnabled'] as bool? ?? false;
+    // Retrocompatibilidad: los snapshots anteriores a v3 no guardaban el plan;
+    // eran la demo con Pro, así que se conserva Pro si la clave falta.
+    db.planType =
+        _enumByName(PlanType.values, json['planType'], PlanType.pro);
+    db.purchaseSource = json['purchaseSource'] as String?;
+    db.purchasedAt = _date(json['purchasedAt']);
+    db.reminderLeadDays = (json['reminderLeadDays'] as num?)?.toInt() ?? 0;
   }
 
   // ---- helpers ----------------------------------------------------------

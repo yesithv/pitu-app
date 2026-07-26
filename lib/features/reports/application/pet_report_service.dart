@@ -9,6 +9,29 @@ import '../../clinical/domain/repositories/clinical_repository.dart';
 import '../../pets/domain/entities/pet.dart';
 import '../data/pet_report_pdf.dart';
 
+/// Alcance del reporte (RF-38): historial completo, solo vacunas o un rango de
+/// fechas.
+class ReportOptions {
+  const ReportOptions({this.onlyVaccines = false, this.from, this.to});
+  final bool onlyVaccines;
+  final DateTime? from;
+  final DateTime? to;
+
+  static const ReportOptions full = ReportOptions();
+
+  bool includes(DateTime date) {
+    if (from != null && date.isBefore(from!)) return false;
+    if (to != null && date.isAfter(to!)) return false;
+    return true;
+  }
+
+  String get label {
+    if (onlyVaccines) return 'Solo vacunas';
+    if (from != null || to != null) return 'Rango de fechas';
+    return 'Historial completo';
+  }
+}
+
 /// Resultado de generar el reporte, con un mensaje ya listo para la UI.
 class PetReportResult {
   const PetReportResult._(this.ok, this.message);
@@ -34,28 +57,47 @@ class PetReportService {
   final CareRepository _care;
   final FileTransfer _files;
 
-  Future<PetReportResult> generate(String petId) async {
+  Future<PetReportResult> generate(String petId,
+      {ReportOptions options = ReportOptions.full}) async {
     final pet = _db.pets.firstWhereOrNull((p) => p.id == petId);
     if (pet == null) {
       return PetReportResult.failure('No encontramos la mascota.');
     }
-    final data = _collect(pet);
+    final data = _collect(pet, options);
     final bytes = await buildPetReportPdf(data);
     final path =
         await _files.saveBytes(_fileName(pet), bytes, mime: 'application/pdf');
     return PetReportResult.success(path);
   }
 
-  PetReportData _collect(Pet pet) {
-    final diagnoses = _clinical.diagnosesForPet(pet.id)
-      ..sort((a, b) => b.date.compareTo(a.date));
-    final visits = _clinical.visitsForPet(pet.id)
-      ..sort((a, b) => b.date.compareTo(a.date));
-    final vaccines = _clinical.vaccinesForPet(pet.id)
+  PetReportData _collect(Pet pet, ReportOptions options) {
+    final onlyVac = options.onlyVaccines;
+    final vaccines = _clinical
+        .vaccinesForPet(pet.id)
+        .where((v) => options.includes(v.appliedDate))
+        .toList()
       ..sort((a, b) => b.appliedDate.compareTo(a.appliedDate));
+    final diagnoses = _clinical
+        .diagnosesForPet(pet.id)
+        .where((d) => !onlyVac && options.includes(d.date))
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    final visits = _clinical
+        .visitsForPet(pet.id)
+        .where((v) => !onlyVac && options.includes(v.date))
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
     // weightsForPet ya viene ordenado ascendente; lo mostramos reciente primero.
-    final weights = _clinical.weightsForPet(pet.id).reversed.toList();
-    final cares = _care.schedulesForPet(pet.id).where((s) => s.isActive).toList()
+    final weights = _clinical
+        .weightsForPet(pet.id)
+        .where((w) => !onlyVac && options.includes(w.date))
+        .toList()
+        .reversed
+        .toList();
+    final cares = _care
+        .schedulesForPet(pet.id)
+        .where((s) => s.isActive && !onlyVac)
+        .toList()
       ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
 
     return PetReportData(

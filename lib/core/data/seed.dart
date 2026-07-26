@@ -9,6 +9,7 @@ import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
 import '../../features/pets/domain/entities/pet.dart';
 import '../../features/pets/domain/entities/species.dart';
+import '../../features/plan/domain/plan.dart';
 import '../domain/sync_metadata.dart';
 import '../utils/clock.dart';
 import '../utils/id_generator.dart';
@@ -29,13 +30,19 @@ class DatabaseSeeder {
   void seed() {
     if (_db.pets.isNotEmpty) return;
     _db.ownerName = 'Yesith';
+    // La demo arranca con Pro para exhibir todas las funciones. Un usuario real
+    // (base vacía) arranca en Free y sube a Pro al comprar (se persiste).
+    _db.planType = PlanType.pro;
+    _db.purchaseSource = 'demo';
 
+    final birthday = _daysFromNow(6);
     final firulais = _pet(
       name: 'Firulais',
       species: Species.dog,
       breed: 'Labrador',
       ageText: '4 años',
       weight: 28,
+      birthDate: DateTime(_now.year - 4, birthday.month, birthday.day),
     );
     final luna = _pet(
       name: 'Luna',
@@ -66,6 +73,25 @@ class DatabaseSeeder {
       CareKind.weight: _daysFromNow(10),
     });
 
+    // Cumpleaños de Firulais como actividad pendiente (en ~6 días).
+    const yearly = CareFrequency(1, FrequencyUnit.years);
+    final bdayType = CareType(
+      meta: SyncMetadata.create(id: _ids.newId(), now: _now),
+      name: CareKind.birthday.defaultName,
+      kind: CareKind.birthday,
+      suggestedFrequency: yearly,
+    );
+    _db.careTypes.add(bdayType);
+    _db.schedules.add(CareSchedule(
+      meta: SyncMetadata.create(id: _ids.newId(), now: _now),
+      petId: firulais.id,
+      careTypeId: bdayType.id,
+      name: CareKind.birthday.defaultName,
+      kind: CareKind.birthday,
+      frequency: yearly,
+      nextDate: DateTime(birthday.year, birthday.month, birthday.day),
+    ));
+
     _seedClinicalFor(firulais);
   }
 
@@ -75,6 +101,7 @@ class DatabaseSeeder {
     String? breed,
     String? ageText,
     double? weight,
+    DateTime? birthDate,
   }) {
     return Pet(
       meta: SyncMetadata.create(id: _ids.newId(), now: _now),
@@ -83,6 +110,7 @@ class DatabaseSeeder {
       breed: breed,
       ageText: ageText,
       weight: weight,
+      birthDate: birthDate,
     );
   }
 
