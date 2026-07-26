@@ -10,6 +10,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/utils/app_dates.dart';
 import '../../../core/utils/form_limits.dart';
+import '../../../core/utils/image_compressor.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../backup/application/backup_providers.dart';
@@ -148,12 +149,15 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
       _snack('Elige una imagen (JPG o PNG).');
       return;
     }
+    // Comprime la foto (RF-28); la foto de perfil se reduce más aún.
+    final compressed =
+        compressImage(picked.bytes, mimeType: picked.mimeType, maxDim: 720);
     const maxBytes = 1536 * 1024; // 1.5 MB
-    if (picked.bytes.length > maxBytes) {
-      _snack('La imagen supera el límite de 1.5 MB.');
+    if (compressed.bytes.length > maxBytes) {
+      _snack('La imagen es demasiado grande incluso tras comprimir.');
       return;
     }
-    setState(() => _photoBase64 = base64Encode(picked.bytes));
+    setState(() => _photoBase64 = base64Encode(compressed.bytes));
   }
 
   Future<void> _pickBirthday() async {

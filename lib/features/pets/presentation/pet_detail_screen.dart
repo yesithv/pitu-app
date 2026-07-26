@@ -662,6 +662,9 @@ class _TimelineTile extends StatelessWidget {
   }
 }
 
+/// Filtro de la galería de documentos por tipo (RF-27).
+final _docsFilterProvider = StateProvider<AttachmentKind?>((ref) => null);
+
 class _DocsTab extends ConsumerWidget {
   const _DocsTab({required this.petId});
   final String petId;
@@ -672,6 +675,9 @@ class _DocsTab extends ConsumerWidget {
     final docs = ref.watch(attachmentsForPetProvider(petId));
     final limits = ref.watch(entitlementProvider).limits;
     final max = limits.maxAttachmentsPerPet;
+    final filter = ref.watch(_docsFilterProvider);
+    final shown =
+        filter == null ? docs : docs.where((a) => a.kind == filter).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
@@ -694,7 +700,7 @@ class _DocsTab extends ConsumerWidget {
           )
         else ...[
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               max == null
                   ? '${docs.length} documento(s)'
@@ -702,7 +708,38 @@ class _DocsTab extends ConsumerWidget {
               style: AppText.meta(c.text3),
             ),
           ),
-          for (final a in docs) ...[
+          SizedBox(
+            height: 36,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (final f in const <(String, AttachmentKind?)>[
+                  ('Todos', null),
+                  ('Imágenes', AttachmentKind.image),
+                  ('PDF', AttachmentKind.pdf),
+                  ('Otros', AttachmentKind.other),
+                ]) ...[
+                  _Chip(
+                    label: f.$1,
+                    selected: filter == f.$2,
+                    onTap: () =>
+                        ref.read(_docsFilterProvider.notifier).state = f.$2,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (shown.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Center(
+                child: Text('Sin documentos de este tipo.',
+                    style: AppText.meta(c.text3)),
+              ),
+            ),
+          for (final a in shown) ...[
             _DocRow(petId: petId, attachment: a),
             const SizedBox(height: Gap.md),
           ],

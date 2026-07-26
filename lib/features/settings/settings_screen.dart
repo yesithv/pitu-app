@@ -329,7 +329,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 'Los recordatorios funcionan en la app móvil (Android / iOS).')));
       return;
     }
-    await scheduler.requestPermission();
+    final granted = await scheduler.requestPermission();
+    if (!granted) {
+      _snack('Permiso de notificaciones denegado. Actívalo en los Ajustes del '
+          'sistema para recibir recordatorios.');
+    }
   }
 
   Future<void> _onBiometricToggle(bool value) async {

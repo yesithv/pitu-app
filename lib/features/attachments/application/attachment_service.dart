@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../core/domain/sync_metadata.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/id_generator.dart';
+import '../../../core/utils/image_compressor.dart';
 import '../../backup/data/file_transfer.dart';
 import '../domain/entities/attachment.dart';
 import '../domain/repositories/attachment_repository.dart';
@@ -33,12 +34,15 @@ class AttachmentService {
 
   bool get canAdd => _files.canPickFile;
 
-  Future<AddAttachmentResult> pickAndAdd(String petId) async {
+  Future<AddAttachmentResult> pickAndAdd(String petId, {String? source}) async {
     final picked = await _files.pickBinaryFile();
     if (picked == null) {
       return const AddAttachmentResult(AddAttachmentStatus.cancelled);
     }
-    if (picked.bytes.length > maxBytes) {
+    // Comprime las imágenes antes de almacenarlas (RF-28).
+    final compressed =
+        compressImage(picked.bytes, mimeType: picked.mimeType);
+    if (compressed.bytes.length > maxBytes) {
       return const AddAttachmentResult(AddAttachmentStatus.tooLarge,
           'El archivo supera el límite de $maxLabel por documento.');
     }
@@ -47,11 +51,11 @@ class AttachmentService {
       meta: SyncMetadata.create(id: _ids.newId(), now: now),
       petId: petId,
       filename: picked.name.trim().isEmpty ? 'documento' : picked.name,
-      mimeType: picked.mimeType,
-      sizeBytes: picked.bytes.length,
-      dataBase64: base64Encode(picked.bytes),
+      mimeType: compressed.mimeType,
+      sizeBytes: compressed.bytes.length,
+      dataBase64: base64Encode(compressed.bytes),
       addedAt: now,
-      source: 'Documento',
+      source: source ?? 'Documento',
     );
     final ok = _repo.add(attachment);
     if (!ok) {
