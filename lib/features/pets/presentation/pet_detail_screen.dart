@@ -802,7 +802,14 @@ class _DocRow extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppText.bodyStrong(c.text)),
                 const SizedBox(height: 2),
-                Text('${_kindLabel(attachment.kind)} · ${_size(attachment.sizeBytes)}',
+                Text(
+                    [
+                      if (attachment.source != null &&
+                          attachment.source!.isNotEmpty)
+                        attachment.source!,
+                      _kindLabel(attachment.kind),
+                      _size(attachment.sizeBytes),
+                    ].join(' · '),
                     style: AppText.meta(c.text3)),
               ],
             ),

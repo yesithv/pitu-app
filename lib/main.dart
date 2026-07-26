@@ -12,6 +12,7 @@ import 'core/utils/id_generator.dart';
 import 'features/reminders/application/reminders_coordinator.dart';
 import 'features/reminders/application/reminders_providers.dart';
 import 'features/reminders/data/reminder_scheduler_factory.dart';
+import 'features/pets/presentation/pet_detail_screen.dart';
 import 'features/purchases/application/purchases_providers.dart';
 import 'features/purchases/data/purchase_service_factory.dart';
 import 'features/security/application/security_providers.dart';
@@ -37,6 +38,12 @@ Future<void> main() async {
   // cada cambio de la base.
   final scheduler = createReminderScheduler();
   await scheduler.init();
+  // Al tocar una notificación, abre la mascota asociada (RF-32).
+  scheduler.setOnSelect((petId) {
+    rootNavigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => PetDetailScreen(petId: petId)),
+    );
+  });
   final reminders = RemindersCoordinator(db, scheduler, const SystemClock());
   _attachReminderResync(db, reminders);
   await reminders.resync();

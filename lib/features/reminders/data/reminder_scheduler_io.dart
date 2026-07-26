@@ -15,9 +15,14 @@ class LocalReminderScheduler implements ReminderScheduler {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _ready = false;
+  void Function(String payload)? _onSelect;
 
   @override
   bool get isSupported => true;
+
+  @override
+  void setOnSelect(void Function(String payload)? handler) =>
+      _onSelect = handler;
 
   @override
   Future<void> init() async {
@@ -31,7 +36,13 @@ class LocalReminderScheduler implements ReminderScheduler {
         requestSoundPermission: false,
       ),
     );
-    await _plugin.initialize(settings);
+    await _plugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload != null && payload.isNotEmpty) _onSelect?.call(payload);
+      },
+    );
     _ready = true;
   }
 
@@ -77,6 +88,7 @@ class LocalReminderScheduler implements ReminderScheduler {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
+        payload: r.payload,
       );
     }
   }

@@ -10,6 +10,7 @@ import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/vaccine.dart';
+import '../../attachments/presentation/attachment_add_button.dart';
 import 'record_delete_button.dart';
 
 /// Registrar vacuna (RF-19) y editarla/eliminarla una vez insertada.
@@ -167,6 +168,10 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
         const SizedBox(height: 18),
         const InfoNote(
             'Sugerimos la próxima dosis a un año; ajústala según la indicación del veterinario.'),
+        const SizedBox(height: 16),
+        const FieldLabel('Documentos'),
+        const SizedBox(height: 4),
+        AttachmentAddButton(petId: widget.petId, source: 'Vacuna'),
         if (_isEdit) RecordDeleteButton(label: 'Eliminar vacuna', onDelete: _delete),
       ],
     );

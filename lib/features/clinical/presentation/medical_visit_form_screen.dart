@@ -14,6 +14,7 @@ import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/diagnosis.dart';
 import '../domain/entities/medical_visit.dart';
+import '../../attachments/presentation/attachment_add_button.dart';
 import 'record_delete_button.dart';
 
 /// Registrar visita médica (RF-18) con diagnóstico opcional (RF-20); editable y
@@ -209,6 +210,10 @@ class _MedicalVisitFormScreenState
         const SizedBox(height: 16),
         const FieldLabel('Notas (opcional)'),
         AppMultilineField(controller: _notes, hint: 'Añade una nota…', minLines: 2),
+        const SizedBox(height: 16),
+        const FieldLabel('Documentos'),
+        const SizedBox(height: 4),
+        AttachmentAddButton(petId: widget.petId, source: 'Visita médica'),
         if (_isEdit) RecordDeleteButton(label: 'Eliminar visita', onDelete: _delete),
       ],
     );
