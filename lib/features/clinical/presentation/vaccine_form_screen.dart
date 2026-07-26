@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,15 +10,25 @@ import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/vaccine.dart';
+import 'record_delete_button.dart';
 
-/// Registrar vacuna (RF-19): tipo, fecha, próxima dosis autosugerida (editable).
+/// Registrar vacuna (RF-19) y editarla/eliminarla una vez insertada.
 class VaccineFormScreen extends ConsumerStatefulWidget {
-  const VaccineFormScreen({super.key, required this.petId});
+  const VaccineFormScreen({super.key, required this.petId, this.recordId});
   final String petId;
+  final String? recordId;
 
   static Future<void> open(BuildContext context, String petId) {
     return Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => VaccineFormScreen(petId: petId)),
+    );
+  }
+
+  static Future<void> openEdit(
+      BuildContext context, String petId, String recordId) {
+    return Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (_) => VaccineFormScreen(petId: petId, recordId: recordId)),
     );
   }
 
@@ -31,10 +42,28 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
   DateTime _applied = DateTime.now();
   late DateTime _nextDose;
   bool _nextEditedManually = false;
+  Vaccine? _existing;
+
+  bool get _isEdit => widget.recordId != null;
 
   @override
   void initState() {
     super.initState();
+    if (widget.recordId != null) {
+      final rec = ref
+          .read(clinicalRepositoryProvider)
+          .vaccinesForPet(widget.petId)
+          .firstWhereOrNull((v) => v.id == widget.recordId);
+      if (rec != null) {
+        _existing = rec;
+        _type.text = rec.type;
+        _clinic.text = rec.clinic ?? '';
+        _applied = rec.appliedDate;
+        _nextDose = rec.nextDoseDate ?? _suggestNext(rec.appliedDate);
+        _nextEditedManually = true;
+        return;
+      }
+    }
     _nextDose = _suggestNext(_applied);
   }
 
@@ -52,18 +81,42 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
 
   void _save() {
     final now = ref.read(clockProvider).now();
-    ref.read(clinicalRepositoryProvider).addVaccine(Vaccine(
-          meta: SyncMetadata.create(id: ref.read(idGeneratorProvider).newId(), now: now),
-          petId: widget.petId,
-          type: _type.text.trim(),
-          appliedDate: _applied,
-          nextDoseDate: _nextDose,
-          clinic: _clinic.text.trim().isEmpty ? null : _clinic.text.trim(),
-        ));
+    final repo = ref.read(clinicalRepositoryProvider);
+    final clinic = _clinic.text.trim().isEmpty ? null : _clinic.text.trim();
+
+    if (_isEdit && _existing != null) {
+      repo.updateVaccine(Vaccine(
+        meta: _existing!.meta.touched(now),
+        petId: _existing!.petId,
+        type: _type.text.trim(),
+        appliedDate: _applied,
+        nextDoseDate: _nextDose,
+        clinic: clinic,
+        attachment: _existing!.attachment,
+      ));
+    } else {
+      repo.addVaccine(Vaccine(
+        meta: SyncMetadata.create(id: ref.read(idGeneratorProvider).newId(), now: now),
+        petId: widget.petId,
+        type: _type.text.trim(),
+        appliedDate: _applied,
+        nextDoseDate: _nextDose,
+        clinic: clinic,
+      ));
+    }
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Vacuna registrada')));
+      ..showSnackBar(SnackBar(
+          content: Text(_isEdit ? 'Vacuna actualizada' : 'Vacuna registrada')));
+  }
+
+  void _delete() {
+    ref.read(clinicalRepositoryProvider).deleteVaccine(widget.recordId!);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(const SnackBar(content: Text('Vacuna eliminada')));
   }
 
   @override
@@ -71,8 +124,8 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
     final pet = ref.watch(petByIdProvider(widget.petId));
 
     return ModalFormScaffold(
-      title: 'Vacuna',
-      saveLabel: 'Guardar vacuna',
+      title: _isEdit ? 'Editar vacuna' : 'Vacuna',
+      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar vacuna',
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
@@ -107,10 +160,14 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
         ),
         const SizedBox(height: 16),
         const FieldLabel('Veterinario / clínica (opcional)'),
-        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte', maxLength: FormLimits.shortText),
+        AppTextField(
+            controller: _clinic,
+            hint: 'Ej. Clínica Veterinaria del Norte',
+            maxLength: FormLimits.shortText),
         const SizedBox(height: 18),
         const InfoNote(
             'Sugerimos la próxima dosis a un año; ajústala según la indicación del veterinario.'),
+        if (_isEdit) RecordDeleteButton(label: 'Eliminar vacuna', onDelete: _delete),
       ],
     );
   }

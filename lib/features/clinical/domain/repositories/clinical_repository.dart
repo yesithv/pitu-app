@@ -19,4 +19,14 @@ abstract interface class ClinicalRepository {
   void addVaccine(Vaccine vaccine);
   void addDiagnosis(Diagnosis diagnosis);
   void updateDiagnosisStatus(String diagnosisId, DiagnosisStatus status);
+
+  // Edición y eliminación de registros ya insertados.
+  void updateWeight(WeightRecord record);
+  void deleteWeight(String id);
+  void updateVisit(MedicalVisit visit);
+  void deleteVisit(String id);
+  void updateVaccine(Vaccine vaccine);
+  void deleteVaccine(String id);
+  void updateDiagnosis(Diagnosis diagnosis);
+  void deleteDiagnosis(String id);
 }

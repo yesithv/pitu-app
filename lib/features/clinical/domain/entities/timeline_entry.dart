@@ -11,6 +11,7 @@ class TimelineEntry {
     required this.date,
     required this.kind,
     required this.title,
+    this.sourceId,
     this.subtitle,
     this.diagnosisStatus,
     this.diagnosisLabel,
@@ -19,6 +20,9 @@ class TimelineEntry {
   final DateTime date;
   final TimelineKind kind;
   final String title;
+
+  /// Id del registro de origen (para abrir su edición desde el historial).
+  final String? sourceId;
   final String? subtitle;
 
   /// Si la entrada lleva una etiqueta de diagnóstico.

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,15 +14,27 @@ import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/diagnosis.dart';
 import '../domain/entities/medical_visit.dart';
+import 'record_delete_button.dart';
 
-/// Registrar visita médica (RF-18) con diagnóstico opcional (RF-20).
+/// Registrar visita médica (RF-18) con diagnóstico opcional (RF-20); editable y
+/// eliminable una vez insertada.
 class MedicalVisitFormScreen extends ConsumerStatefulWidget {
-  const MedicalVisitFormScreen({super.key, required this.petId});
+  const MedicalVisitFormScreen({super.key, required this.petId, this.recordId});
   final String petId;
+  final String? recordId;
 
   static Future<void> open(BuildContext context, String petId) {
     return Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => MedicalVisitFormScreen(petId: petId)),
+    );
+  }
+
+  static Future<void> openEdit(
+      BuildContext context, String petId, String recordId) {
+    return Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (_) =>
+              MedicalVisitFormScreen(petId: petId, recordId: recordId)),
     );
   }
 
@@ -39,6 +52,29 @@ class _MedicalVisitFormScreenState
   final _treatment = TextEditingController();
   final _notes = TextEditingController();
   DiagnosisStatus _dxStatus = DiagnosisStatus.active;
+  MedicalVisit? _existing;
+
+  bool get _isEdit => widget.recordId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.recordId != null) {
+      final rec = ref
+          .read(clinicalRepositoryProvider)
+          .visitsForPet(widget.petId)
+          .firstWhereOrNull((v) => v.id == widget.recordId);
+      if (rec != null) {
+        _existing = rec;
+        _date = rec.date;
+        _clinic.text = rec.clinic ?? '';
+        _reason.text = rec.reason ?? '';
+        _diagnosis.text = rec.diagnosis ?? '';
+        _treatment.text = rec.treatment ?? '';
+        _notes.text = rec.notes ?? '';
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -57,35 +93,57 @@ class _MedicalVisitFormScreenState
     final now = ref.read(clockProvider).now();
     final ids = ref.read(idGeneratorProvider);
     final repo = ref.read(clinicalRepositoryProvider);
-
-    final visitId = ids.newId();
     final dx = _diagnosis.text.trim();
-    repo.addVisit(MedicalVisit(
-      meta: SyncMetadata(id: visitId, createdAt: now, updatedAt: now),
-      petId: widget.petId,
-      date: _date,
-      clinic: _clean(_clinic),
-      reason: _clean(_reason),
-      diagnosis: dx.isEmpty ? null : dx,
-      treatment: _clean(_treatment),
-      notes: _clean(_notes),
-    ));
 
-    if (dx.isNotEmpty) {
-      repo.addDiagnosis(Diagnosis(
-        meta: SyncMetadata.create(id: ids.newId(), now: now),
-        petId: widget.petId,
-        condition: dx,
+    if (_isEdit && _existing != null) {
+      repo.updateVisit(MedicalVisit(
+        meta: _existing!.meta.touched(now),
+        petId: _existing!.petId,
         date: _date,
-        status: _dxStatus,
-        visitId: visitId,
+        clinic: _clean(_clinic),
+        reason: _clean(_reason),
+        diagnosis: dx.isEmpty ? null : dx,
+        treatment: _clean(_treatment),
+        notes: _clean(_notes),
+        attachments: _existing!.attachments,
       ));
+    } else {
+      final visitId = ids.newId();
+      repo.addVisit(MedicalVisit(
+        meta: SyncMetadata(id: visitId, createdAt: now, updatedAt: now),
+        petId: widget.petId,
+        date: _date,
+        clinic: _clean(_clinic),
+        reason: _clean(_reason),
+        diagnosis: dx.isEmpty ? null : dx,
+        treatment: _clean(_treatment),
+        notes: _clean(_notes),
+      ));
+      if (dx.isNotEmpty) {
+        repo.addDiagnosis(Diagnosis(
+          meta: SyncMetadata.create(id: ids.newId(), now: now),
+          petId: widget.petId,
+          condition: dx,
+          date: _date,
+          status: _dxStatus,
+          visitId: visitId,
+        ));
+      }
     }
 
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Visita registrada')));
+      ..showSnackBar(SnackBar(
+          content: Text(_isEdit ? 'Visita actualizada' : 'Visita registrada')));
+  }
+
+  void _delete() {
+    ref.read(clinicalRepositoryProvider).deleteVisit(widget.recordId!);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(const SnackBar(content: Text('Visita eliminada')));
   }
 
   String? _clean(TextEditingController c) =>
@@ -96,8 +154,8 @@ class _MedicalVisitFormScreenState
     final pet = ref.watch(petByIdProvider(widget.petId));
 
     return ModalFormScaffold(
-      title: 'Visita médica',
-      saveLabel: 'Guardar visita',
+      title: _isEdit ? 'Editar visita' : 'Visita médica',
+      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar visita',
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
@@ -107,7 +165,10 @@ class _MedicalVisitFormScreenState
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
         const FieldLabel('Veterinario / clínica'),
-        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte', maxLength: FormLimits.shortText),
+        AppTextField(
+            controller: _clinic,
+            hint: 'Ej. Clínica Veterinaria del Norte',
+            maxLength: FormLimits.shortText),
         const SizedBox(height: 16),
         const FieldLabel('Motivo de la visita'),
         AppTextField(
@@ -124,7 +185,7 @@ class _MedicalVisitFormScreenState
           maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
-        if (_diagnosis.text.trim().isNotEmpty) ...[
+        if (!_isEdit && _diagnosis.text.trim().isNotEmpty) ...[
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
@@ -148,6 +209,7 @@ class _MedicalVisitFormScreenState
         const SizedBox(height: 16),
         const FieldLabel('Notas (opcional)'),
         AppMultilineField(controller: _notes, hint: 'Añade una nota…', minLines: 2),
+        if (_isEdit) RecordDeleteButton(label: 'Eliminar visita', onDelete: _delete),
       ],
     );
   }

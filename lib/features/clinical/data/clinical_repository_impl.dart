@@ -49,8 +49,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
             ? 'Visita médica'
             : 'Visita médica — ${v.reason}',
         subtitle: v.clinic,
-        diagnosisLabel: v.diagnosis,
-        diagnosisStatus: v.diagnosis == null ? null : DiagnosisStatus.active,
+        sourceId: v.id,
       ));
     }
     for (final vac in vaccinesForPet(petId)) {
@@ -59,6 +58,18 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         kind: TimelineKind.vaccine,
         title: vac.type,
         subtitle: vac.clinic,
+        sourceId: vac.id,
+      ));
+    }
+    for (final d in diagnosesForPet(petId)) {
+      entries.add(TimelineEntry(
+        date: d.date,
+        kind: TimelineKind.diagnosis,
+        title: d.condition,
+        subtitle: d.notes,
+        sourceId: d.id,
+        diagnosisStatus: d.status,
+        diagnosisLabel: d.status.label,
       ));
     }
     for (final e in _db.executions
@@ -68,6 +79,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         kind: TimelineKind.care,
         title: e.name,
         subtitle: e.notes,
+        sourceId: e.id,
       ));
     }
     for (final w in weightsForPet(petId)) {
@@ -76,6 +88,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         kind: TimelineKind.weight,
         title: 'Peso registrado: ${_fmtWeight(w)} ${w.unit.label}',
         subtitle: w.note,
+        sourceId: w.id,
       ));
     }
 
@@ -115,6 +128,66 @@ class InMemoryClinicalRepository implements ClinicalRepository {
           .copyWith(status: status, meta: _db.diagnoses[i].meta.touched(_clock.now()));
       _db.bump();
     }
+  }
+
+  @override
+  void updateWeight(WeightRecord record) {
+    final i = _db.weights.indexWhere((w) => w.id == record.id);
+    if (i >= 0) {
+      _db.weights[i] = record;
+      _db.bump();
+    }
+  }
+
+  @override
+  void deleteWeight(String id) {
+    _db.weights.removeWhere((w) => w.id == id);
+    _db.bump();
+  }
+
+  @override
+  void updateVisit(MedicalVisit visit) {
+    final i = _db.visits.indexWhere((v) => v.id == visit.id);
+    if (i >= 0) {
+      _db.visits[i] = visit;
+      _db.bump();
+    }
+  }
+
+  @override
+  void deleteVisit(String id) {
+    _db.visits.removeWhere((v) => v.id == id);
+    _db.bump();
+  }
+
+  @override
+  void updateVaccine(Vaccine vaccine) {
+    final i = _db.vaccines.indexWhere((v) => v.id == vaccine.id);
+    if (i >= 0) {
+      _db.vaccines[i] = vaccine;
+      _db.bump();
+    }
+  }
+
+  @override
+  void deleteVaccine(String id) {
+    _db.vaccines.removeWhere((v) => v.id == id);
+    _db.bump();
+  }
+
+  @override
+  void updateDiagnosis(Diagnosis diagnosis) {
+    final i = _db.diagnoses.indexWhere((d) => d.id == diagnosis.id);
+    if (i >= 0) {
+      _db.diagnoses[i] = diagnosis;
+      _db.bump();
+    }
+  }
+
+  @override
+  void deleteDiagnosis(String id) {
+    _db.diagnoses.removeWhere((d) => d.id == id);
+    _db.bump();
   }
 
   static String _fmtWeight(WeightRecord w) =>

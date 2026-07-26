@@ -25,6 +25,7 @@ import '../../reports/application/pet_report_service.dart';
 import '../../reports/application/reports_providers.dart';
 import '../../clinical/domain/entities/diagnosis.dart';
 import '../../clinical/domain/entities/timeline_entry.dart';
+import '../../clinical/presentation/diagnosis_form_screen.dart';
 import '../../clinical/presentation/medical_visit_form_screen.dart';
 import '../../clinical/presentation/vaccine_form_screen.dart';
 import '../../clinical/presentation/weight_form_screen.dart';
@@ -185,7 +186,8 @@ class _SummaryTab extends ConsumerWidget {
           for (final d in diagnoses) ...[
             _DiagnosisCard(
               diagnosis: d,
-              onChangeStatus: () => _pickDiagnosisStatus(context, ref, d),
+              onChangeStatus: () =>
+                  DiagnosisFormScreen.openEdit(context, d.petId, d.id),
             ),
             const SizedBox(height: 10),
           ],
@@ -283,42 +285,6 @@ class _DiagnosisCard extends StatelessWidget {
 }
 
 /// Selector de estado de un diagnóstico (RF-21); el cambio queda en el historial.
-Future<void> _pickDiagnosisStatus(
-    BuildContext context, WidgetRef ref, Diagnosis diagnosis) {
-  final c = context.colors;
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    builder: (sheetContext) => SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
-            child: Text('Estado de "${diagnosis.condition}"',
-                style: AppText.title2(c.text)),
-          ),
-          for (final s in DiagnosisStatus.values)
-            ListTile(
-              leading: _DxTag(status: s),
-              trailing: s == diagnosis.status
-                  ? Icon(Icons.check, color: c.brand)
-                  : null,
-              onTap: () {
-                ref
-                    .read(clinicalRepositoryProvider)
-                    .updateDiagnosisStatus(diagnosis.id, s);
-                Navigator.of(sheetContext).pop();
-              },
-            ),
-        ],
-      ),
-    ),
-  );
-}
-
 Color dxColor(BuildContext context, DiagnosisStatus s) {
   final c = context.colors;
   return switch (s) {
@@ -422,40 +388,222 @@ class _CaresTab extends ConsumerWidget {
   }
 }
 
-class _HistoryTab extends ConsumerWidget {
+class _HistoryTab extends ConsumerStatefulWidget {
   const _HistoryTab({required this.petId});
   final String petId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_HistoryTab> createState() => _HistoryTabState();
+}
+
+class _HistoryTabState extends ConsumerState<_HistoryTab> {
+  TimelineKind? _kind; // null = todos
+  DateTimeRange? _range;
+
+  static const _filters = <(String, TimelineKind?)>[
+    ('Todos', null),
+    ('Visitas', TimelineKind.visit),
+    ('Vacunas', TimelineKind.vaccine),
+    ('Diagnósticos', TimelineKind.diagnosis),
+    ('Cuidados', TimelineKind.care),
+    ('Peso', TimelineKind.weight),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     ref.watch(databaseProvider);
-    final entries = ref.read(clinicalRepositoryProvider).timelineForPet(petId);
-    if (entries.isEmpty) {
-      return Center(
-        child: Text('Aún no hay registros en el historial.',
-            style: AppText.body(c.text3)),
-      );
+    final all = ref.read(clinicalRepositoryProvider).timelineForPet(widget.petId);
+    final entries = all.where((e) {
+      if (_kind != null && e.kind != _kind) return false;
+      if (_range != null) {
+        final d = DateTime(e.date.year, e.date.month, e.date.day);
+        if (d.isBefore(_range!.start) || d.isAfter(_range!.end)) return false;
+      }
+      return true;
+    }).toList();
+
+    return Column(
+      children: [
+        _FilterBar(
+          filters: _filters,
+          selected: _kind,
+          range: _range,
+          onKind: (k) => setState(() => _kind = k),
+          onRange: _pickRange,
+          onClearRange: () => setState(() => _range = null),
+        ),
+        Expanded(
+          child: entries.isEmpty
+              ? Center(
+                  child: Text(
+                      all.isEmpty
+                          ? 'Aún no hay registros en el historial.'
+                          : 'Sin registros para este filtro.',
+                      style: AppText.body(c.text3)),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                  itemCount: entries.length,
+                  itemBuilder: (context, i) => _TimelineTile(
+                    entry: entries[i],
+                    isLast: i == entries.length - 1,
+                    onTap: () => _openEntry(entries[i]),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 20),
+      lastDate: now,
+      initialDateRange: _range,
+    );
+    if (picked != null) {
+      setState(() => _range = DateTimeRange(
+            start: DateTime(picked.start.year, picked.start.month, picked.start.day),
+            end: DateTime(picked.end.year, picked.end.month, picked.end.day),
+          ));
     }
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-      itemCount: entries.length,
-      itemBuilder: (context, i) => _TimelineTile(
-        entry: entries[i],
-        isLast: i == entries.length - 1,
+  }
+
+  void _openEntry(TimelineEntry e) {
+    final id = e.sourceId;
+    if (id == null) return;
+    switch (e.kind) {
+      case TimelineKind.visit:
+        MedicalVisitFormScreen.openEdit(context, widget.petId, id);
+      case TimelineKind.vaccine:
+        VaccineFormScreen.openEdit(context, widget.petId, id);
+      case TimelineKind.weight:
+        WeightFormScreen.openEdit(context, widget.petId, id);
+      case TimelineKind.diagnosis:
+        DiagnosisFormScreen.openEdit(context, widget.petId, id);
+      case TimelineKind.care:
+        break; // las ejecuciones de cuidado no se editan (se deshacen)
+    }
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  const _FilterBar({
+    required this.filters,
+    required this.selected,
+    required this.range,
+    required this.onKind,
+    required this.onRange,
+    required this.onClearRange,
+  });
+  final List<(String, TimelineKind?)> filters;
+  final TimelineKind? selected;
+  final DateTimeRange? range;
+  final ValueChanged<TimelineKind?> onKind;
+  final VoidCallback onRange;
+  final VoidCallback onClearRange;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 44,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            children: [
+              for (final f in filters) ...[
+                _Chip(
+                  label: f.$1,
+                  selected: selected == f.$2,
+                  onTap: () => onKind(f.$2),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: onRange,
+                borderRadius: Radii.pillAll,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.date_range_outlined, size: 16, color: c.brand),
+                      const SizedBox(width: 6),
+                      Text(
+                        range == null
+                            ? 'Filtrar por fechas'
+                            : '${AppDates.shortDate(range!.start)} – ${AppDates.shortDate(range!.end)}',
+                        style: AppText.metaStrong(c.brand),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (range != null)
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(Icons.close, size: 16, color: c.text3),
+                  onPressed: onClearRange,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: selected ? c.brand : c.alt,
+          borderRadius: Radii.pillAll,
+          border: Border.all(color: selected ? c.brand : c.border),
+        ),
+        child: Text(label,
+            style: AppText.metaStrong(selected ? c.onBrand : c.text2)),
       ),
     );
   }
 }
 
 class _TimelineTile extends StatelessWidget {
-  const _TimelineTile({required this.entry, required this.isLast});
+  const _TimelineTile(
+      {required this.entry, required this.isLast, this.onTap});
   final TimelineEntry entry;
   final bool isLast;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final editable = entry.sourceId != null && entry.kind != TimelineKind.care;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,11 +625,20 @@ class _TimelineTile extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: AppCard(
+                onTap: editable ? onTap : null,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(entry.title, style: AppText.bodyStrong(c.text)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(entry.title, style: AppText.bodyStrong(c.text)),
+                        ),
+                        if (editable)
+                          Icon(Icons.edit_outlined, size: 15, color: c.text3),
+                      ],
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       [
@@ -759,6 +916,8 @@ class _PetMenu extends ConsumerWidget {
             MedicalVisitFormScreen.open(context, petId);
           case 'vaccine':
             VaccineFormScreen.open(context, petId);
+          case 'diagnosis':
+            DiagnosisFormScreen.open(context, petId);
           case 'share':
             _shareReport(context, ref, petId);
           case 'edit':
@@ -768,6 +927,7 @@ class _PetMenu extends ConsumerWidget {
       itemBuilder: (context) => const [
         PopupMenuItem(value: 'visit', child: Text('Agregar visita médica')),
         PopupMenuItem(value: 'vaccine', child: Text('Registrar vacuna')),
+        PopupMenuItem(value: 'diagnosis', child: Text('Agregar diagnóstico')),
         PopupMenuItem(value: 'weight', child: Text('Registrar peso')),
         PopupMenuItem(value: 'edit', child: Text('Editar')),
         PopupMenuItem(value: 'share', child: Text('Compartir con veterinario')),

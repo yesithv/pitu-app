@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,15 +11,25 @@ import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/domain/entities/pet.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/weight_record.dart';
+import 'record_delete_button.dart';
 
-/// Registrar peso (RF-22). Actualiza la curva de peso al instante.
+/// Registrar peso (RF-22) y editarlo/eliminarlo una vez insertado.
 class WeightFormScreen extends ConsumerStatefulWidget {
-  const WeightFormScreen({super.key, required this.petId});
+  const WeightFormScreen({super.key, required this.petId, this.recordId});
   final String petId;
+  final String? recordId;
 
   static Future<void> open(BuildContext context, String petId) {
     return Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => WeightFormScreen(petId: petId)),
+    );
+  }
+
+  static Future<void> openEdit(
+      BuildContext context, String petId, String recordId) {
+    return Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (_) => WeightFormScreen(petId: petId, recordId: recordId)),
     );
   }
 
@@ -32,6 +43,30 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
   WeightUnit _unit = WeightUnit.kg;
   final _note = TextEditingController();
   bool _initialized = false;
+  WeightRecord? _existing;
+
+  bool get _isEdit => widget.recordId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.recordId != null) {
+      final rec = ref
+          .read(clinicalRepositoryProvider)
+          .weightsForPet(widget.petId)
+          .firstWhereOrNull((w) => w.id == widget.recordId);
+      if (rec != null) {
+        _existing = rec;
+        _initialized = true;
+        _unit = rec.unit;
+        _date = rec.date;
+        _note.text = rec.note ?? '';
+        _value.text = rec.value == rec.value.roundToDouble()
+            ? rec.value.toInt().toString()
+            : rec.value.toString();
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -52,10 +87,10 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
     final previous = ref
         .read(clinicalRepositoryProvider)
         .weightsForPet(widget.petId)
-        .where((w) => w.value > 0)
+        .where((w) => w.value > 0 && w.id != widget.recordId)
         .toList();
     if (previous.isEmpty) return null;
-    final prev = previous.last; // ya viene ordenado ascendente por fecha
+    final prev = previous.last; // ordenado ascendente por fecha
     final prevKg = _toKg(prev.value, prev.unit);
     final newKg = _toKg(newValue, _unit);
     if (prevKg <= 0) return null;
@@ -70,18 +105,41 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
   void _save() {
     final now = ref.read(clockProvider).now();
     final notice = _variationNotice(_parsed!);
-    ref.read(clinicalRepositoryProvider).addWeight(WeightRecord(
-          meta: SyncMetadata.create(id: ref.read(idGeneratorProvider).newId(), now: now),
-          petId: widget.petId,
-          value: _parsed!,
-          unit: _unit,
-          date: _date,
-          note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-        ));
+    final repo = ref.read(clinicalRepositoryProvider);
+    final note = _note.text.trim().isEmpty ? null : _note.text.trim();
+
+    if (_isEdit && _existing != null) {
+      repo.updateWeight(WeightRecord(
+        meta: _existing!.meta.touched(now),
+        petId: _existing!.petId,
+        value: _parsed!,
+        unit: _unit,
+        date: _date,
+        note: note,
+      ));
+    } else {
+      repo.addWeight(WeightRecord(
+        meta: SyncMetadata.create(id: ref.read(idGeneratorProvider).newId(), now: now),
+        petId: widget.petId,
+        value: _parsed!,
+        unit: _unit,
+        date: _date,
+        note: note,
+      ));
+    }
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(notice ?? 'Peso registrado')));
+      ..showSnackBar(SnackBar(
+          content: Text(notice ?? (_isEdit ? 'Peso actualizado' : 'Peso registrado'))));
+  }
+
+  void _delete() {
+    ref.read(clinicalRepositoryProvider).deleteWeight(widget.recordId!);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(const SnackBar(content: Text('Registro de peso eliminado')));
   }
 
   @override
@@ -93,8 +151,8 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
     }
 
     return ModalFormScaffold(
-      title: 'Registrar peso',
-      saveLabel: 'Guardar',
+      title: _isEdit ? 'Editar peso' : 'Registrar peso',
+      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar',
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
@@ -130,6 +188,7 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
         const InfoNote(
           'Ante un cambio de peso notable, te lo señalamos como aviso informativo, no diagnóstico.',
         ),
+        if (_isEdit) RecordDeleteButton(label: 'Eliminar registro', onDelete: _delete),
       ],
     );
   }
