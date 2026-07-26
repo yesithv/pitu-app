@@ -7,6 +7,7 @@ import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/common.dart';
 import '../backup/application/backup_providers.dart';
+import '../backup/application/backup_service.dart';
 import '../backup/domain/backup_result.dart';
 import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
@@ -163,12 +164,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _LinkRow(label: 'Crear respaldo', onTap: _onCreateBackup, divider: true),
               _LinkRow(label: 'Restaurar respaldo', onTap: _onRestoreBackup, divider: true),
               _Row(
-                label: 'El respaldo es un archivo .json que puedes guardar donde quieras.',
+                label: _lastBackupLabel(ref.watch(databaseProvider).lastBackupAt),
                 labelColor: c.text3,
               ),
             ],
           ),
         ),
+        if (_shouldRemindBackup(ref.watch(databaseProvider).lastBackupAt)) ...[
+          const SizedBox(height: 12),
+          const InfoNote(
+            'Te recomendamos crear un respaldo para no perder tus datos si '
+            'cambias de dispositivo.',
+            icon: Icons.backup_outlined,
+          ),
+        ],
         const SizedBox(height: 16),
 
         const InfoNote(
@@ -203,11 +212,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  static String _lastBackupLabel(DateTime? at) {
+    if (at == null) return 'Aún no has creado un respaldo.';
+    final d = DateTime.now().difference(at);
+    if (d.inDays >= 1) {
+      return 'Último respaldo: hace ${d.inDays} día${d.inDays == 1 ? '' : 's'}';
+    }
+    if (d.inHours >= 1) return 'Último respaldo: hace ${d.inHours} h';
+    return 'Último respaldo: hace un momento';
+  }
+
+  static bool _shouldRemindBackup(DateTime? at) {
+    if (at == null) return true;
+    return DateTime.now().difference(at).inDays >= 7;
+  }
+
   Future<void> _onCreateBackup() async {
-    final path = await ref.read(backupServiceProvider).export();
-    _snack(path == null
-        ? 'Respaldo descargado (revisa tus descargas).'
-        : 'Respaldo guardado en: $path');
+    try {
+      final path = await ref.read(backupServiceProvider).export();
+      _snack(path == null
+          ? 'Respaldo descargado (revisa tus descargas).'
+          : 'Respaldo guardado en: $path');
+    } catch (_) {
+      _snack('No se pudo crear el respaldo.');
+    }
   }
 
   Future<void> _onRestoreBackup() async {
@@ -217,28 +245,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           'por ahora.');
       return;
     }
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Restaurar respaldo'),
-        content: const Text(
-            'Se reemplazarán los datos actuales de este dispositivo con los '
-            'del respaldo. Esta acción no se puede deshacer. ¿Continuar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Restaurar'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
+    // 1) Selecciona y muestra un resumen antes de aplicar (RF-42).
+    final pick = await service.pickForImport();
+    if (pick.cancelled) return;
+    if (pick.error != null) {
+      _snack(pick.error!);
+      return;
+    }
+    final preview = pick.preview!;
+    if (!mounted) return;
 
-    final result = await service.import();
+    // 2) El usuario elige reemplazar o combinar (RF-43).
+    final mode = await _chooseImportMode(preview);
+    if (mode == null) return;
+
+    // 3) Aplica y reprograma recordatorios (RF-44, vía bump del autoguardado).
+    final result = service.apply(preview, mode);
     switch (result.status) {
       case BackupImportStatus.success:
         _snack('Respaldo restaurado: ${result.pets} mascota(s) y '
@@ -248,6 +270,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       case BackupImportStatus.cancelled:
         break;
     }
+  }
+
+  Future<BackupMode?> _chooseImportMode(BackupPreview p) {
+    final c = context.colors;
+    final when = p.exportedAt == null
+        ? ''
+        : ' · creado el ${p.exportedAt!.day}/${p.exportedAt!.month}/${p.exportedAt!.year}';
+    return showModalBottomSheet<BackupMode>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Contenido del respaldo', style: AppText.title2(c.text)),
+              const SizedBox(height: 6),
+              Text(
+                '${p.pets} mascota(s) · ${p.records} registro(s) · '
+                '${p.attachments} documento(s)$when',
+                style: AppText.body(c.text2),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.merge_type, color: c.brand),
+                title: const Text('Combinar (recomendado)'),
+                subtitle: const Text('Agrega lo que falte, sin duplicar.'),
+                onTap: () => Navigator.of(sheetContext).pop(BackupMode.combine),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.swap_horiz, color: c.over),
+                title: const Text('Reemplazar todo'),
+                subtitle: const Text('Borra los datos actuales de este dispositivo.'),
+                onTap: () => Navigator.of(sheetContext).pop(BackupMode.replace),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _onRemindersToggle(bool value) async {

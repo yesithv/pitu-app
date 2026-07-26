@@ -32,6 +32,7 @@ abstract class DbCodec {
         'purchaseSource': db.purchaseSource,
         'purchasedAt': _iso(db.purchasedAt),
         'reminderLeadDays': db.reminderLeadDays,
+        'lastBackupAt': _iso(db.lastBackupAt),
         'pets': db.pets.map(_petToJson).toList(),
         'careTypes': db.careTypes.map(_careTypeToJson).toList(),
         'schedules': db.schedules.map(_scheduleToJson).toList(),
@@ -80,6 +81,7 @@ abstract class DbCodec {
     db.purchaseSource = json['purchaseSource'] as String?;
     db.purchasedAt = _date(json['purchasedAt']);
     db.reminderLeadDays = (json['reminderLeadDays'] as num?)?.toInt() ?? 0;
+    db.lastBackupAt = _date(json['lastBackupAt']);
   }
 
   // ---- helpers ----------------------------------------------------------

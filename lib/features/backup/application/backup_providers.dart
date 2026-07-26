@@ -13,5 +13,6 @@ final backupServiceProvider = Provider<BackupService>(
   (ref) => BackupService(
     ref.read(databaseProvider),
     ref.read(fileTransferProvider),
+    ref.read(persistenceProvider),
   ),
 );

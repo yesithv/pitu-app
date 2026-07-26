@@ -44,6 +44,9 @@ class InMemoryDatabase extends ChangeNotifier {
   /// mismo día.
   int reminderLeadDays = 0;
 
+  /// Fecha del último respaldo creado (RF-46). `null` si nunca se ha hecho.
+  DateTime? lastBackupAt;
+
   /// Notifica a los observadores tras una mutación.
   void bump() => notifyListeners();
 }
