@@ -36,7 +36,7 @@ Future<String?> pickPetId(BuildContext context, WidgetRef ref) async {
             ),
             for (final pv in pets)
               ListTile(
-                leading: PetAvatar(emoji: pv.pet.species.emoji, size: 40),
+                leading: PetAvatar(emoji: pv.pet.species.emoji, photoBase64: pv.pet.photoBase64, size: 40),
                 title: Text(pv.pet.name,
                     style: AppText.cardTitle(c.text).copyWith(fontSize: 16)),
                 subtitle: Text(pv.pet.shortSubtitle, style: AppText.meta(c.text3)),

@@ -112,7 +112,7 @@ class _PetHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
       child: Column(
         children: [
-          PetAvatar(emoji: pet.species.emoji, size: 96),
+          PetAvatar(emoji: pet.species.emoji, photoBase64: pet.photoBase64, size: 96),
           const SizedBox(height: 12),
           Text(pet.name, style: AppText.display(c.text)),
           const SizedBox(height: 2),

@@ -77,6 +77,65 @@ class InMemoryCareRepository implements CareRepository {
   }
 
   @override
+  void syncBirthday(String petId, DateTime? birthDate) {
+    final now = _clock.now();
+    final existing = _db.schedules.firstWhereOrNull((s) =>
+        s.petId == petId && s.kind == CareKind.birthday && !s.meta.isDeleted);
+
+    // Sin fecha: desactiva el recordatorio si existía.
+    if (birthDate == null) {
+      if (existing != null && existing.isActive) {
+        final i = _db.schedules.indexWhere((s) => s.id == existing.id);
+        _db.schedules[i] =
+            existing.copyWith(isActive: false, meta: existing.meta.touched(now));
+        _db.bump();
+      }
+      return;
+    }
+
+    final next = _nextBirthday(birthDate, now);
+    if (existing != null) {
+      final i = _db.schedules.indexWhere((s) => s.id == existing.id);
+      _db.schedules[i] = existing.copyWith(
+        nextDate: next,
+        isActive: true,
+        meta: existing.meta.touched(now),
+      );
+      _db.bump();
+      return;
+    }
+
+    const frequency = CareFrequency(1, FrequencyUnit.years);
+    final careType = CareType(
+      meta: SyncMetadata.create(id: _ids.newId(), now: now),
+      name: CareKind.birthday.defaultName,
+      kind: CareKind.birthday,
+      suggestedFrequency: frequency,
+    );
+    _db.careTypes.add(careType);
+    _db.schedules.add(CareSchedule(
+      meta: SyncMetadata.create(id: _ids.newId(), now: now),
+      petId: petId,
+      careTypeId: careType.id,
+      name: CareKind.birthday.defaultName,
+      kind: CareKind.birthday,
+      frequency: frequency,
+      nextDate: next,
+    ));
+    _db.bump();
+  }
+
+  /// Próximo cumpleaños a partir de hoy (hoy incluido).
+  static DateTime _nextBirthday(DateTime birthDate, DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+    var next = DateTime(now.year, birthDate.month, birthDate.day);
+    if (next.isBefore(today)) {
+      next = DateTime(now.year + 1, birthDate.month, birthDate.day);
+    }
+    return next;
+  }
+
+  @override
   void updateSchedule(CareSchedule schedule) {
     final i = _db.schedules.indexWhere((s) => s.id == schedule.id);
     if (i >= 0) {

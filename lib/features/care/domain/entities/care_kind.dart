@@ -9,6 +9,7 @@ enum CareKind {
   weight('Control de peso'),
   vetVisit('Consulta veterinaria'),
   medication('Medicación'),
+  birthday('Cumpleaños'),
   custom('Personalizado');
 
   const CareKind(this.defaultName);

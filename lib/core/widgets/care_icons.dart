@@ -15,6 +15,7 @@ IconData iconForCareKind(CareKind kind) {
     CareKind.weight => Icons.monitor_weight_outlined,
     CareKind.vetVisit => Icons.medical_services_outlined,
     CareKind.medication => Icons.medication_outlined,
+    CareKind.birthday => Icons.cake_outlined,
     CareKind.custom => Icons.pets_outlined,
   };
 }

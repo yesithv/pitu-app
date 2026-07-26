@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../features/pets/domain/entities/pet.dart';
@@ -69,14 +71,44 @@ class InfoNote extends StatelessWidget {
 
 /// Avatar circular de mascota (emoji sobre `brand/soft`).
 class PetAvatar extends StatelessWidget {
-  const PetAvatar({super.key, required this.emoji, this.size = 60, this.dashed = true});
+  const PetAvatar({
+    super.key,
+    required this.emoji,
+    this.photoBase64,
+    this.size = 60,
+    this.dashed = true,
+  });
   final String emoji;
+
+  /// Foto de la mascota en base64 (sin prefijo `data:`). Si está presente se
+  /// muestra en lugar del emoji de la especie.
+  final String? photoBase64;
   final double size;
   final bool dashed;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final photo = photoBase64;
+    if (photo != null && photo.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: dashed ? Border.all(color: c.brand.withOpacity(0.30)) : null,
+        ),
+        child: ClipOval(
+          child: Image.memory(
+            base64Decode(photo),
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+          ),
+        ),
+      );
+    }
     return Container(
       width: size,
       height: size,

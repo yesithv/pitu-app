@@ -25,8 +25,10 @@ class PetOnboardingService {
     required Species species,
     String? breed,
     String? ageText,
+    DateTime? birthDate,
     double? weight,
     WeightUnit weightUnit = WeightUnit.kg,
+    String? photoBase64,
   }) {
     final now = _clock.now();
     final pet = Pet(
@@ -35,8 +37,10 @@ class PetOnboardingService {
       species: species,
       breed: (breed != null && breed.trim().isEmpty) ? null : breed?.trim(),
       ageText: (ageText != null && ageText.trim().isEmpty) ? null : ageText?.trim(),
+      birthDate: birthDate,
       weight: weight,
       weightUnit: weightUnit,
+      photoBase64: photoBase64,
     );
     _db.pets.add(pet);
 

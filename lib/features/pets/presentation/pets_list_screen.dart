@@ -84,7 +84,7 @@ class _PetRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          PetAvatar(emoji: pet.species.emoji, size: 60),
+          PetAvatar(emoji: pet.species.emoji, photoBase64: pet.photoBase64, size: 60),
           const SizedBox(width: 14),
           Expanded(
             child: Column(

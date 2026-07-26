@@ -18,9 +18,10 @@ import 'in_memory_database.dart';
 /// pensado para servir también como formato de respaldo (RF-41) y de migración
 /// a la API de la Fase 2 (RF-54).
 abstract class DbCodec {
-  /// Versión del esquema del snapshot/respaldo. v2 añade `attachments`; los
-  /// respaldos v1 (sin adjuntos) siguen restaurándose (la lista queda vacía).
-  static const int schemaVersion = 2;
+  /// Versión del esquema del snapshot/respaldo. v2 añade `attachments`; v3 añade
+  /// la foto de la mascota y el entitlement. Los respaldos anteriores siguen
+  /// restaurándose (los campos nuevos quedan con su valor por defecto).
+  static const int schemaVersion = 3;
 
   static Map<String, dynamic> encode(InMemoryDatabase db) => {
         'schemaVersion': schemaVersion,
@@ -99,6 +100,7 @@ abstract class DbCodec {
         'weightUnit': p.weightUnit.name,
         'breed': p.breed,
         'photoPath': p.photoPath,
+        'photoBase64': p.photoBase64,
         'status': p.status.name,
         'archiveReason': p.archiveReason?.name,
       };
@@ -113,6 +115,7 @@ abstract class DbCodec {
         weightUnit: _enumByName(WeightUnit.values, j['weightUnit'], WeightUnit.kg),
         breed: j['breed'] as String?,
         photoPath: j['photoPath'] as String?,
+        photoBase64: j['photoBase64'] as String?,
         status: _enumByName(PetStatus.values, j['status'], PetStatus.active),
         archiveReason: j['archiveReason'] == null
             ? null

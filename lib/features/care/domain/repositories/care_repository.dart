@@ -12,6 +12,11 @@ abstract interface class CareRepository {
     required CareFrequency frequency,
   });
 
+  /// Crea, actualiza o desactiva el recordatorio de cumpleaños de una mascota
+  /// según su fecha de nacimiento. Al fijar la fecha aparece como una actividad
+  /// pendiente anual (igual que una vacuna); al quitarla se desactiva.
+  void syncBirthday(String petId, DateTime? birthDate);
+
   /// Todas las programaciones activas de mascotas activas (para el dashboard).
   List<CareSchedule> allActiveSchedules();
 

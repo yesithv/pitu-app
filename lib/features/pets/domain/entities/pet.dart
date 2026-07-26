@@ -33,6 +33,7 @@ class Pet {
     this.weightUnit = WeightUnit.kg,
     this.breed,
     this.photoPath,
+    this.photoBase64,
     this.status = PetStatus.active,
     this.archiveReason,
   });
@@ -48,6 +49,10 @@ class Pet {
   final WeightUnit weightUnit;
   final String? breed;
   final String? photoPath;
+
+  /// Foto de la mascota embebida en base64 (sin prefijo `data:`). Local-first:
+  /// viaja en el snapshot y el respaldo, como los adjuntos.
+  final String? photoBase64;
   final PetStatus status;
   final ArchiveReason? archiveReason;
 
@@ -85,6 +90,9 @@ class Pet {
     WeightUnit? weightUnit,
     String? breed,
     String? photoPath,
+    String? photoBase64,
+    bool clearPhoto = false,
+    bool clearBirthDate = false,
     PetStatus? status,
     ArchiveReason? archiveReason,
   }) {
@@ -92,12 +100,13 @@ class Pet {
       meta: meta ?? this.meta,
       name: name ?? this.name,
       species: species ?? this.species,
-      birthDate: birthDate ?? this.birthDate,
+      birthDate: clearBirthDate ? null : (birthDate ?? this.birthDate),
       ageText: ageText ?? this.ageText,
       weight: weight ?? this.weight,
       weightUnit: weightUnit ?? this.weightUnit,
       breed: breed ?? this.breed,
       photoPath: photoPath ?? this.photoPath,
+      photoBase64: clearPhoto ? null : (photoBase64 ?? this.photoBase64),
       status: status ?? this.status,
       archiveReason: archiveReason ?? this.archiveReason,
     );
