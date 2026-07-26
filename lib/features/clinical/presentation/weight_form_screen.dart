@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/sync_metadata.dart';
+import '../../../core/utils/form_limits.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
@@ -40,10 +41,35 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
   }
 
   double? get _parsed => double.tryParse(_value.text.replaceAll(',', '.'));
-  bool get _valid => _parsed != null && _parsed! > 0;
+  bool get _valid =>
+      _parsed != null && _parsed! > 0 && _parsed! <= FormLimits.maxWeight;
+
+  static double _toKg(double v, WeightUnit u) =>
+      u == WeightUnit.lb ? v * 0.453592 : v;
+
+  /// Aviso informativo (no diagnóstico) ante una variación >10% (RF-23).
+  String? _variationNotice(double newValue) {
+    final previous = ref
+        .read(clinicalRepositoryProvider)
+        .weightsForPet(widget.petId)
+        .where((w) => w.value > 0)
+        .toList();
+    if (previous.isEmpty) return null;
+    final prev = previous.last; // ya viene ordenado ascendente por fecha
+    final prevKg = _toKg(prev.value, prev.unit);
+    final newKg = _toKg(newValue, _unit);
+    if (prevKg <= 0) return null;
+    final delta = (newKg - prevKg) / prevKg;
+    if (delta.abs() < 0.10) return null;
+    final pct = (delta.abs() * 100).round();
+    final dir = delta > 0 ? 'subió' : 'bajó';
+    return 'El peso $dir ~$pct% respecto al registro anterior. '
+        'Es un aviso informativo, no un diagnóstico.';
+  }
 
   void _save() {
     final now = ref.read(clockProvider).now();
+    final notice = _variationNotice(_parsed!);
     ref.read(clinicalRepositoryProvider).addWeight(WeightRecord(
           meta: SyncMetadata.create(id: ref.read(idGeneratorProvider).newId(), now: now),
           petId: widget.petId,
@@ -55,7 +81,7 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Peso registrado')));
+      ..showSnackBar(SnackBar(content: Text(notice ?? 'Peso registrado')));
   }
 
   @override
@@ -83,6 +109,7 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
                 hint: 'valor',
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 textCapitalization: TextCapitalization.none,
+                inputFormatters: FormLimits.weight,
                 onChanged: (_) => setState(() {}),
               ),
             ),

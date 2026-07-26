@@ -6,6 +6,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/utils/form_limits.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
@@ -75,9 +76,13 @@ class _CareScheduleFormScreenState
     super.dispose();
   }
 
-  bool get _valid => _name.text.trim().isNotEmpty && _every > 0;
+  bool get _valid =>
+      _name.text.trim().isNotEmpty &&
+      _every > 0 &&
+      _every <= FormLimits.maxFrequencyEvery;
 
-  CareFrequency get _frequency => CareFrequency(_every, _unit);
+  CareFrequency get _frequency =>
+      CareFrequency(_every.clamp(1, FormLimits.maxFrequencyEvery), _unit);
 
   void _save() {
     final repo = ref.read(careRepositoryProvider);
@@ -120,6 +125,7 @@ class _CareScheduleFormScreenState
         AppTextField(
           controller: _name,
           hint: 'Ej. Corte de uñas',
+          maxLength: FormLimits.name,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 18),
@@ -188,7 +194,11 @@ class _FrequencyEditor extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: AppText.title2(c.text)),
                   ),
-                  _StepBtn(icon: Icons.add, onTap: () => onEvery(every + 1)),
+                  _StepBtn(
+                      icon: Icons.add,
+                      onTap: () => onEvery(every < FormLimits.maxFrequencyEvery
+                          ? every + 1
+                          : every)),
                 ],
               ),
             ),

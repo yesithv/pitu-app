@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -8,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/utils/app_dates.dart';
+import '../../../core/utils/form_limits.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../backup/application/backup_providers.dart';
@@ -84,7 +86,17 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
     super.dispose();
   }
 
-  bool get _valid => _name.text.trim().isNotEmpty;
+  double? get _parsedWeight =>
+      double.tryParse(_weight.text.replaceAll(',', '.'));
+  bool get _valid {
+    if (_name.text.trim().isEmpty) return false;
+    final w = _parsedWeight;
+    if (_weight.text.trim().isNotEmpty &&
+        (w == null || w <= 0 || w > FormLimits.maxWeight)) {
+      return false;
+    }
+    return true;
+  }
 
   void _save() {
     final String message;
@@ -187,7 +199,11 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                   )),
                   const SizedBox(height: 20),
                   const FieldLabel('Nombre'),
-                  _TextField(controller: _name, hint: 'Ej. Pitufo', onChanged: (_) => setState(() {})),
+                  _TextField(
+                      controller: _name,
+                      hint: 'Ej. Pitufo',
+                      maxLength: FormLimits.name,
+                      onChanged: (_) => setState(() {})),
                   const SizedBox(height: 16),
                   const FieldLabel('Especie'),
                   Row(
@@ -206,7 +222,10 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                   ),
                   const SizedBox(height: 16),
                   const FieldLabel('Edad aproximada (opcional)'),
-                  _TextField(controller: _age, hint: 'Ej. 4 años'),
+                  _TextField(
+                      controller: _age,
+                      hint: 'Ej. 4 años',
+                      maxLength: FormLimits.ageText),
                   const SizedBox(height: 16),
                   const FieldLabel('Cumpleaños (opcional)'),
                   _BirthdayField(
@@ -222,7 +241,10 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                         child: _TextField(
                           controller: _weight,
                           hint: 'valor',
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: FormLimits.weight,
+                          onChanged: (_) => setState(() {}),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -234,7 +256,10 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                   ),
                   const SizedBox(height: 16),
                   const FieldLabel('Raza (opcional)'),
-                  _TextField(controller: _breed, hint: 'Ej. Labrador'),
+                  _TextField(
+                      controller: _breed,
+                      hint: 'Ej. Labrador',
+                      maxLength: FormLimits.breed),
                   const SizedBox(height: 18),
                   const InfoNote(
                       'Prepararemos un plan de cuidados según la especie. Si '
@@ -266,11 +291,15 @@ class _TextField extends StatelessWidget {
     this.hint,
     this.keyboardType,
     this.onChanged,
+    this.maxLength,
+    this.inputFormatters,
   });
   final TextEditingController controller;
   final String? hint;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -279,6 +308,11 @@ class _TextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       onChanged: onChanged,
+      maxLength: maxLength,
+      inputFormatters: inputFormatters,
+      buildCounter: (context,
+              {required currentLength, required isFocused, maxLength}) =>
+          null,
       style: AppText.body(c.text),
       decoration: InputDecoration(
         hintText: hint,

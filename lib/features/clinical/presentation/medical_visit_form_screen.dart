@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/sync_metadata.dart';
+import '../../../core/utils/form_limits.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -106,12 +107,13 @@ class _MedicalVisitFormScreenState
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
         const FieldLabel('Veterinario / clínica'),
-        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte'),
+        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte', maxLength: FormLimits.shortText),
         const SizedBox(height: 16),
         const FieldLabel('Motivo de la visita'),
         AppTextField(
           controller: _reason,
           hint: 'Ej. Control dermatológico',
+          maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
@@ -119,6 +121,7 @@ class _MedicalVisitFormScreenState
         AppTextField(
           controller: _diagnosis,
           hint: 'Ej. Dermatitis leve',
+          maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         if (_diagnosis.text.trim().isNotEmpty) ...[

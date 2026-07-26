@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
@@ -15,6 +16,8 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.onChanged,
     this.textCapitalization = TextCapitalization.sentences,
+    this.maxLength,
+    this.inputFormatters,
   });
 
   final TextEditingController controller;
@@ -22,6 +25,10 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
   final TextCapitalization textCapitalization;
+
+  /// Longitud máxima (evita textos desmedidos que rompen la interfaz).
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +38,19 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       onChanged: onChanged,
       textCapitalization: textCapitalization,
+      maxLength: maxLength,
+      inputFormatters: inputFormatters,
+      buildCounter: _noCounter,
       style: AppText.body(c.text),
       decoration: _decoration(context, hint),
     );
   }
 }
+
+/// Oculta el contador de caracteres que Flutter agrega al fijar [maxLength].
+Widget? _noCounter(BuildContext context,
+        {required int currentLength, required bool isFocused, int? maxLength}) =>
+    null;
 
 /// Campo de texto multilínea (notas, tratamiento).
 class AppMultilineField extends StatelessWidget {
@@ -44,11 +59,13 @@ class AppMultilineField extends StatelessWidget {
     required this.controller,
     this.hint,
     this.minLines = 3,
+    this.maxLength = 600,
   });
 
   final TextEditingController controller;
   final String? hint;
   final int minLines;
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +74,8 @@ class AppMultilineField extends StatelessWidget {
       controller: controller,
       minLines: minLines,
       maxLines: minLines + 4,
+      maxLength: maxLength,
+      buildCounter: _noCounter,
       textCapitalization: TextCapitalization.sentences,
       style: AppText.body(c.text),
       decoration: _decoration(context, hint),

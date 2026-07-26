@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/sync_metadata.dart';
+import '../../../core/utils/form_limits.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
@@ -81,6 +82,7 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
         AppTextField(
           controller: _type,
           hint: 'Ej. Antirrábica',
+          maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
@@ -105,7 +107,7 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
         ),
         const SizedBox(height: 16),
         const FieldLabel('Veterinario / clínica (opcional)'),
-        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte'),
+        AppTextField(controller: _clinic, hint: 'Ej. Clínica Veterinaria del Norte', maxLength: FormLimits.shortText),
         const SizedBox(height: 18),
         const InfoNote(
             'Sugerimos la próxima dosis a un año; ajústala según la indicación del veterinario.'),

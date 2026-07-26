@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/di/providers.dart';
+import '../../core/utils/form_limits.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/form_fields.dart';
 import '../../core/widgets/modal_form_scaffold.dart';
@@ -59,6 +60,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         AppTextField(
           controller: _name,
           hint: 'Cómo te llamas',
+          maxLength: FormLimits.name,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 12),

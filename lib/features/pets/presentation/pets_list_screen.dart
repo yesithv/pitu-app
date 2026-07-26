@@ -10,6 +10,7 @@ import '../../../core/widgets/common.dart';
 import '../../plan/application/entitlement_controller.dart';
 import '../../plan/domain/plan.dart';
 import '../../plan/presentation/plans_screen.dart';
+import 'archived_pets_screen.dart';
 import 'pet_detail_screen.dart';
 import 'pet_form_screen.dart';
 import 'pet_view.dart';
@@ -45,7 +46,7 @@ class PetsListScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(top: 22),
             child: Center(
               child: TextButton(
-                onPressed: () {},
+                onPressed: () => ArchivedPetsScreen.open(context),
                 child: Text('Ver mascotas archivadas (${archived.length})',
                     style: AppText.button(c.text2).copyWith(fontSize: 14)),
               ),

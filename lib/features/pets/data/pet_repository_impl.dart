@@ -57,14 +57,23 @@ class InMemoryPetRepository implements PetRepository {
   void unarchive(String id) {
     final pet = findById(id);
     if (pet == null) return;
+    final now = _clock.now();
     _replace(pet.copyWith(
       status: PetStatus.active,
-      meta: pet.meta.touched(_clock.now()),
+      meta: pet.meta.touched(now),
     ));
+    // Reactiva recordatorios y recalcula las próximas fechas vencidas (RF-05).
+    final today = DateTime(now.year, now.month, now.day);
     for (var i = 0; i < _db.schedules.length; i++) {
-      if (_db.schedules[i].petId == id) {
-        _db.schedules[i] = _db.schedules[i].copyWith(reminderEnabled: true);
+      final s = _db.schedules[i];
+      if (s.petId != id) continue;
+      var next = s.nextDate;
+      var guard = 0;
+      while (next.isBefore(today) && guard < 1000) {
+        next = s.frequency.addTo(next);
+        guard++;
       }
+      _db.schedules[i] = s.copyWith(reminderEnabled: true, nextDate: next);
     }
     _db.bump();
   }
@@ -74,6 +83,14 @@ class InMemoryPetRepository implements PetRepository {
     final pet = findById(id);
     if (pet == null) return;
     _replace(pet.copyWith(meta: pet.meta.deleted(_clock.now())));
+    // Elimina definitivamente todos sus datos asociados (RF-06).
+    _db.schedules.removeWhere((s) => s.petId == id);
+    _db.executions.removeWhere((e) => e.petId == id);
+    _db.diagnoses.removeWhere((d) => d.petId == id);
+    _db.weights.removeWhere((w) => w.petId == id);
+    _db.visits.removeWhere((v) => v.petId == id);
+    _db.vaccines.removeWhere((v) => v.petId == id);
+    _db.attachments.removeWhere((a) => a.petId == id);
     _db.bump();
   }
 
