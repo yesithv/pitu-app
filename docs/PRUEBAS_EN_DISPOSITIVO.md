@@ -107,12 +107,14 @@ flutter build appbundle --release
 
 ## 7. Pendientes de producción (fuera del MVP)
 
-- **Entitlement persistente + auto-restauración**: hoy la demo arranca en **Pro**
-  para exhibir todo. En producción debe arrancar en Free y validar/restaurar la
-  compra al inicio.
-- **Guardado de archivos en móvil**: el respaldo y los adjuntos se escriben hoy
-  en el directorio temporal (`Directory.systemTemp`). Para producción conviene
-  `share_plus`/almacenamiento visible y un selector nativo (`file_picker`) para
-  la restauración e importación.
-- **Cifrado en reposo** al migrar el almacenamiento local a Drift/SQLite en la
-  Fase 2 (hoy es `shared_preferences` + JSON).
+- **Auto-restauración del entitlement**: el plan ya **se persiste** (una compra o
+  el desbloqueo se conservan entre sesiones). Falta que producción arranque en
+  **Free** (hoy la demo siembra Pro para exhibir todo) y que **restaure la
+  compra automáticamente al inicio** en móvil, además del botón manual.
+- **Cifrado en reposo**: pendiente (punto 2 aplazado). Al migrar el
+  almacenamiento local a **Drift/SQLite cifrado** en móvil, se reemplaza la
+  implementación del repositorio sin tocar el dominio. Hoy es
+  `shared_preferences` + JSON.
+- **Permisos de `file_picker`/`share_plus` por plataforma**: verificar en
+  dispositivo el guardado (hoja de compartir) y la selección de archivos
+  (importar respaldo, adjuntar documentos, foto de mascota); ya están integrados.
