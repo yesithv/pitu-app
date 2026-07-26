@@ -66,6 +66,8 @@ class PetDetailScreen extends ConsumerWidget {
           leading: const BackButton(),
           actions: [_PetMenu(petId: petId)],
         ),
+        // Botón flotante común a las 4 pestañas (misma posición).
+        floatingActionButton: _DetailFab(petId: petId),
         body: NestedScrollView(
           headerSliverBuilder: (context, _) => [
             SliverToBoxAdapter(child: _PetHeader(pet: pet)),
@@ -243,7 +245,7 @@ class _SummaryTab extends ConsumerWidget {
     final nextTasks = schedules.take(3).toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
         if (isPro)
           AppCard(
@@ -424,7 +426,7 @@ class _CaresTab extends ConsumerWidget {
     final c = context.colors;
     final schedules = ref.watch(scheduleViewsForPetProvider(petId));
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
         for (final v in schedules)
           Padding(
@@ -539,7 +541,7 @@ class _HistoryTabState extends ConsumerState<_HistoryTab> {
                       style: AppText.body(c.text3)),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
                   itemCount: entries.length,
                   itemBuilder: (context, i) => _TimelineTile(
                     entry: entries[i],
@@ -776,7 +778,7 @@ class _DocsTab extends ConsumerWidget {
         filter == null ? docs : docs.where((a) => a.kind == filter).toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
         if (docs.isEmpty)
           Padding(
@@ -1048,31 +1050,96 @@ class _PetMenu extends ConsumerWidget {
       icon: const Icon(Icons.more_horiz),
       onSelected: (value) {
         switch (value) {
-          case 'archive':
-            ArchivePetScreen.open(context, petId);
-          case 'weight':
-            WeightFormScreen.open(context, petId);
-          case 'visit':
-            MedicalVisitFormScreen.open(context, petId);
-          case 'vaccine':
-            VaccineFormScreen.open(context, petId);
-          case 'diagnosis':
-            DiagnosisFormScreen.open(context, petId);
-          case 'share':
-            _shareReport(context, ref, petId);
           case 'edit':
             PetFormScreen.openEdit(context, petId);
+          case 'share':
+            _shareReport(context, ref, petId);
+          case 'archive':
+            ArchivePetScreen.open(context, petId);
         }
       },
       itemBuilder: (context) => const [
-        PopupMenuItem(value: 'visit', child: Text('Agregar visita médica')),
-        PopupMenuItem(value: 'vaccine', child: Text('Registrar vacuna')),
-        PopupMenuItem(value: 'diagnosis', child: Text('Agregar diagnóstico')),
-        PopupMenuItem(value: 'weight', child: Text('Registrar peso')),
         PopupMenuItem(value: 'edit', child: Text('Editar')),
         PopupMenuItem(value: 'share', child: Text('Compartir con veterinario')),
         PopupMenuItem(value: 'archive', child: Text('Archivar')),
       ],
+    );
+  }
+}
+
+/// Botón flotante del detalle: concentra las acciones de "agregar registro".
+/// Se muestra igual en las cuatro pestañas.
+class _DetailFab extends StatelessWidget {
+  const _DetailFab({required this.petId});
+  final String petId;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return FloatingActionButton(
+      onPressed: () => _showAddSheet(context, petId),
+      backgroundColor: c.brand,
+      foregroundColor: c.onBrand,
+      elevation: 4,
+      shape: const CircleBorder(),
+      child: const Icon(Icons.add, size: 26),
+    );
+  }
+}
+
+/// Hoja de acciones para registrar información clínica de la mascota.
+void _showAddSheet(BuildContext context, String petId) {
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) => SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _AddSheetItem(
+            icon: Icons.monitor_weight_outlined,
+            label: 'Registrar peso',
+            onTap: () => WeightFormScreen.open(context, petId),
+          ),
+          _AddSheetItem(
+            icon: Icons.vaccines_outlined,
+            label: 'Registrar vacuna',
+            onTap: () => VaccineFormScreen.open(context, petId),
+          ),
+          _AddSheetItem(
+            icon: Icons.medical_services_outlined,
+            label: 'Agregar visita médica',
+            onTap: () => MedicalVisitFormScreen.open(context, petId),
+          ),
+          _AddSheetItem(
+            icon: Icons.coronavirus_outlined,
+            label: 'Agregar diagnóstico',
+            onTap: () => DiagnosisFormScreen.open(context, petId),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _AddSheetItem extends StatelessWidget {
+  const _AddSheetItem(
+      {required this.icon, required this.label, required this.onTap});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return ListTile(
+      leading: Icon(icon, color: c.brand),
+      title: Text(label, style: AppText.body(c.text)),
+      onTap: () {
+        Navigator.of(context).pop();
+        onTap();
+      },
     );
   }
 }
