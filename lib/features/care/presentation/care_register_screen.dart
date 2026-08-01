@@ -5,6 +5,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
+import '../../attachments/presentation/attachment_add_button.dart';
 
 /// Registro detallado de un cuidado (RF-15): fecha (no futura), notas y, al
 /// guardar, recálculo automático de la próxima fecha. El registro rápido de un
@@ -13,12 +14,14 @@ class CareRegisterScreen extends ConsumerStatefulWidget {
   const CareRegisterScreen({
     super.key,
     required this.scheduleId,
+    required this.petId,
     required this.careName,
     required this.petName,
     required this.petEmoji,
   });
 
   final String scheduleId;
+  final String petId;
   final String careName;
   final String petName;
   final String petEmoji;
@@ -26,6 +29,7 @@ class CareRegisterScreen extends ConsumerStatefulWidget {
   static Future<void> open(
     BuildContext context, {
     required String scheduleId,
+    required String petId,
     required String careName,
     required String petName,
     required String petEmoji,
@@ -33,6 +37,7 @@ class CareRegisterScreen extends ConsumerStatefulWidget {
     return Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => CareRegisterScreen(
         scheduleId: scheduleId,
+        petId: petId,
         careName: careName,
         petName: petName,
         petEmoji: petEmoji,
@@ -89,6 +94,12 @@ class _CareRegisterScreenState extends ConsumerState<CareRegisterScreen> {
         const SizedBox(height: 16),
         const FieldLabel('Notas (opcional)'),
         AppMultilineField(controller: _notes, hint: 'Añade una nota…'),
+        const SizedBox(height: 16),
+        const FieldLabel('Documentos (opcional)'),
+        AttachmentAddButton(
+          petId: widget.petId,
+          source: 'Cuidado: ${widget.careName}',
+        ),
         const SizedBox(height: 18),
         const InfoNote(
             'Al guardar, calcularemos la próxima fecha automáticamente.'),

@@ -3,7 +3,10 @@ import 'package:pitu_app/core/data/db_codec.dart';
 import 'package:pitu_app/core/data/in_memory_database.dart';
 import 'package:pitu_app/core/data/seed.dart';
 import 'package:pitu_app/core/utils/clock.dart';
+import 'package:pitu_app/core/domain/sync_metadata.dart';
 import 'package:pitu_app/core/utils/id_generator.dart';
+import 'package:pitu_app/features/clinical/domain/entities/diagnosis.dart';
+import 'package:pitu_app/features/clinical/domain/entities/diagnosis_status_change.dart';
 import 'package:pitu_app/features/plan/domain/plan.dart';
 
 void main() {
@@ -14,12 +17,22 @@ void main() {
     DatabaseSeeder(db, const UuidGenerator(), clock, demo: true).seed();
     db.reminderLeadDays = 3;
     db.biometricLockEnabled = true;
+    db.diagnosisStatusChanges.add(DiagnosisStatusChange(
+      meta: SyncMetadata.create(id: 'ch1', now: clock.now()),
+      petId: db.pets.first.id,
+      diagnosisId: 'dx1',
+      condition: 'Dermatitis',
+      fromStatus: DiagnosisStatus.active,
+      toStatus: DiagnosisStatus.resolved,
+      changedAt: clock.now(),
+    ));
     return db;
   }
 
-  test('encode incluye la versión de esquema actual', () {
+  test('encode incluye la versión de esquema actual (v4)', () {
     final map = DbCodec.encode(seededDb());
     expect(map['schemaVersion'], DbCodec.schemaVersion);
+    expect(DbCodec.schemaVersion, 4);
   });
 
   test('round-trip encode -> decode conserva conteos y campos clave', () {
@@ -35,6 +48,10 @@ void main() {
     expect(restored.schedules.length, source.schedules.length);
     expect(restored.executions.length, source.executions.length);
     expect(restored.diagnoses.length, source.diagnoses.length);
+    expect(restored.diagnosisStatusChanges.length,
+        source.diagnosisStatusChanges.length);
+    expect(restored.diagnosisStatusChanges.single.toStatus,
+        DiagnosisStatus.resolved);
     expect(restored.weights.length, source.weights.length);
     expect(restored.visits.length, source.visits.length);
     expect(restored.vaccines.length, source.vaccines.length);

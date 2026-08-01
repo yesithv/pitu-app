@@ -76,6 +76,7 @@ class DashboardScreen extends ConsumerWidget {
               onTap: () => CareRegisterScreen.open(
                 context,
                 scheduleId: v.schedule.id,
+                petId: v.pet.id,
                 careName: v.name,
                 petName: v.pet.name,
                 petEmoji: v.pet.species.emoji,

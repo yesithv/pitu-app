@@ -89,15 +89,17 @@ los lints puede llegar a `main`.
 
 ## 7. Huecos del spec (menores) — 🟢
 
-- **RF-13:** lógica de actualización de catálogo versionado sin sobrescribir
-  personalizaciones (`lib/features/care/data/care_catalog.dart`).
-- **RF-15 / RF-26:** adjuntar documentos desde el registro de un cuidado
-  (`lib/features/care/presentation/care_register_screen.dart`,
-  `lib/features/attachments/`).
-- **RF-21:** registrar el cambio de estado de un diagnóstico como entrada propia
-  del historial (`lib/features/clinical/`).
-- **RF-33:** listeners de zona horaria para reprogramar recordatorios
-  (`lib/features/reminders/`).
+- **RF-15 / RF-26:** ✅ hecho — adjuntar documentos desde el registro de un cuidado
+  (`lib/features/care/presentation/care_register_screen.dart` reutiliza
+  `AttachmentAddButton`).
+- **RF-21:** ✅ hecho — el cambio de estado de un diagnóstico se registra como
+  entrada propia del historial (`DiagnosisStatusChange` +
+  `lib/features/clinical/data/clinical_repository_impl.dart`; esquema v4).
+- **RF-13:** ⏳ pendiente — lógica de actualización de catálogo versionado sin
+  sobrescribir personalizaciones (`lib/features/care/data/care_catalog.dart`).
+  Bajo valor hasta publicar updates de catálogo.
+- **RF-33:** ⏳ pendiente — listeners de zona horaria para reprogramar
+  recordatorios (`lib/features/reminders/`). Solo móvil; validar en dispositivo.
 
 ## 8. Publicación y cumplimiento — 🔴 (no-código)
 

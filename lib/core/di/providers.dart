@@ -64,5 +64,6 @@ final clinicalRepositoryProvider = Provider<ClinicalRepository>(
   (ref) => InMemoryClinicalRepository(
     ref.read(databaseProvider),
     ref.read(clockProvider),
+    ref.read(idGeneratorProvider),
   ),
 );

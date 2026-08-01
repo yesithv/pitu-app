@@ -5,6 +5,7 @@ import '../../features/care/domain/entities/care_execution.dart';
 import '../../features/care/domain/entities/care_schedule.dart';
 import '../../features/care/domain/entities/care_type.dart';
 import '../../features/clinical/domain/entities/diagnosis.dart';
+import '../../features/clinical/domain/entities/diagnosis_status_change.dart';
 import '../../features/clinical/domain/entities/medical_visit.dart';
 import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
@@ -24,6 +25,7 @@ class InMemoryDatabase extends ChangeNotifier {
   final List<CareSchedule> schedules = [];
   final List<CareExecution> executions = [];
   final List<Diagnosis> diagnoses = [];
+  final List<DiagnosisStatusChange> diagnosisStatusChanges = [];
   final List<WeightRecord> weights = [];
   final List<MedicalVisit> visits = [];
   final List<Vaccine> vaccines = [];
