@@ -23,7 +23,7 @@ class PrimaryButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Material(
-        color: onPressed == null ? c.brand.withOpacity(0.5) : c.brand,
+        color: onPressed == null ? c.brand.withValues(alpha: 0.5) : c.brand,
         borderRadius: Radii.pillAll,
         child: InkWell(
           borderRadius: Radii.pillAll,

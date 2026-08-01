@@ -78,14 +78,16 @@ esta rama).
 `backup_service`), import/merge por UUID, cálculo de próximas fechas, cumplimiento
 y paywall; añadir pruebas de widget de los flujos principales.
 
-## 6. CI sin gate de calidad — 🟠
+## 6. Gate de calidad en CI — ✅ hecho
 
-`.github/workflows/deploy.yml` solo compila y publica la web; **no corre
-`flutter analyze` ni `flutter test`**, así que un cambio que rompa el dominio o
-los lints puede llegar a `main`.
+`.github/workflows/ci.yml` corre en cada Pull Request y push a ramas de trabajo:
+`flutter pub get` → `flutter analyze --fatal-infos` → `flutter test`. La deuda de
+lint preexistente se saldó y el gate ahora falla ante errores, warnings **e
+infos** (los avisos inherentes, como `dart:html` del import web condicional, se
+silencian de forma acotada en su archivo).
 
-**Cómo continuar:** añadir un workflow de PR que ejecute `flutter analyze` y
-`flutter test` (idealmente también build Android/iOS) como requisito de merge.
+**Posible mejora:** añadir también un build Android/iOS al gate cuando existan los
+proyectos nativos (ver #1).
 
 ## 7. Huecos del spec (menores) — 🟢
 

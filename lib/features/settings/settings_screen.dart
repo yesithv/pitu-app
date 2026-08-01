@@ -424,7 +424,7 @@ class _SwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: c.brand,
           ),
         ],
@@ -488,7 +488,7 @@ class _AccentButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Material(
-      color: c.accent.withOpacity(0.22),
+      color: c.accent.withValues(alpha: 0.22),
       borderRadius: Radii.pillAll,
       child: InkWell(
         borderRadius: Radii.pillAll,

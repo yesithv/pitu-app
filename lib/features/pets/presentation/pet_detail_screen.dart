@@ -179,7 +179,7 @@ class _PetHeader extends ConsumerWidget {
         ),
       ),
     );
-    if (action == null) return;
+    if (action == null || !context.mounted) return;
 
     final repo = ref.read(petRepositoryProvider);
     if (action == 'remove') {
@@ -863,6 +863,7 @@ class _DocsTab extends ConsumerWidget {
       return;
     }
     final result = await service.pickAndAdd(petId);
+    if (!context.mounted) return;
     switch (result.status) {
       case AddAttachmentStatus.success:
         _snack(context, 'Documento agregado.');
@@ -956,6 +957,7 @@ class _DocRow extends ConsumerWidget {
       return;
     }
     await ref.read(attachmentServiceProvider).download(attachment);
+    if (!context.mounted) return;
     _snack(context, 'Descargando ${attachment.filename}…');
   }
 
@@ -1197,7 +1199,7 @@ Future<void> _shareReport(
     return;
   }
   final options = await _pickReportScope(context);
-  if (options == null) return;
+  if (options == null || !context.mounted) return;
   final messenger = ScaffoldMessenger.of(context);
   messenger
     ..clearSnackBars()
@@ -1244,6 +1246,7 @@ Future<ReportOptions?> _pickReportScope(BuildContext context) async {
     case 'vac':
       return const ReportOptions(onlyVaccines: true);
     case 'range':
+      if (!context.mounted) return null;
       final now = DateTime.now();
       final range = await showDateRangePicker(
         context: context,

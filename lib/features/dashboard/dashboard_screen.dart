@@ -202,14 +202,14 @@ class _ComplianceCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text('${comp.upToDate} de ${comp.total} cuidados',
-              style: AppText.meta(c.brand).copyWith(color: c.brand.withOpacity(0.85))),
+              style: AppText.meta(c.brand).copyWith(color: c.brand.withValues(alpha: 0.85))),
           const SizedBox(height: 10),
           ClipRRect(
             borderRadius: Radii.pillAll,
             child: LinearProgressIndicator(
               value: comp.ratio,
               minHeight: 8,
-              backgroundColor: c.brand.withOpacity(0.18),
+              backgroundColor: c.brand.withValues(alpha: 0.18),
               valueColor: AlwaysStoppedAnimation(c.brand),
             ),
           ),

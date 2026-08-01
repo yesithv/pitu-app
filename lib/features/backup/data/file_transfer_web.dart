@@ -1,3 +1,7 @@
+// Implementación exclusiva de web (elegida por import condicional). Usa el DOM
+// para descargar/seleccionar archivos; `dart:html` es intencional aquí y este
+// archivo nunca se compila en móvil.
+// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:typed_data';

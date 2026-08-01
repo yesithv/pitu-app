@@ -95,7 +95,7 @@ class PetAvatar extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: dashed ? Border.all(color: c.brand.withOpacity(0.30)) : null,
+          border: dashed ? Border.all(color: c.brand.withValues(alpha: 0.30)) : null,
         ),
         child: ClipOval(
           child: Image.memory(
@@ -116,7 +116,7 @@ class PetAvatar extends StatelessWidget {
         color: c.brandSoft,
         shape: BoxShape.circle,
         border: dashed
-            ? Border.all(color: c.brand.withOpacity(0.30))
+            ? Border.all(color: c.brand.withValues(alpha: 0.30))
             : null,
       ),
       child: Text(emoji, style: TextStyle(fontSize: size * 0.46)),
@@ -135,7 +135,7 @@ class ProBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: c.accent.withOpacity(0.22),
+        color: c.accent.withValues(alpha: 0.22),
         borderRadius: Radii.pillAll,
       ),
       child: Text(label.toUpperCase(), style: AppText.label(c.accentInk)),
