@@ -21,7 +21,6 @@ import '../../backup/application/backup_providers.dart';
 import '../../care/domain/entities/care_kind.dart';
 import '../../care/presentation/care_providers.dart';
 import '../../care/presentation/care_schedule_form_screen.dart';
-import '../../plan/domain/plan.dart';
 import '../../plan/presentation/plans_screen.dart';
 import '../../reports/application/pet_report_service.dart';
 import '../../reports/application/reports_providers.dart';

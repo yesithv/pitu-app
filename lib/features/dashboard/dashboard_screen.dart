@@ -27,7 +27,6 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
     final owner = ref.watch(ownerNameProvider);
     final petViews = ref.watch(petViewsProvider);
     final filter = ref.watch(petFilterProvider);

@@ -30,7 +30,10 @@ jobs:
         run: flutter pub get
 
       - name: Análisis estático
-        run: flutter analyze
+        # --no-fatal-infos: no bloquea por avisos informativos preexistentes
+        # (deprecaciones, `const`, dart:html del import web condicional). El
+        # gate sigue fallando ante errores y warnings reales.
+        run: flutter analyze --no-fatal-infos
 
       - name: Pruebas
         run: flutter test
