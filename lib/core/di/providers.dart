@@ -7,6 +7,7 @@ import '../../features/clinical/data/clinical_repository_impl.dart';
 import '../../features/clinical/domain/repositories/clinical_repository.dart';
 import '../../features/pets/data/pet_repository_impl.dart';
 import '../../features/pets/domain/repositories/pet_repository.dart';
+import '../config/app_config.dart';
 import '../data/in_memory_database.dart';
 import '../data/persistence.dart';
 import '../data/seed.dart';
@@ -33,7 +34,8 @@ final persistenceProvider = Provider<Persistence?>((ref) => null);
 /// Base de datos local (in-memory en el MVP). Instancia estable y sembrada.
 final databaseProvider = ChangeNotifierProvider<InMemoryDatabase>((ref) {
   final db = InMemoryDatabase();
-  DatabaseSeeder(db, ref.read(idGeneratorProvider), ref.read(clockProvider))
+  DatabaseSeeder(db, ref.read(idGeneratorProvider), ref.read(clockProvider),
+          demo: kDemoMode)
       .seed();
   return db;
 });

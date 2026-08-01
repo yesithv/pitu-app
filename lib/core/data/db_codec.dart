@@ -74,10 +74,11 @@ abstract class DbCodec {
       ..addAll(_list(json['attachments']).map(_attachmentFromJson));
     db.ownerName = (json['ownerName'] as String?) ?? db.ownerName;
     db.biometricLockEnabled = json['biometricLockEnabled'] as bool? ?? false;
-    // Retrocompatibilidad: los snapshots anteriores a v3 no guardaban el plan;
-    // eran la demo con Pro, así que se conserva Pro si la clave falta.
+    // Un snapshot sin la clave `planType` se decodifica como Free: en
+    // producción no se debe otorgar Pro por omisión. Los snapshots de la demo
+    // guardan `planType: 'pro'` explícito, así que se conservan en Pro.
     db.planType =
-        _enumByName(PlanType.values, json['planType'], PlanType.pro);
+        _enumByName(PlanType.values, json['planType'], PlanType.free);
     db.purchaseSource = json['purchaseSource'] as String?;
     db.purchasedAt = _date(json['purchasedAt']);
     db.reminderLeadDays = (json['reminderLeadDays'] as num?)?.toInt() ?? 0;

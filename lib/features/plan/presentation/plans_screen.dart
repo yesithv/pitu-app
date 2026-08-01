@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -95,10 +96,15 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
     final purchases = ref.read(purchaseServiceProvider);
     final entitlement = ref.read(entitlementProvider.notifier);
 
-    // En web/escritorio sin tienda, se mantiene el desbloqueo de demostración.
+    // Sin tienda (web/escritorio): solo en modo demo se desbloquea Pro para
+    // exhibición; en producción no se otorga Pro sin una compra real.
     if (!purchases.isSupported) {
-      entitlement.unlockPro();
-      _finishSuccess();
+      if (kDemoMode) {
+        entitlement.unlockPro();
+        _finishSuccess();
+      } else {
+        _snack('La compra está disponible en la app móvil.');
+      }
       return;
     }
 

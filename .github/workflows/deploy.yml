@@ -40,7 +40,9 @@ jobs:
       - name: Compilar para web
         # base-href debe coincidir con la ruta del sitio en Pages:
         # https://<usuario>.github.io/<repositorio>/
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        # PITU_DEMO=true conserva la demo (datos de ejemplo + Pro) en el sitio
+        # público; los builds de producción se compilan sin este flag (Free).
+        run: flutter build web --release --dart-define=PITU_DEMO=true --base-href "/${{ github.event.repository.name }}/"
 
       - name: Subir artefacto de Pages
         uses: actions/upload-pages-artifact@v3

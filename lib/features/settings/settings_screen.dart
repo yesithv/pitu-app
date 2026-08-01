@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
@@ -186,24 +187,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Demo helper para explorar ambos estados de plan.
-        Center(
-          child: TextButton(
-            onPressed: () {
-              final ctrl = ref.read(entitlementProvider.notifier);
-              if (isPro) {
-                ctrl.useFreeForDemo();
-              } else {
-                ctrl.unlockPro();
-              }
-            },
-            child: Text(
-              isPro ? 'Demo: ver como plan Free' : 'Demo: volver a Pro',
-              style: AppText.meta(c.text3),
+        // Conmutador de plan solo para la demo/desarrollo; en producción no
+        // debe existir un botón que otorgue Pro sin compra.
+        if (kDemoMode) ...[
+          Center(
+            child: TextButton(
+              onPressed: () {
+                final ctrl = ref.read(entitlementProvider.notifier);
+                if (isPro) {
+                  ctrl.useFreeForDemo();
+                } else {
+                  ctrl.unlockPro();
+                }
+              },
+              child: Text(
+                isPro ? 'Demo: ver como plan Free' : 'Demo: volver a Pro',
+                style: AppText.meta(c.text3),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         Center(
           child: Text('Hecho con cariño, en memoria de Pitufo 🐾',
               style: AppText.meta(c.text3)),

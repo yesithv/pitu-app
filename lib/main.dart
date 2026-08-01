@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'core/config/app_config.dart';
 import 'core/data/in_memory_database.dart';
 import 'core/data/persistence.dart';
 import 'core/data/seed.dart';
@@ -29,7 +30,8 @@ Future<void> main() async {
   final db = InMemoryDatabase();
   final loaded = persistence.loadInto(db);
   if (!loaded) {
-    DatabaseSeeder(db, const UuidGenerator(), const SystemClock()).seed();
+    DatabaseSeeder(db, const UuidGenerator(), const SystemClock(), demo: kDemoMode)
+        .seed();
     persistence.save(db);
   }
   persistence.attachAutosave(db);

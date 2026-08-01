@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
+import 'features/plan/presentation/entitlement_sync.dart';
 import 'features/security/presentation/app_lock_gate.dart';
 import 'features/shell/home_shell.dart';
 
@@ -21,7 +22,9 @@ class PituApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      home: const AppLockGate(child: HomeShell()),
+      home: const EntitlementSync(
+        child: AppLockGate(child: HomeShell()),
+      ),
     );
   }
 }

@@ -18,22 +18,34 @@ import 'in_memory_database.dart';
 /// Precarga datos de demostración que reproducen el prototipo (Firulais y Luna).
 /// En producción, el primer arranque sería el onboarding con la base vacía.
 class DatabaseSeeder {
-  DatabaseSeeder(this._db, this._ids, this._clock);
+  DatabaseSeeder(this._db, this._ids, this._clock, {this.demo = false});
 
   final InMemoryDatabase _db;
   final IdGenerator _ids;
   final Clock _clock;
+
+  /// En modo demo el sembrado arranca en Pro (para exhibir todas las funciones);
+  /// en producción los mismos datos de ejemplo arrancan en Free.
+  final bool demo;
 
   DateTime get _now => _clock.now();
   DateTime _daysFromNow(int d) => _now.add(Duration(days: d));
 
   void seed() {
     if (_db.pets.isNotEmpty) return;
-    _db.ownerName = 'Yesith';
-    // La demo arranca con Pro para exhibir todas las funciones. Un usuario real
-    // (base vacía) arranca en Free y sube a Pro al comprar (se persiste).
-    _db.planType = PlanType.pro;
-    _db.purchaseSource = 'demo';
+    // Los datos de ejemplo (Firulais y Luna) se siembran en todos los builds
+    // para que la app se vea "viva" en el primer arranque. Solo el plan y el
+    // nombre del dueño dependen del modo demo.
+    if (demo) {
+      _db.ownerName = 'Yesith';
+      // La demo arranca en Pro para exhibir todas las funciones.
+      _db.planType = PlanType.pro;
+      _db.purchaseSource = 'demo';
+    } else {
+      // Producción: sin nombre de dueño precargado (el perfil lo pedirá) y en
+      // Free (el default de la BD).
+      _db.ownerName = '';
+    }
 
     final birthday = _daysFromNow(6);
     final firulais = _pet(
