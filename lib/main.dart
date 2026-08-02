@@ -8,8 +8,11 @@ import 'core/data/in_memory_database.dart';
 import 'core/data/persistence.dart';
 import 'core/data/seed.dart';
 import 'core/di/providers.dart';
+import 'core/observability/crash_reporter.dart';
+import 'core/observability/crash_reporter_providers.dart';
 import 'core/utils/clock.dart';
 import 'core/utils/id_generator.dart';
+import 'features/care/application/catalog_updater.dart';
 import 'features/reminders/application/reminders_coordinator.dart';
 import 'features/reminders/application/reminders_providers.dart';
 import 'features/reminders/data/reminder_scheduler_factory.dart';
@@ -21,6 +24,19 @@ import 'features/security/data/app_lock_factory.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Reporte de errores (no-op por ahora; se enchufa un backend real después).
+  // Se conecta a los handlers globales de Flutter antes de arrancar la app.
+  final crashReporter = createCrashReporter();
+  await crashReporter.init();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    crashReporter.recordError(details.exception, details.stack, fatal: true);
+  };
+  WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+    crashReporter.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   // Carga el estado persistido (o siembra datos de ejemplo la primera vez) y
   // activa el autoguardado antes de arrancar la app.
@@ -34,6 +50,9 @@ Future<void> main() async {
         .seed();
     persistence.save(db);
   }
+  // Aplica actualizaciones aditivas del catálogo a las mascotas existentes
+  // (RF-13). No-op mientras la versión del catálogo no cambie.
+  CatalogUpdater(db, const UuidGenerator(), const SystemClock()).reconcile();
   persistence.attachAutosave(db);
 
   // Recordatorios locales (no-op en web, reales en móvil). Se reprograman ante
@@ -65,6 +84,7 @@ Future<void> main() async {
         reminderSchedulerProvider.overrideWithValue(scheduler),
         appLockProvider.overrideWithValue(appLock),
         purchaseServiceProvider.overrideWithValue(purchases),
+        crashReporterProvider.overrideWithValue(crashReporter),
       ],
       child: const PituApp(),
     ),

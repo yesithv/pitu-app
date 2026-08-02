@@ -103,13 +103,19 @@ proyectos nativos (ver #1).
 - **RF-33:** ⏳ pendiente — listeners de zona horaria para reprogramar
   recordatorios (`lib/features/reminders/`). Solo móvil; validar en dispositivo.
 
-## 8. Publicación y cumplimiento — 🔴 (no-código)
+## 8. Publicación y cumplimiento — 🟠 (parcialmente hecho)
 
-- Política de privacidad (obligatoria; la app maneja datos de salud de mascotas).
-- Formularios de privacidad / Data Safety en ambas tiendas.
-- Capturas, descripción, clasificación por edad, cuentas de desarrollador.
-- Observabilidad: no hay crash reporting ni telemetría; conviene integrar al
-  menos reporte de errores (Crashlytics/Sentry) para diagnosticar fallos en campo.
+- **Política de privacidad**: ✅ borrador en `docs/PRIVACIDAD.md` (local-first).
+  Pendiente: completar el correo de contacto y **alojarla en una URL pública**
+  (requisito de App Store y Google Play).
+- **Observabilidad**: ✅ scaffolding de crash reporting montado
+  (`lib/core/observability/crash_reporter.dart` + `crash_reporter_providers.dart`,
+  cableado en `main.dart` a `FlutterError.onError` y `platformDispatcher.onError`).
+  Hoy es no-op; pendiente enchufar un backend real (Sentry/Crashlytics)
+  reemplazando `createCrashReporter()` y añadiendo la dependencia.
+- Pendiente (no-código): formularios de privacidad / Data Safety en ambas
+  tiendas, capturas, descripción, clasificación por edad y cuentas de
+  desarrollador.
 
 ---
 

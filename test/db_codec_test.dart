@@ -17,6 +17,7 @@ void main() {
     DatabaseSeeder(db, const UuidGenerator(), clock, demo: true).seed();
     db.reminderLeadDays = 3;
     db.biometricLockEnabled = true;
+    db.catalogAppliedVersion = 7;
     db.diagnosisStatusChanges.add(DiagnosisStatusChange(
       meta: SyncMetadata.create(id: 'ch1', now: clock.now()),
       petId: db.pets.first.id,
@@ -63,6 +64,7 @@ void main() {
     expect(restored.planType, PlanType.pro);
     expect(restored.biometricLockEnabled, isTrue);
     expect(restored.reminderLeadDays, 3);
+    expect(restored.catalogAppliedVersion, 7);
 
     // Identidad preservada (UUID de la primera mascota).
     expect(restored.pets.first.id, source.pets.first.id);

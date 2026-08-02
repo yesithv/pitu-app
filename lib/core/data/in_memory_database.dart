@@ -49,6 +49,11 @@ class InMemoryDatabase extends ChangeNotifier {
   /// Fecha del último respaldo creado (RF-46). `null` si nunca se ha hecho.
   DateTime? lastBackupAt;
 
+  /// Versión del catálogo de cuidados ya aplicada a las mascotas (RF-13). Se usa
+  /// para agregar cuidados nuevos de futuras versiones sin sobrescribir
+  /// personalizaciones. 0 = aún no reconciliado.
+  int catalogAppliedVersion = 0;
+
   /// Notifica a los observadores tras una mutación.
   void bump() => notifyListeners();
 }

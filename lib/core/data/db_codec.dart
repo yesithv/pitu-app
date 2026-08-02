@@ -35,6 +35,7 @@ abstract class DbCodec {
         'purchasedAt': _iso(db.purchasedAt),
         'reminderLeadDays': db.reminderLeadDays,
         'lastBackupAt': _iso(db.lastBackupAt),
+        'catalogAppliedVersion': db.catalogAppliedVersion,
         'pets': db.pets.map(_petToJson).toList(),
         'careTypes': db.careTypes.map(_careTypeToJson).toList(),
         'schedules': db.schedules.map(_scheduleToJson).toList(),
@@ -91,6 +92,8 @@ abstract class DbCodec {
     db.purchasedAt = _date(json['purchasedAt']);
     db.reminderLeadDays = (json['reminderLeadDays'] as num?)?.toInt() ?? 0;
     db.lastBackupAt = _date(json['lastBackupAt']);
+    db.catalogAppliedVersion =
+        (json['catalogAppliedVersion'] as num?)?.toInt() ?? 0;
   }
 
   // ---- helpers ----------------------------------------------------------
