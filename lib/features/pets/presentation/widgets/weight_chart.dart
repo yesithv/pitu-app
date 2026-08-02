@@ -94,7 +94,7 @@ class _LinePainter extends CustomPainter {
       endPoint,
       8,
       Paint()
-        ..color = color.withOpacity(0.35)
+        ..color = color.withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );

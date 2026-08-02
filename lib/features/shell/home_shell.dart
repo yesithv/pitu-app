@@ -65,12 +65,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             case 'weight':
               {
                 final id = await pickPetId(context, ref);
-                if (id != null && mounted) WeightFormScreen.open(context, id);
+                if (id != null && context.mounted) WeightFormScreen.open(context, id);
               }
             case 'visit':
               {
                 final id = await pickPetId(context, ref);
-                if (id != null && mounted) MedicalVisitFormScreen.open(context, id);
+                if (id != null && context.mounted) MedicalVisitFormScreen.open(context, id);
               }
             case 'care':
               ScaffoldMessenger.of(context)

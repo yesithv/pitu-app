@@ -5,6 +5,7 @@ import '../../features/care/domain/entities/care_execution.dart';
 import '../../features/care/domain/entities/care_schedule.dart';
 import '../../features/care/domain/entities/care_type.dart';
 import '../../features/clinical/domain/entities/diagnosis.dart';
+import '../../features/clinical/domain/entities/diagnosis_status_change.dart';
 import '../../features/clinical/domain/entities/medical_visit.dart';
 import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
@@ -24,6 +25,7 @@ class InMemoryDatabase extends ChangeNotifier {
   final List<CareSchedule> schedules = [];
   final List<CareExecution> executions = [];
   final List<Diagnosis> diagnoses = [];
+  final List<DiagnosisStatusChange> diagnosisStatusChanges = [];
   final List<WeightRecord> weights = [];
   final List<MedicalVisit> visits = [];
   final List<Vaccine> vaccines = [];
@@ -46,6 +48,11 @@ class InMemoryDatabase extends ChangeNotifier {
 
   /// Fecha del último respaldo creado (RF-46). `null` si nunca se ha hecho.
   DateTime? lastBackupAt;
+
+  /// Versión del catálogo de cuidados ya aplicada a las mascotas (RF-13). Se usa
+  /// para agregar cuidados nuevos de futuras versiones sin sobrescribir
+  /// personalizaciones. 0 = aún no reconciliado.
+  int catalogAppliedVersion = 0;
 
   /// Notifica a los observadores tras una mutación.
   void bump() => notifyListeners();

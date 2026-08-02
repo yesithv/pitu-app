@@ -32,8 +32,8 @@ abstract class AppTheme {
         bodyColor: c.text,
         displayColor: c.text,
       ),
-      splashColor: c.brand.withOpacity(0.08),
-      highlightColor: c.brand.withOpacity(0.05),
+      splashColor: c.brand.withValues(alpha: 0.08),
+      highlightColor: c.brand.withValues(alpha: 0.05),
       appBarTheme: AppBarTheme(
         backgroundColor: c.bg,
         foregroundColor: c.text,

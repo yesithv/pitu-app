@@ -1,6 +1,9 @@
 import '../../../core/data/in_memory_database.dart';
+import '../../../core/domain/sync_metadata.dart';
 import '../../../core/utils/clock.dart';
+import '../../../core/utils/id_generator.dart';
 import '../domain/entities/diagnosis.dart';
+import '../domain/entities/diagnosis_status_change.dart';
 import '../domain/entities/medical_visit.dart';
 import '../domain/entities/timeline_entry.dart';
 import '../domain/entities/vaccine.dart';
@@ -8,10 +11,27 @@ import '../domain/entities/weight_record.dart';
 import '../domain/repositories/clinical_repository.dart';
 
 class InMemoryClinicalRepository implements ClinicalRepository {
-  InMemoryClinicalRepository(this._db, this._clock);
+  InMemoryClinicalRepository(this._db, this._clock, this._ids);
 
   final InMemoryDatabase _db;
   final Clock _clock;
+  final IdGenerator _ids;
+
+  /// Registra un cambio de estado de diagnóstico como entrada del historial
+  /// (RF-21). Solo agrega si el estado realmente cambió.
+  void _logStatusChange(Diagnosis before, DiagnosisStatus to) {
+    if (before.status == to) return;
+    final now = _clock.now();
+    _db.diagnosisStatusChanges.add(DiagnosisStatusChange(
+      meta: SyncMetadata.create(id: _ids.newId(), now: now),
+      petId: before.petId,
+      diagnosisId: before.id,
+      condition: before.condition,
+      fromStatus: before.status,
+      toStatus: to,
+      changedAt: now,
+    ));
+  }
 
   @override
   List<Diagnosis> diagnosesForPet(String petId) =>
@@ -91,6 +111,18 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         sourceId: w.id,
       ));
     }
+    for (final ch in _db.diagnosisStatusChanges
+        .where((c) => c.petId == petId && !c.meta.isDeleted)) {
+      entries.add(TimelineEntry(
+        date: ch.changedAt,
+        kind: TimelineKind.diagnosis,
+        title: 'Cambio de estado: ${ch.condition}',
+        subtitle: '${ch.fromStatus.label} → ${ch.toStatus.label}',
+        sourceId: ch.diagnosisId,
+        diagnosisStatus: ch.toStatus,
+        diagnosisLabel: ch.toStatus.label,
+      ));
+    }
 
     entries.sort((a, b) => b.date.compareTo(a.date));
     return entries;
@@ -124,6 +156,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
   void updateDiagnosisStatus(String diagnosisId, DiagnosisStatus status) {
     final i = _db.diagnoses.indexWhere((d) => d.id == diagnosisId);
     if (i >= 0) {
+      _logStatusChange(_db.diagnoses[i], status);
       _db.diagnoses[i] = _db.diagnoses[i]
           .copyWith(status: status, meta: _db.diagnoses[i].meta.touched(_clock.now()));
       _db.bump();
@@ -179,6 +212,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
   void updateDiagnosis(Diagnosis diagnosis) {
     final i = _db.diagnoses.indexWhere((d) => d.id == diagnosis.id);
     if (i >= 0) {
+      _logStatusChange(_db.diagnoses[i], diagnosis.status);
       _db.diagnoses[i] = diagnosis;
       _db.bump();
     }

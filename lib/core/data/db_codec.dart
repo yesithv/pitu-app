@@ -5,6 +5,7 @@ import '../../features/care/domain/entities/care_kind.dart';
 import '../../features/care/domain/entities/care_schedule.dart';
 import '../../features/care/domain/entities/care_type.dart';
 import '../../features/clinical/domain/entities/diagnosis.dart';
+import '../../features/clinical/domain/entities/diagnosis_status_change.dart';
 import '../../features/clinical/domain/entities/medical_visit.dart';
 import '../../features/clinical/domain/entities/vaccine.dart';
 import '../../features/clinical/domain/entities/weight_record.dart';
@@ -20,9 +21,10 @@ import 'in_memory_database.dart';
 /// a la API de la Fase 2 (RF-54).
 abstract class DbCodec {
   /// Versión del esquema del snapshot/respaldo. v2 añade `attachments`; v3 añade
-  /// la foto de la mascota y el entitlement. Los respaldos anteriores siguen
-  /// restaurándose (los campos nuevos quedan con su valor por defecto).
-  static const int schemaVersion = 3;
+  /// la foto de la mascota y el entitlement; v4 añade el registro de cambios de
+  /// estado de diagnóstico. Los respaldos anteriores siguen restaurándose (los
+  /// campos nuevos quedan con su valor por defecto).
+  static const int schemaVersion = 4;
 
   static Map<String, dynamic> encode(InMemoryDatabase db) => {
         'schemaVersion': schemaVersion,
@@ -33,11 +35,14 @@ abstract class DbCodec {
         'purchasedAt': _iso(db.purchasedAt),
         'reminderLeadDays': db.reminderLeadDays,
         'lastBackupAt': _iso(db.lastBackupAt),
+        'catalogAppliedVersion': db.catalogAppliedVersion,
         'pets': db.pets.map(_petToJson).toList(),
         'careTypes': db.careTypes.map(_careTypeToJson).toList(),
         'schedules': db.schedules.map(_scheduleToJson).toList(),
         'executions': db.executions.map(_executionToJson).toList(),
         'diagnoses': db.diagnoses.map(_diagnosisToJson).toList(),
+        'diagnosisStatusChanges':
+            db.diagnosisStatusChanges.map(_diagnosisStatusChangeToJson).toList(),
         'weights': db.weights.map(_weightToJson).toList(),
         'visits': db.visits.map(_visitToJson).toList(),
         'vaccines': db.vaccines.map(_vaccineToJson).toList(),
@@ -60,6 +65,10 @@ abstract class DbCodec {
     db.diagnoses
       ..clear()
       ..addAll(_list(json['diagnoses']).map(_diagnosisFromJson));
+    db.diagnosisStatusChanges
+      ..clear()
+      ..addAll(_list(json['diagnosisStatusChanges'])
+          .map(_diagnosisStatusChangeFromJson));
     db.weights
       ..clear()
       ..addAll(_list(json['weights']).map(_weightFromJson));
@@ -74,14 +83,17 @@ abstract class DbCodec {
       ..addAll(_list(json['attachments']).map(_attachmentFromJson));
     db.ownerName = (json['ownerName'] as String?) ?? db.ownerName;
     db.biometricLockEnabled = json['biometricLockEnabled'] as bool? ?? false;
-    // Retrocompatibilidad: los snapshots anteriores a v3 no guardaban el plan;
-    // eran la demo con Pro, así que se conserva Pro si la clave falta.
+    // Un snapshot sin la clave `planType` se decodifica como Free: en
+    // producción no se debe otorgar Pro por omisión. Los snapshots de la demo
+    // guardan `planType: 'pro'` explícito, así que se conservan en Pro.
     db.planType =
-        _enumByName(PlanType.values, json['planType'], PlanType.pro);
+        _enumByName(PlanType.values, json['planType'], PlanType.free);
     db.purchaseSource = json['purchaseSource'] as String?;
     db.purchasedAt = _date(json['purchasedAt']);
     db.reminderLeadDays = (json['reminderLeadDays'] as num?)?.toInt() ?? 0;
     db.lastBackupAt = _date(json['lastBackupAt']);
+    db.catalogAppliedVersion =
+        (json['catalogAppliedVersion'] as num?)?.toInt() ?? 0;
   }
 
   // ---- helpers ----------------------------------------------------------
@@ -231,6 +243,32 @@ abstract class DbCodec {
         status: _enumByName(DiagnosisStatus.values, j['status'], DiagnosisStatus.active),
         visitId: j['visitId'] as String?,
         notes: j['notes'] as String?,
+      );
+
+  static Map<String, dynamic> _diagnosisStatusChangeToJson(
+          DiagnosisStatusChange c) =>
+      {
+        'meta': c.meta.toJson(),
+        'petId': c.petId,
+        'diagnosisId': c.diagnosisId,
+        'condition': c.condition,
+        'fromStatus': c.fromStatus.name,
+        'toStatus': c.toStatus.name,
+        'changedAt': _iso(c.changedAt),
+      };
+
+  static DiagnosisStatusChange _diagnosisStatusChangeFromJson(
+          Map<String, dynamic> j) =>
+      DiagnosisStatusChange(
+        meta: SyncMetadata.fromJson((j['meta'] as Map).cast<String, dynamic>()),
+        petId: j['petId'] as String,
+        diagnosisId: j['diagnosisId'] as String,
+        condition: j['condition'] as String,
+        fromStatus:
+            _enumByName(DiagnosisStatus.values, j['fromStatus'], DiagnosisStatus.active),
+        toStatus:
+            _enumByName(DiagnosisStatus.values, j['toStatus'], DiagnosisStatus.active),
+        changedAt: _dateReq(j['changedAt']),
       );
 
   static Map<String, dynamic> _weightToJson(WeightRecord w) => {

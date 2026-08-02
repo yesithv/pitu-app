@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -95,10 +96,15 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
     final purchases = ref.read(purchaseServiceProvider);
     final entitlement = ref.read(entitlementProvider.notifier);
 
-    // En web/escritorio sin tienda, se mantiene el desbloqueo de demostración.
+    // Sin tienda (web/escritorio): solo en modo demo se desbloquea Pro para
+    // exhibición; en producción no se otorga Pro sin una compra real.
     if (!purchases.isSupported) {
-      entitlement.unlockPro();
-      _finishSuccess();
+      if (kDemoMode) {
+        entitlement.unlockPro();
+        _finishSuccess();
+      } else {
+        _snack('La compra está disponible en la app móvil.');
+      }
       return;
     }
 
@@ -178,11 +184,11 @@ class _FreeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _Feature(text: '1 mascota', yes: true),
-          _Feature(text: 'Recordatorios y catálogo', yes: true),
-          _Feature(text: 'Historial básico · respaldo', yes: true),
-          _Feature(text: 'Mascotas ilimitadas', yes: false),
-          _Feature(text: 'Panel de cumplimiento', yes: false),
+          const _Feature(text: '1 mascota', yes: true),
+          const _Feature(text: 'Recordatorios y catálogo', yes: true),
+          const _Feature(text: 'Historial básico · respaldo', yes: true),
+          const _Feature(text: 'Mascotas ilimitadas', yes: false),
+          const _Feature(text: 'Panel de cumplimiento', yes: false),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
@@ -242,11 +248,11 @@ class _ProCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _Feature(text: 'Mascotas ilimitadas', yes: true),
-          _Feature(text: 'Adjuntos y tareas ilimitadas', yes: true),
-          _Feature(text: 'Panel recomendado vs. realizado', yes: true),
-          _Feature(text: 'Reporte PDF para el veterinario', yes: true),
-          _Feature(text: 'Recordatorios avanzados', yes: true),
+          const _Feature(text: 'Mascotas ilimitadas', yes: true),
+          const _Feature(text: 'Adjuntos y tareas ilimitadas', yes: true),
+          const _Feature(text: 'Panel recomendado vs. realizado', yes: true),
+          const _Feature(text: 'Reporte PDF para el veterinario', yes: true),
+          const _Feature(text: 'Recordatorios avanzados', yes: true),
           const SizedBox(height: 14),
           if (isCurrent)
             Container(

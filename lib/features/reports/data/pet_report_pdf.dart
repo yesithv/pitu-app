@@ -126,7 +126,7 @@ pw.Widget _header(PetReportData d) {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text('PituApp',
-              style: pw.TextStyle(
+              style: const pw.TextStyle(
                   color: _teal, fontSize: 22, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 2),
           pw.Text('Reporte veterinario',
@@ -165,7 +165,7 @@ pw.Widget _petCard(PetReportData d) {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(d.petName,
-            style: pw.TextStyle(
+            style: const pw.TextStyle(
                 color: _ink, fontSize: 18, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 4),
         pw.Text(chips.join('  ·  '),
@@ -182,7 +182,7 @@ pw.Widget _section(String title, pw.Widget child) {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(title,
-            style: pw.TextStyle(
+            style: const pw.TextStyle(
                 color: _teal, fontSize: 13, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 2),
         pw.Divider(color: _line, thickness: .8, height: 10),

@@ -154,6 +154,7 @@ class BackupService {
     _db.schedules..clear()..addAll(src.schedules);
     _db.executions..clear()..addAll(src.executions);
     _db.diagnoses..clear()..addAll(src.diagnoses);
+    _db.diagnosisStatusChanges..clear()..addAll(src.diagnosisStatusChanges);
     _db.weights..clear()..addAll(src.weights);
     _db.visits..clear()..addAll(src.visits);
     _db.vaccines..clear()..addAll(src.vaccines);
@@ -174,6 +175,7 @@ class BackupService {
     _merge(_db.schedules, src.schedules, (s) => s.id);
     _merge(_db.executions, src.executions, (e) => e.id);
     _merge(_db.diagnoses, src.diagnoses, (d) => d.id);
+    _merge(_db.diagnosisStatusChanges, src.diagnosisStatusChanges, (c) => c.id);
     _merge(_db.weights, src.weights, (w) => w.id);
     _merge(_db.visits, src.visits, (v) => v.id);
     _merge(_db.vaccines, src.vaccines, (v) => v.id);
