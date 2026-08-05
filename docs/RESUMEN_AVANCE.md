@@ -4,8 +4,13 @@ _Ramas: `claude/prod-readiness-requirements-g23s9m` (fases 1–4) y
 `claude/app-prod-review-next-317lxl` (fase 5) · Última actualización: 2026-08-05._
 
 Documento de estado del trabajo hecho para acercar PituApp a producción, con lo
-completado y lo que queda pendiente. Para el detalle de los pendientes y "cómo
-continuar", ver también `docs/PRODUCCION_PENDIENTES.md`.
+completado y lo que queda pendiente. Es una **bitácora histórica**; para el estado
+vigente ver los documentos canónicos:
+
+- **`docs/ESTADO_MVP.md`** — estado funcional del MVP (RF/RNF) y qué falta.
+- **`docs/ROADMAP_V2.md`** — todo lo de la Fase 2.
+- **`docs/WEB_IRONCODING.md`** — ficha de producto para la web/tienda (copiar/pegar).
+- **`docs/PRODUCCION_PENDIENTES.md`** — guía técnica de publicación.
 
 ---
 
@@ -98,7 +103,7 @@ Rama `claude/app-prod-review-next-317lxl`.
 | 4 | Validación en dispositivo de funciones 📱 | 🔴 pendiente (requiere Android/iOS) |
 | 5 | Cobertura de pruebas | ✅ hecho (base sólida; ampliable) |
 | 6 | Gate de calidad en CI | ✅ hecho (estricto, `--fatal-infos`) |
-| 7 | Huecos de spec | 🟠 RF-15/26, RF-21 y RF-13 hechos; **RF-33 pendiente** (móvil) |
+| 7 | Huecos de spec | 🟠 RF-15/26, RF-21 y RF-13 hechos; **RF-33 y RF-35 pendientes** (móvil; ver `ESTADO_MVP.md`) |
 | 8 | Publicación / cumplimiento | 🟠 privacidad (borrador) + crash scaffolding hechos; resto pendiente |
 | — | Deuda de lint | ✅ saldada |
 
@@ -117,7 +122,8 @@ Rama `claude/app-prod-review-next-317lxl`.
   compras, archivos nativos) — guía en `docs/PRUEBAS_EN_DISPOSITIVO.md`.
 - **#2 (cierre)** Crear el producto `pituapp_pro_lifetime` en App Store Connect y
   Google Play y validar compra/restauración reales.
-- **RF-33** Listeners de zona horaria para reprogramar recordatorios (móvil).
+- **RF-33 / RF-35** Recordatorios fiables: fijar la zona horaria local + listeners
+  de cambio, y alarmas exactas de Android con permiso (móvil).
 
 **Se pueden hacer aquí más adelante:**
 - **#8** Enchufar un backend real de crash reporting (Sentry/Crashlytics)

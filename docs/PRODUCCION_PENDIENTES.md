@@ -6,7 +6,11 @@ tiendas. Cada ítem indica **estado**, **archivos afectados** y **cómo continua
 
 Leyenda de estado: 🔴 bloqueante · 🟠 riesgo de calidad · 🟢 deseable.
 
-> Última actualización: 2026-08-01.
+> **Fuente de verdad del estado funcional: `docs/ESTADO_MVP.md`.** Este documento
+> es la guía técnica de *publicación*; el estado detallado RF/RNF vive en
+> `ESTADO_MVP.md`, y la Fase 2 en `docs/ROADMAP_V2.md`.
+>
+> Última actualización: 2026-08-05.
 
 ---
 
@@ -110,25 +114,36 @@ silencian de forma acotada en su archivo).
 **Posible mejora:** añadir también un build Android/iOS al gate cuando existan los
 proyectos nativos (ver #1).
 
-## 7. Huecos del spec (menores) — 🟢
+## 7. Huecos del spec — 🔴 recordatorios / 🟠 resto
 
+Detalle y severidad en `docs/ESTADO_MVP.md` §4. Resumen:
+
+- **RF-13:** ✅ hecho — `CatalogUpdater` aditivo e idempotente
+  (`lib/features/care/application/catalog_updater.dart`, RN-09).
 - **RF-15 / RF-26:** ✅ hecho — adjuntar documentos desde el registro de un cuidado
   (`lib/features/care/presentation/care_register_screen.dart` reutiliza
   `AttachmentAddButton`).
 - **RF-21:** ✅ hecho — el cambio de estado de un diagnóstico se registra como
   entrada propia del historial (`DiagnosisStatusChange` +
   `lib/features/clinical/data/clinical_repository_impl.dart`; esquema v4).
-- **RF-13:** ⏳ pendiente — lógica de actualización de catálogo versionado sin
-  sobrescribir personalizaciones (`lib/features/care/data/care_catalog.dart`).
-  Bajo valor hasta publicar updates de catálogo.
-- **RF-33:** ⏳ pendiente — listeners de zona horaria para reprogramar
-  recordatorios (`lib/features/reminders/`). Solo móvil; validar en dispositivo.
+- **RF-33:** 🔴 **pendiente (criterio de aceptación del MVP)** — `tz.setLocalLocation`
+  nunca se invoca, así que `tz.local` queda en **UTC** (riesgo de notificaciones a la
+  hora equivocada); además falta el listener de cambio de zona horaria.
+  `lib/features/reminders/data/reminder_scheduler_io.dart`. Requiere el proyecto
+  nativo (#1) para validar.
+- **RF-35:** 🔴 **pendiente (criterio de aceptación del MVP)** — alarmas Android en
+  modo **inexacto** (`AndroidScheduleMode.inexactAllowWhileIdle`); no se pide
+  `SCHEDULE_EXACT_ALARM` ni existe `AndroidManifest.xml` para declararlo.
+- **RF-29 / RNF-04:** 🟠 pendiente — adjuntos aún en base64 dentro de la BD (tope
+  2 MB); moverlos al filesystem guardando solo la referencia.
+- **RNF-06 / RNF-13:** 🟡 pendiente — vista de espacio ocupado por documentos y
+  acción "borrar todos mis datos".
 
 ## 8. Publicación y cumplimiento — 🟠 (parcialmente hecho)
 
 - **Política de privacidad**: ✅ borrador en `docs/PRIVACIDAD.md` (local-first).
-  Pendiente: completar el correo de contacto y **alojarla en una URL pública**
-  (requisito de App Store y Google Play).
+  Pendiente: completar el correo de contacto (**será `yesithvalencia@gmail.com`**)
+  y **alojarla en una URL pública** (requisito de App Store y Google Play).
 - **Observabilidad**: ✅ scaffolding de crash reporting montado
   (`lib/core/observability/crash_reporter.dart` + `crash_reporter_providers.dart`,
   cableado en `main.dart` a `FlutterError.onError` y `platformDispatcher.onError`).

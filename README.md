@@ -13,19 +13,22 @@ Se recomienda recargar con **Ctrl/Cmd + F5** tras cada despliegue.
 ## 1. Estado del proyecto (resumen ejecutivo)
 
 - **Fase:** 1 — MVP local-first (sin backend).
-- **Estado:** **funcionalmente completo.** Todos los requisitos funcionales
-  `[F1]` de la especificación (RF-01 a RF-50) están implementados. Quedan
-  pendientes solo tareas de **endurecimiento y publicación** (ver §4).
-- **Última actualización de este documento:** 2026-07-26.
+- **Estado:** **núcleo funcional ~95% completo.** El grueso de los requisitos
+  `[F1]` está implementado; quedan **huecos funcionales de recordatorios**
+  (RF-33 zona horaria, RF-35 alarmas exactas) más endurecimiento y publicación.
+  > ⚠️ **Fuente de verdad del estado: `docs/ESTADO_MVP.md`** (esta tabla §3 es
+  > orientativa; ante cualquier duda prevalece `ESTADO_MVP.md`).
+- **Última actualización de este documento:** 2026-08-05.
 - **Dónde se dejó:** la app se despliega automáticamente a GitHub Pages en cada
   cambio a `main`. La superficie de prueba es la **web**; las funciones que
   requieren hardware móvil (notificaciones, biometría, compras, guardado/selección
   de archivos nativos) están implementadas con aislamiento por plataforma y
   quedan **pendientes de validación en dispositivo**.
-- **Qué falta para dar el MVP por 100% cerrado:** (1) migrar la persistencia a
-  **SQLite/Drift cifrado** (solo relevante en móvil), (2) **validar en
-  dispositivo** las funciones móviles y (3) **publicar en App Store / Google
-  Play**. Detalle en §4.
+- **Qué falta para el MVP:** (1) recordatorios fiables (RF-33/RF-35), (2) el
+  **proyecto nativo Android + AAB firmado**, (3) assets y cumplimiento de tienda,
+  y (4) **validar en dispositivo**. La persistencia **SQLite/Drift cifrada**
+  (RNF-10) ya está implementada en código. Detalle en `docs/ESTADO_MVP.md` y
+  `docs/PRODUCCION_PENDIENTES.md`; Fase 2 en `docs/ROADMAP_V2.md`.
 
 ---
 
@@ -67,9 +70,9 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 | RF-10 | Desactivar un cuidado | ✅ | |
 | RF-11 | Cuidados personalizados (con límite de plan) | ✅ | |
 | RF-12 | Cálculo automático de la próxima fecha | ✅ | |
-| RF-13 | Catálogo versionado sin sobrescribir personalizaciones | ⚠️ | Campo de versión presente; aún no hay lógica de actualización de catálogo (no aplica hasta publicar updates) |
+| RF-13 | Catálogo versionado sin sobrescribir personalizaciones | ✅ | `CatalogUpdater` aditivo e idempotente (RN-09) |
 | RF-14 | Marcar como hecho (1 toque) + recálculo | ✅ | |
-| RF-15 | Registro con detalle (fecha no futura, notas) | ⚠️ | Adjuntos por registro se hacen desde visitas/vacunas; en el registro de cuidado, pendiente |
+| RF-15 | Registro con detalle (fecha no futura, notas, adjuntos) | ✅ | Adjuntos también desde el registro de cuidado |
 | RF-16 | Deshacer un registro reciente | ✅ | |
 | RF-17 | Ejecución guardada en el historial | ✅ | |
 | — | **Cumpleaños** como actividad pendiente anual (extra) | ✅ | Recordatorio 🎂 al fijar la fecha de nacimiento |
@@ -80,7 +83,7 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 | RF-18 | Visita médica (editar/eliminar) | ✅ | |
 | RF-19 | Vacuna con próxima dosis autosugerida (editar/eliminar) | ✅ | |
 | RF-20 | Diagnóstico con estado (alta directa, editar/eliminar) | ✅ | |
-| RF-21 | Cambiar estado del diagnóstico | ⚠️ | El cambio se guarda; no se registra como entrada propia del historial |
+| RF-21 | Cambiar estado del diagnóstico | ✅ | Cada cambio se registra como entrada propia del historial (esquema v4) |
 | RF-22 | Registro de peso (editar/eliminar) | ✅ | |
 | RF-23 | Aviso informativo de variación de peso (>10%) | ✅ | No diagnóstico |
 | RF-24 | Línea de tiempo integrada (incluye diagnósticos) | ✅ | |
@@ -89,7 +92,7 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 ### Documentos adjuntos
 | Req | Función | Estado | Observación |
 |---|---|---|---|
-| RF-26 | Adjuntar a mascota y a visitas/vacunas | ⚠️ | Falta adjuntar desde el registro de un cuidado |
+| RF-26 | Adjuntar a mascota, visitas, vacunas y cuidados | ✅ | Incluye adjuntar desde el registro de un cuidado |
 | RF-27 | Galería con filtro por tipo | ✅ | |
 | RF-28 | Compresión de imágenes (<500 KB objetivo) | ✅ | |
 | RF-29 | Archivos en filesystem, BD guarda referencia | ⚠️ | En el MVP local-first se guardan embebidos (base64) en el snapshot; se separa a filesystem con la migración a SQLite |
@@ -100,9 +103,9 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 | RF-30 | Notificaciones locales por próxima fecha | ✅ 📱 | |
 | RF-31 | Del día / vencido persistente / anticipados (1/3/7, Pro) | ✅ 📱 | |
 | RF-32 | Tocar la notificación abre el cuidado/mascota | ✅ 📱 | |
-| RF-33 | Reprogramar tras reinstalar/restaurar/cambios | ⚠️ 📱 | Resync en cambios y tras importar; sin listeners específicos de zona horaria |
+| RF-33 | Reprogramar tras reinstalar/restaurar/cambios | ❌ 📱 | **Pendiente**: `tz.local` queda en UTC (no se fija la zona local) y no hay listener de zona horaria → riesgo de hora equivocada. Ver `docs/ESTADO_MVP.md` §4 |
 | RF-34 | Respetar el límite de 64 de iOS (por ventanas) | ✅ 📱 | |
-| RF-35 | Alarmas exactas Android + avisar permiso denegado | ⚠️ 📱 | Avisa si se deniega; config nativa exacta se ajusta en dispositivo |
+| RF-35 | Alarmas exactas Android + avisar permiso denegado | ❌ 📱 | **Pendiente**: usa modo inexacto; no pide `SCHEDULE_EXACT_ALARM`; sin manifiesto. Ver `docs/ESTADO_MVP.md` §4 |
 
 ### Cumplimiento y reporte
 | Req | Función | Estado | Observación |
@@ -142,7 +145,8 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 
 ## 4. Pendientes del MVP
 
-Lo funcional está completo; queda **endurecimiento y publicación**:
+> Lista resumida. **Estado detallado y canónico en `docs/ESTADO_MVP.md`.**
+> Quedan dos huecos funcionales de recordatorios más endurecimiento y publicación:
 
 1. **Persistencia definitiva — SQLite/Drift cifrado (RNF-10).** ✅ **Implementado
    en código** (pendiente de validar en dispositivo). En móvil los datos residen
@@ -157,11 +161,16 @@ Lo funcional está completo; queda **endurecimiento y publicación**:
    `docs/PRUEBAS_EN_DISPOSITIVO.md`.
 3. **Publicación en tiendas.** Generar los proyectos nativos, firmar y publicar en
    App Store y Google Play (incluye crear el producto de compra `pituapp_pro_lifetime`).
-4. **Detalles menores del spec.** Adjuntar también desde el registro de un
-   cuidado (RF-15/26), registrar el cambio de estado del diagnóstico como entrada
-   del historial (RF-21) y listeners de zona horaria para recordatorios (RF-33).
-5. **Entitlement de producción.** Hoy la demo arranca en Pro; en producción debe
-   arrancar en Free y **autorrestaurar** la compra al inicio (además del botón).
+4. **Recordatorios fiables (huecos funcionales del MVP).** RF-33 (fijar la zona
+   horaria local y reprogramar ante cambios; hoy `tz.local`=UTC) y RF-35 (alarmas
+   exactas en Android + permiso `SCHEDULE_EXACT_ALARM`). Son criterio de aceptación
+   del MVP. Ver `docs/ESTADO_MVP.md` §4.
+5. **Endurecimiento/cumplimiento.** RF-29/RNF-04 (adjuntos al filesystem),
+   RNF-06 (espacio ocupado por documentos) y RNF-13 (borrar todos mis datos).
+
+> Ya resueltos (no confundir con versiones viejas de este README): RF-13, RF-15/26,
+> RF-21, el **entitlement de producción** (arranca en Free + auto-restore) y la
+> **persistencia cifrada** (RNF-10, punto 1).
 
 > **Fuera del alcance de la Fase 1 (van en Fase 2):** cuenta de usuario, hogar
 > compartido, sincronización en la nube, multi-dispositivo, plan Premium
