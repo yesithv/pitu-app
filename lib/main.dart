@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'core/config/app_config.dart';
 import 'core/data/in_memory_database.dart';
-import 'core/data/persistence.dart';
+import 'core/data/persistence_factory.dart';
 import 'core/data/seed.dart';
 import 'core/di/providers.dart';
 import 'core/observability/crash_reporter.dart';
@@ -41,7 +41,13 @@ Future<void> main() async {
   // Carga el estado persistido (o siembra datos de ejemplo la primera vez) y
   // activa el autoguardado antes de arrancar la app.
   final prefs = await SharedPreferences.getInstance();
-  final persistence = Persistence(prefs);
+  // En móvil abre la base SQLite cifrada (Drift + SQLCipher, RNF-10) y migra un
+  // snapshot previo si existe; en web usa el snapshot en localStorage.
+  final persistence = await createPersistence(
+    prefs,
+    onError: (error, stack) =>
+        crashReporter.recordError(error, stack, fatal: false),
+  );
 
   final db = InMemoryDatabase();
   final loaded = persistence.loadInto(db);

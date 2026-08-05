@@ -47,17 +47,38 @@ nunca se han construido los proyectos nativos.
 Google Play Console, y **validar en dispositivo** el flujo de compra/restauración
 (depende de #1 y #4).
 
-## 3. Persistencia definitiva — SQLite/Drift cifrado (RNF-10) — 🔴
+## 3. Persistencia definitiva — SQLite/Drift cifrado (RNF-10) — 🟠 EN CURSO
 
-Hoy se guarda un **snapshot JSON completo** en `shared_preferences`
-(`lib/core/data/persistence.dart`, clave `pituapp.snapshot.v1`), reserializado en
-cada cambio, con los adjuntos embebidos en base64. **No está cifrado en reposo**
-y no escala.
+**Estado: implementado en código; pendiente de validación en dispositivo (#4).**
 
-**Cómo continuar:** implementar una capa de repositorio sobre Drift/SQLite con
-cifrado vía el llavero del SO (Keychain/Keystore) y separar los adjuntos al
-filesystem (RF-29). Gracias al patrón repositorio, se cambia solo la capa de
-datos sin tocar dominio ni pantallas.
+En móvil/escritorio los datos residen ahora en una base **SQLite cifrada con
+SQLCipher** (Drift), con la clave de 32 bytes guardada en el **llavero del SO**
+(`flutter_secure_storage` → Android Keystore / iOS Keychain). La web conserva el
+snapshot en `localStorage` (no hay llavero ni SQLCipher en el navegador); la
+plataforma se elige con el patrón de factory por conditional import.
+
+- **Interfaz común** `LocalPersistence` (`lib/core/data/local_persistence.dart`);
+  dos implementaciones: `SnapshotPersistence` (web, `lib/core/data/persistence.dart`)
+  y `DriftPersistence` (móvil, `lib/core/data/drift_persistence.dart`). El factory
+  es `lib/core/data/persistence_factory.dart` (`persistence_stub.dart` /
+  `persistence_io.dart`).
+- **Esquema** en `lib/core/data/drift/app_database.dart` (una fila por entidad,
+  clave `(kind, id)`); apertura cifrada en `drift/app_database_open.dart`
+  (`PRAGMA key`). El **códec JSON** (`db_codec.dart`) se reutiliza como formato de
+  fila y de respaldo, así que no se duplica el mapeo de dominio.
+- **Migración sin pérdida**: al arrancar por primera vez el build cifrado, si hay
+  un snapshot `pituapp.snapshot.v1` previo, se vuelca a la base. Cubierto por
+  `test/snapshot_migration_test.dart` y `test/drift_persistence_test.dart`.
+- **Codegen**: Drift genera `*.g.dart` con `build_runner` (paso añadido a
+  `ci.yml`); no se versiona.
+
+**Pendiente aquí:**
+- **Validar en dispositivo** (depende de #1 y #4): crear datos, cerrar/abrir la
+  app, y confirmar que el archivo `.sqlite` está cifrado en reposo (no legible en
+  claro) y que un usuario con snapshot previo migra sin pérdida.
+- **Follow-ups** (fuera de este alcance): escrituras **incrementales** por entidad
+  en vez del reemplazo transaccional completo, y separar los adjuntos al
+  filesystem guardando solo la referencia (**RF-29**).
 
 ## 4. Validación en dispositivo de funciones móviles — 🔴
 

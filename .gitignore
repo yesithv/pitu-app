@@ -31,6 +31,10 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Código generado por build_runner (Drift). Se regenera en CI antes de
+# analyze/test; no se versiona.
+*.g.dart
+
 # Symbolication related
 app.*.symbols
 

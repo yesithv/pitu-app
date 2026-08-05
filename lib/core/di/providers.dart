@@ -9,7 +9,7 @@ import '../../features/pets/data/pet_repository_impl.dart';
 import '../../features/pets/domain/repositories/pet_repository.dart';
 import '../config/app_config.dart';
 import '../data/in_memory_database.dart';
-import '../data/persistence.dart';
+import '../data/local_persistence.dart';
 import '../data/seed.dart';
 import '../utils/clock.dart';
 import '../utils/id_generator.dart';
@@ -29,7 +29,7 @@ final schedulingServiceProvider =
 /// Persistencia local del snapshot. Se sobreescribe en `main` con la instancia
 /// enlazada a shared_preferences; el valor por defecto no persiste (útil en
 /// tests o entornos sin almacenamiento).
-final persistenceProvider = Provider<Persistence?>((ref) => null);
+final persistenceProvider = Provider<LocalPersistence?>((ref) => null);
 
 /// Base de datos local (in-memory en el MVP). Instancia estable y sembrada.
 final databaseProvider = ChangeNotifierProvider<InMemoryDatabase>((ref) {

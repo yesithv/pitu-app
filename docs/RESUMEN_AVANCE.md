@@ -1,6 +1,7 @@
 # Resumen de avance — Preparación para producción
 
-_Rama: `claude/prod-readiness-requirements-g23s9m` · Última actualización: 2026-08-02._
+_Ramas: `claude/prod-readiness-requirements-g23s9m` (fases 1–4) y
+`claude/app-prod-review-next-317lxl` (fase 5) · Última actualización: 2026-08-05._
 
 Documento de estado del trabajo hecho para acercar PituApp a producción, con lo
 completado y lo que queda pendiente. Para el detalle de los pendientes y "cómo
@@ -67,6 +68,24 @@ Commit `8825571`.
   personalizaciones (RN-09); persiste `catalogAppliedVersion` y reconcilia al
   arrancar.
 
+### Fase 5 — Persistencia cifrada en reposo (#3, RNF-10)
+Rama `claude/app-prod-review-next-317lxl`.
+- **Móvil/escritorio**: base **SQLite cifrada con SQLCipher** (Drift), con la
+  clave en el **llavero del SO** (`flutter_secure_storage`). **Web** conserva el
+  snapshot en `localStorage` (sin llavero ni SQLCipher en el navegador).
+- **Interfaz** `LocalPersistence` con dos implementaciones (`SnapshotPersistence`
+  web / `DriftPersistence` móvil) elegidas por conditional import
+  (`persistence_factory.dart`). Los consumidores (backup, adjuntos, DI) no
+  cambian de forma.
+- **Esquema** `(kind, id)` en `drift/app_database.dart`, adjuntos como BLOB fuera
+  del JSON; se **reutiliza `DbCodec`** como formato de fila y respaldo.
+- **Migración sin pérdida** del snapshot `v1` previo a la base cifrada al primer
+  arranque. Codegen de Drift añadido a `ci.yml`.
+- **Pruebas**: `drift_persistence_test.dart` (round-trip + BLOB) y
+  `snapshot_migration_test.dart` (migración).
+- **Pendiente**: validar en dispositivo (depende de #1/#4); follow-ups de
+  escrituras incrementales y adjuntos al filesystem (RF-29).
+
 ---
 
 ## 2. Estado de los 8 pendientes de producción
@@ -75,7 +94,7 @@ Commit `8825571`.
 |---|---|---|
 | 1 | Proyectos nativos Android/iOS + firma | 🔴 pendiente (requiere `flutter create` + firma/tiendas) |
 | 2 | Entitlement: arrancar en Free + auto-restore | ✅ hecho (falta validar en dispositivo) |
-| 3 | Persistencia SQLite/Drift cifrada (RNF-10) | 🔴 pendiente (refactor grande, móvil) |
+| 3 | Persistencia SQLite/Drift cifrada (RNF-10) | 🟠 hecho en código (Drift + SQLCipher); falta validar en dispositivo |
 | 4 | Validación en dispositivo de funciones 📱 | 🔴 pendiente (requiere Android/iOS) |
 | 5 | Cobertura de pruebas | ✅ hecho (base sólida; ampliable) |
 | 6 | Gate de calidad en CI | ✅ hecho (estricto, `--fatal-infos`) |
@@ -90,8 +109,10 @@ Commit `8825571`.
 **Requieren dispositivos o cuentas de tienda (no cerrables solo en este entorno):**
 - **#1** Generar y configurar los proyectos nativos Android/iOS (firma, permisos,
   iconos, `minSdk`/deployment target).
-- **#3** Migrar la persistencia a SQLite/Drift **cifrado** con el llavero del SO;
-  separar adjuntos al filesystem (RF-29).
+- **#3 (cierre)** Persistencia SQLite/Drift **cifrada** ya implementada (fase 5);
+  falta **validar en dispositivo** que el `.sqlite` queda cifrado en reposo y que
+  la migración del snapshot previo no pierde datos. Follow-up: separar adjuntos al
+  filesystem (RF-29).
 - **#4** Validar en dispositivo las funciones 📱 (recordatorios, biometría,
   compras, archivos nativos) — guía en `docs/PRUEBAS_EN_DISPOSITIVO.md`.
 - **#2 (cierre)** Crear el producto `pituapp_pro_lifetime` en App Store Connect y
@@ -110,8 +131,9 @@ Commit `8825571`.
 
 ## 4. Pruebas y CI
 
-- **9 archivos de test** en `test/` (dominio, persistencia, respaldo, entitlement,
-  scheduling, clínico, catálogo, crash reporter).
+- **11 archivos de test** en `test/` (dominio, persistencia, respaldo, entitlement,
+  scheduling, clínico, catálogo, crash reporter, y ahora Drift + migración del
+  snapshot).
 - CI (`ci.yml`) corre en cada PR/push a ramas de trabajo y **bloquea** ante
   errores, warnings e infos, además de fallos de test.
 - La web (`deploy.yml`) sigue desplegándose a GitHub Pages en `main`, en modo demo

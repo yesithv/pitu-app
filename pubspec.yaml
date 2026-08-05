@@ -25,11 +25,22 @@ dependencies:
   share_plus: ^10.0.0
   file_picker: ^8.1.2
   image: ^4.2.0
+  # Persistencia móvil: SQLite cifrado (Drift + SQLCipher) con clave en el
+  # llavero del SO (RNF-10). En web no se usan (se aísla por conditional import).
+  drift: ^2.20.0
+  sqlite3: ^2.4.0
+  sqlcipher_flutter_libs: ^0.6.0
+  flutter_secure_storage: ^9.2.2
+  path_provider: ^2.1.4
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  # Generación de código de Drift (`*.g.dart`). Corre en CI antes de analyze/test.
+  drift_dev: ^2.20.0
+  build_runner: ^2.4.13
 
 flutter:
   uses-material-design: true

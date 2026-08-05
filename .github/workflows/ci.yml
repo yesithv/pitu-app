@@ -29,6 +29,11 @@ jobs:
       - name: Instalar dependencias
         run: flutter pub get
 
+      - name: Generar código (Drift)
+        # Drift genera `*.g.dart` (no se versionan). Debe correr antes de
+        # analyze/test para que el árbol compile.
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Análisis estático
         # Gate estricto: falla ante errores, warnings e infos. La deuda de lint
         # preexistente ya se saldó; los avisos inherentes (p. ej. dart:html del

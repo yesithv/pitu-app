@@ -144,13 +144,13 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 
 Lo funcional está completo; queda **endurecimiento y publicación**:
 
-1. **Persistencia definitiva — SQLite/Drift cifrado (RNF-10).** Hoy la app guarda
-   un **snapshot JSON** en el almacenamiento local (`localStorage` en web,
-   preferencias en móvil). Funciona y es probable en web, pero **no está cifrado
-   en reposo**. El cifrado necesita el llavero seguro del sistema operativo
-   (Keychain/Keystore), que **no existe en el navegador**, por lo que es una tarea
-   **de la app móvil**. Gracias al patrón repositorio, se cambia solo la capa de
-   datos, sin tocar dominio ni pantallas.
+1. **Persistencia definitiva — SQLite/Drift cifrado (RNF-10).** ✅ **Implementado
+   en código** (pendiente de validar en dispositivo). En móvil los datos residen
+   en una base **SQLite cifrada con SQLCipher** (Drift), con la clave en el
+   **llavero del SO** (Keychain/Keystore vía `flutter_secure_storage`); la **web**
+   conserva el snapshot en `localStorage` (el navegador no tiene llavero). Gracias
+   al patrón repositorio (`LocalPersistence` con implementación por plataforma), el
+   dominio y las pantallas no cambian. Detalle en `docs/PRODUCCION_PENDIENTES.md` §3.
 2. **Validación en dispositivo.** Las funciones marcadas 📱 (recordatorios,
    biometría, compras, guardar/seleccionar archivos nativos) están implementadas
    pero requieren probarse en Android/iOS. Guía paso a paso en
@@ -203,9 +203,11 @@ lib/
 - **RD-18 desde el día 1:** UUID de cliente, `created_at`/`updated_at`,
   `created_by` reservado y borrado lógico en todas las entidades → habilita la
   sincronización de la Fase 2 sin migraciones destructivas.
-- **Persistencia (MVP):** modelo en memoria reactivo + **códec JSON versionado**
-  (esquema v3) guardado con `shared_preferences`. El mismo formato es el del
-  **respaldo** (RF-41) y la base del contrato de la API de la Fase 2.
+- **Persistencia:** modelo en memoria reactivo + **códec JSON versionado**
+  (esquema v4). En reposo se elige por plataforma (`LocalPersistence`): **SQLite
+  cifrado con SQLCipher** (Drift + llavero del SO) en móvil/escritorio y snapshot
+  en `localStorage` en web. El mismo códec JSON es el formato del **respaldo**
+  (RF-41) y la base del contrato de la API de la Fase 2.
 - **Aislamiento web/móvil:** las funciones que dependen de plugins nativos
   (`flutter_local_notifications`, `local_auth`, `in_app_purchase`, `share_plus`,
   `file_picker`) se eligen por plataforma mediante *conditional imports*; en web

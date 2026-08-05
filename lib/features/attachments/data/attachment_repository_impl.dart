@@ -1,5 +1,5 @@
 import '../../../core/data/in_memory_database.dart';
-import '../../../core/data/persistence.dart';
+import '../../../core/data/local_persistence.dart';
 import '../domain/entities/attachment.dart';
 import '../domain/repositories/attachment_repository.dart';
 
@@ -7,7 +7,7 @@ class InMemoryAttachmentRepository implements AttachmentRepository {
   InMemoryAttachmentRepository(this._db, this._persistence);
 
   final InMemoryDatabase _db;
-  final Persistence? _persistence;
+  final LocalPersistence? _persistence;
 
   @override
   List<Attachment> attachmentsForPet(String petId) {

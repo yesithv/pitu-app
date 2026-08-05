@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../../../core/data/db_codec.dart';
 import '../../../core/data/in_memory_database.dart';
-import '../../../core/data/persistence.dart';
+import '../../../core/data/local_persistence.dart';
 import '../data/file_transfer.dart';
 import '../domain/backup_result.dart';
 
@@ -46,7 +46,7 @@ class BackupService {
 
   final InMemoryDatabase _db;
   final FileTransfer _files;
-  final Persistence? _persistence;
+  final LocalPersistence? _persistence;
 
   bool get canImport => _files.canPickFile;
 
