@@ -16,11 +16,13 @@ Leyenda: ✅ hecho y verificado en código · 🟠 parcial / interino · ❌ pen
 
 ## 1. Veredicto
 
-El **núcleo funcional del MVP está ~95% completo** y probado en la superficie web.
-**No está listo para publicar en Google Play** todavía: faltan (a) dos huecos de
-recordatorios fiables que son **criterio de aceptación** del MVP (RF-33 y RF-35),
-(b) el **proyecto nativo `android/` + firma + AAB**, y (c) el paquete de
-**assets y cumplimiento** de la tienda. Detalle abajo y en `PRODUCCION_PENDIENTES.md`.
+El **núcleo funcional del MVP está completo en código**. Los dos huecos de
+recordatorios fiables (RF-33 y RF-35) ya están **implementados** y el **proyecto
+nativo `android/`** ya existe (compila en CI). **Aún no está listo para publicar**:
+falta (a) **validar en dispositivo** los recordatorios y demás funciones 📱,
+(b) la **firma de release + AAB** (keystore del usuario), y (c) el paquete de
+**assets y cumplimiento** de la tienda. Detalle abajo, en `PRODUCCION_PENDIENTES.md`
+y en `RELEASE_ANDROID.md`.
 
 ---
 
@@ -77,9 +79,9 @@ recordatorios fiables que son **criterio de aceptación** del MVP (RF-33 y RF-35
 | RF-30 | Notificaciones locales por próxima fecha | ✅ 📱 | `reminders/data/reminder_scheduler_io.dart` |
 | RF-31 | Del día / vencido persistente / anticipados (Pro) | ✅ 📱 | |
 | RF-32 | Tocar la notificación abre el cuidado/mascota | ✅ 📱 | |
-| RF-33 | Reprogramar tras reinstalar/restaurar/**zona horaria** | 🟠 📱 | **Parcial**: resync en cambios e import, pero `tz.setLocalLocation` nunca se llama (`tz.local`=UTC) y no hay listener de zona horaria → riesgo de hora equivocada (ver §4) |
+| RF-33 | Reprogramar tras reinstalar/restaurar/**zona horaria** | ✅ (en código) 📱 | Se fija la zona local del dispositivo (`flutter_timezone` + `setLocalLocation`) y se reprograma al reanudar si cambió (observer en `main.dart`). **Falta validar en dispositivo** |
 | RF-34 | Respetar el límite de 64 de iOS (por ventanas) | ✅ 📱 | tope 60 en `reminders_coordinator.dart` |
-| RF-35 | Alarmas exactas Android + avisar permiso | ❌ 📱 | **Pendiente**: usa modo inexacto; no pide `SCHEDULE_EXACT_ALARM`; sin manifiesto (ver §4) |
+| RF-35 | Alarmas exactas Android + avisar permiso | ✅ (en código) 📱 | Pide `SCHEDULE_EXACT_ALARM` y usa `exactAllowWhileIdle` si está concedido (degrada a inexacto si no); permiso declarado en el manifiesto. **Falta validar en dispositivo** |
 
 ### Cumplimiento, reporte, respaldo, planes
 | Req | Función | Estado | Nota |
@@ -99,7 +101,8 @@ recordatorios fiables que son **criterio de aceptación** del MVP (RF-33 y RF-35
 | RF-49 | Restaurar compra | ✅ 📱 | |
 | RF-50 | Estado del plan + comparativa + candado honesto | ✅ | |
 
-**RF Fase 1: 47 de 49 completos.** Pendientes: **RF-29** y **RF-35**; parcial: **RF-33**.
+**RF Fase 1: 48 de 49 completos** (RF-33 y RF-35 hechos en código, pendientes de
+validar en dispositivo). Único pendiente de implementación: **RF-29**.
 
 ---
 
@@ -133,28 +136,20 @@ recordatorios fiables que son **criterio de aceptación** del MVP (RF-33 y RF-35
 
 ## 4. Faltantes del MVP (qué nos hace falta)
 
-Ordenados por prioridad. Los dos primeros son **criterio de aceptación** del MVP
-(recordatorios locales fiables, ERS §9.3).
+**Recordatorios fiables (RF-33 y RF-35): ✅ implementados** — se fija la zona
+horaria local del dispositivo y se reprograma ante cambios (RF-33), y se piden
+alarmas exactas usando `exactAllowWhileIdle` cuando el permiso está concedido
+(RF-35). Quedan **pendientes de validación en dispositivo** (#4).
 
-1. **RF-33 — Zona horaria en recordatorios (🔴 bloqueante).** Hoy nunca se invoca
-   `tz.setLocalLocation`, así que `tz.local` queda en **UTC** y las notificaciones
-   pueden dispararse a la hora equivocada; además no hay listener de cambio de
-   zona horaria. Arreglo: fijar la zona local al iniciar y reprogramar ante
-   cambios. Archivo: `lib/features/reminders/data/reminder_scheduler_io.dart`.
-2. **RF-35 — Alarmas exactas en Android (🔴 bloqueante).** Se usa
-   `AndroidScheduleMode.inexactAllowWhileIdle` y no se solicita el permiso
-   `SCHEDULE_EXACT_ALARM`; los avisos pueden retrasarse/agruparse. Requiere el
-   permiso en el `AndroidManifest.xml` (que aún no existe) y pedirlo en runtime.
-3. **RF-29 / RNF-04 — Adjuntos al filesystem (🟠).** Hoy viajan en base64 dentro
+Pendientes de implementación:
+
+1. **RF-29 / RNF-04 — Adjuntos al filesystem (🟠).** Hoy viajan en base64 dentro
    del snapshot cifrado (tope 2 MB por archivo). Funciona, pero incumple la spec y
    no escala. Mover el binario al directorio de la app y guardar solo la ruta.
-4. **RNF-06 — Espacio ocupado por documentos (🟡).** Añadir en Ajustes → Datos el
+2. **RNF-06 — Espacio ocupado por documentos (🟡).** Añadir en Ajustes → Datos el
    total de almacenamiento usado por adjuntos.
-5. **RNF-13 — Eliminación total de datos (🟡, cumplimiento).** Añadir una acción
+3. **RNF-13 — Eliminación total de datos (🟡, cumplimiento).** Añadir una acción
    "borrar todos mis datos" (con confirmación) además del borrado por mascota.
-
-> **Nota:** RF-33 y RF-35 solo pueden completarse y probarse con el **proyecto
-> nativo `android/`** presente (bloqueante #1). Ver `PRODUCCION_PENDIENTES.md`.
 
 ---
 
@@ -162,7 +157,9 @@ Ordenados por prioridad. Los dos primeros son **criterio de aceptación** del MV
 
 Resumen; el detalle y el "cómo continuar" están en `docs/PRODUCCION_PENDIENTES.md`.
 
-- ❌ **Proyecto nativo `android/` + firma (keystore) + AAB** — bloqueante duro.
+- 🟠 **Proyecto nativo `android/`** — ✅ creado y compila en CI (`android.yml`).
+  Falta la **firma de release** (keystore del usuario) y generar el **AAB**
+  (`docs/RELEASE_ANDROID.md`). El proyecto **iOS** sigue pendiente.
 - ❌ **Assets de tienda**: icono 512×512, feature graphic 1024×500, ≥2 capturas —
   **ninguno existe** en el repo.
 - 🟠 **Política de privacidad**: borrador en `docs/PRIVACIDAD.md`; falta **alojarla
@@ -180,12 +177,13 @@ Resumen; el detalle y el "cómo continuar" están en `docs/PRODUCCION_PENDIENTES
 |---|---|---|
 | 1 | Onboarding: primera mascota con cuidados en < 90 s (RNF-19) | ✅ |
 | 2 | Registrar cuidados/visitas/vacunas/diagnósticos/peso y verlos con filtros (RF-14–25) | ✅ |
-| 3 | Recalcular fechas y **recordatorios locales fiables** respetando límites (RF-12, RF-30–35) | 🟠 **Falta RF-33 y RF-35** |
+| 3 | Recalcular fechas y **recordatorios locales fiables** respetando límites (RF-12, RF-30–35) | ✅ (en código) — RF-33/RF-35 hechos; **validar en dispositivo** |
 | 4 | Panel y PDF bajo plan de pago; límites Free correctos (RF-36–39, RN-01–07) | ✅ |
 | 5 | Compra y restauración de Pro en la tienda (RF-48, RF-49) | ⏳ Código listo; **validar en dispositivo** |
 | 6 | Exportar/importar respaldo, combinar por UUID, manejo de errores (RF-41–46) | ✅ |
 | 7 | Todas las entidades cumplen RD-18 (UUID, timestamps, borrado lógico) | ✅ |
 | 8 | Cifra datos locales y declara ausencia de recolección (RNF-10, RNF-12) | 🟠 Cifrado en código; **falta Data Safety** |
 
-**Para dar el MVP por listo:** cerrar el criterio 3 (RF-33/RF-35) y los criterios
-5/8 dependientes del proyecto nativo y la ficha de tienda.
+**Para dar el MVP por listo:** validar en dispositivo los recordatorios (criterio 3)
+y las compras (criterio 5), completar la firma/AAB y el Data Safety (criterio 8),
+más los assets y la ficha de tienda.

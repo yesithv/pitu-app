@@ -1,0 +1,14 @@
+# Firma de release de Android.
+#
+# 1) Crea un keystore (una sola vez):
+#      keytool -genkey -v -keystore pituapp-release.jks \
+#        -keyalg RSA -keysize 2048 -validity 10000 -alias pituapp
+# 2) Copia este archivo a  android/key.properties  y completa los valores.
+# 3) NO subas key.properties ni el .jks al repositorio (están en .gitignore).
+#
+# Ver docs/RELEASE_ANDROID.md para el detalle.
+
+storePassword=CONTRASENA_DEL_ALMACEN
+keyPassword=CONTRASENA_DE_LA_CLAVE
+keyAlias=pituapp
+storeFile=/ruta/absoluta/a/pituapp-release.jks

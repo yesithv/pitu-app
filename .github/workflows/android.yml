@@ -1,0 +1,57 @@
+name: CI Android (compilación)
+
+# Verifica que el proyecto nativo Android compila. Corre en cada Pull Request y
+# push a ramas de trabajo (no en main, que cubre deploy.yml para la web).
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    name: Compilar APK (debug)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Generar código (Drift)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Restaurar binarios no versionados (gradle-wrapper.jar + iconos)
+        # El wrapper .jar y los iconos PNG por defecto son binarios y no se
+        # versionan; se restauran desde un andamiaje temporal SIN tocar nuestra
+        # configuración (manifiesto, build.gradle, MainActivity, etc.).
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          flutter create --platforms=android --org com.ironcoding --project-name pitu_app "$tmp"
+          mkdir -p android/gradle/wrapper
+          cp "$tmp/android/gradle/wrapper/gradle-wrapper.jar" android/gradle/wrapper/gradle-wrapper.jar
+          for d in "$tmp"/android/app/src/main/res/mipmap-*; do
+            name="$(basename "$d")"
+            mkdir -p "android/app/src/main/res/$name"
+            cp "$d"/* "android/app/src/main/res/$name/"
+          done
+
+      - name: Compilar APK debug (verificación)
+        run: flutter build apk --debug

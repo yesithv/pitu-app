@@ -45,3 +45,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android: artefactos de build, config local y secretos de firma.
+/android/.gradle/
+/android/**/build/
+/android/local.properties
+/android/key.properties
+*.jks
+*.keystore
+# El gradle-wrapper.jar es binario: no se versiona, se restaura en CI/local
+# (ver docs/RELEASE_ANDROID.md y .github/workflows/android.yml).
+/android/gradle/wrapper/gradle-wrapper.jar
+# Iconos del launcher por defecto: se restauran del andamiaje hasta generar los
+# definitivos con flutter_launcher_icons.
+/android/app/src/main/res/mipmap-*/

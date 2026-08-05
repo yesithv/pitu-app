@@ -110,7 +110,7 @@ los recordatorios anticipados.
 | **Correo de soporte/contacto** | yesithvalencia@gmail.com |
 | **Ficha en Google Play (URL)** | `[PENDIENTE: se genera al publicar la app]` |
 | **Sitio web** | `[PENDIENTE: URL de la página de IronCoding]` |
-| **Nombre del paquete (applicationId)** | `[PENDIENTE: definir, p. ej. com.ironcoding.pituapp]` |
+| **Nombre del paquete (applicationId)** | `com.ironcoding.pituapp` |
 
 ---
 
@@ -139,7 +139,8 @@ visual (`design/PetBienestar-Identidad-Visual.md`).
 ## 9. Resumen de pendientes para publicar (lista corta)
 
 1. Alojar la política de privacidad en una **URL pública**.
-2. Definir el **applicationId** y generar el **proyecto Android + AAB firmado**.
+2. **Firmar** el proyecto Android (ya creado, `com.ironcoding.pituapp`) y generar
+   el **AAB de release** — ver `docs/RELEASE_ANDROID.md`.
 3. Producir **icono, feature graphic y capturas**.
 4. Completar en Play Console: **Data Safety**, **clasificación por edad** y el
    producto de compra **`pituapp_pro_lifetime`**.

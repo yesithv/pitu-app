@@ -32,8 +32,15 @@ abstract interface class ReminderScheduler {
   /// con el `payload` (id de la mascota) como argumento.
   void setOnSelect(void Function(String payload)? handler);
 
-  /// Solicita el permiso de notificaciones al usuario (iOS / Android 13+).
+  /// Solicita el permiso de notificaciones al usuario (iOS / Android 13+) y, en
+  /// Android, el de alarmas exactas (RF-35). Devuelve si el permiso de
+  /// notificaciones quedó concedido.
   Future<bool> requestPermission();
+
+  /// Re-lee la zona horaria del dispositivo y la fija como zona local para la
+  /// programación (RF-33). Devuelve `true` si cambió respecto a la anterior, para
+  /// que el llamador reprograme. En web es un no-op que devuelve `false`.
+  Future<bool> refreshTimeZone();
 
   /// Reprograma la ventana de próximos recordatorios (RF-34): cancela los
   /// anteriores y agenda los recibidos.
@@ -57,6 +64,9 @@ class NoopReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => false;
+
+  @override
+  Future<bool> refreshTimeZone() async => false;
 
   @override
   Future<void> rescheduleAll(List<ReminderRequest> requests) async {}

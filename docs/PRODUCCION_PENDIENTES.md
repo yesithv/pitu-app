@@ -14,21 +14,27 @@ Leyenda de estado: 🔴 bloqueante · 🟠 riesgo de calidad · 🟢 deseable.
 
 ---
 
-## 1. Proyectos nativos Android/iOS — 🔴
+## 1. Proyectos nativos Android/iOS — 🟠 Android en curso · iOS pendiente
 
-El repo solo contiene `lib/`, `test/`, `pubspec.yaml`, etc. **No existen las
-carpetas `android/` ni `ios/`.** La CI (`.github/workflows/deploy.yml`) genera la
-plataforma **web** al vuelo con `flutter create --platforms=web`, por lo que
-nunca se han construido los proyectos nativos.
+**Android: ✅ creado.** Existe el proyecto `android/` versionado con
+`applicationId = com.ironcoding.pituapp`, `minSdk 23`/`compileSdk 34`, permisos y
+receivers de notificaciones en el manifiesto (RF-30..RF-35), `MainActivity` como
+`FlutterFragmentActivity` (biometría), core library desugaring
+(`flutter_local_notifications`) y firma vía `key.properties` con fallback a debug.
+La CI `android.yml` **compila un APK debug** en cada PR para verificarlo.
 
-**Cómo continuar:**
-- `flutter create --platforms=android,ios .` para generar los proyectos.
-- Configurar `applicationId` / `bundleId`, iconos y splash, versión/build.
-- Firma: keystore de Android; certificados y perfiles de aprovisionamiento iOS.
-- Permisos: `AndroidManifest.xml` e `Info.plist` (notificaciones locales,
-  `NSFaceIDUsageDescription` para biometría, alarmas exactas en Android 13+),
-  `minSdkVersion` y deployment target.
-- Ninguna función marcada 📱 se ha ejecutado en un dispositivo real (ver #4).
+Los binarios que no se versionan (`gradle-wrapper.jar`, iconos del launcher) se
+restauran en CI/local (ver `docs/RELEASE_ANDROID.md`).
+
+**Pendiente Android:**
+- **Firma de release** (keystore del usuario) y generar el **AAB**
+  (`flutter build appbundle --release`) — ver `docs/RELEASE_ANDROID.md`.
+- **Iconos definitivos** con `flutter_launcher_icons` (hoy son los genéricos).
+- **Validar en dispositivo** las funciones 📱 (ver #4).
+
+**iOS: 🔴 pendiente** — `flutter create --platforms=ios .`, `bundleId`,
+`Info.plist` (`NSFaceIDUsageDescription`), certificados y perfiles, deployment
+target.
 
 ## 2. Entitlement de producción (arrancar en Free + auto-restore) — 🟠 EN CURSO
 
@@ -126,14 +132,12 @@ Detalle y severidad en `docs/ESTADO_MVP.md` §4. Resumen:
 - **RF-21:** ✅ hecho — el cambio de estado de un diagnóstico se registra como
   entrada propia del historial (`DiagnosisStatusChange` +
   `lib/features/clinical/data/clinical_repository_impl.dart`; esquema v4).
-- **RF-33:** 🔴 **pendiente (criterio de aceptación del MVP)** — `tz.setLocalLocation`
-  nunca se invoca, así que `tz.local` queda en **UTC** (riesgo de notificaciones a la
-  hora equivocada); además falta el listener de cambio de zona horaria.
-  `lib/features/reminders/data/reminder_scheduler_io.dart`. Requiere el proyecto
-  nativo (#1) para validar.
-- **RF-35:** 🔴 **pendiente (criterio de aceptación del MVP)** — alarmas Android en
-  modo **inexacto** (`AndroidScheduleMode.inexactAllowWhileIdle`); no se pide
-  `SCHEDULE_EXACT_ALARM` ni existe `AndroidManifest.xml` para declararlo.
+- **RF-33:** ✅ hecho (en código) — se fija la zona horaria local del dispositivo
+  (`flutter_timezone` + `tz.setLocalLocation`) y se reprograma al reanudar si cambió
+  (observer en `lib/main.dart`). Pendiente: validar en dispositivo (#4).
+- **RF-35:** ✅ hecho (en código) — se pide `SCHEDULE_EXACT_ALARM` (declarado en el
+  manifiesto) y se usa `exactAllowWhileIdle` cuando está concedido, degradando a
+  inexacto si no. Pendiente: validar en dispositivo (#4).
 - **RF-29 / RNF-04:** 🟠 pendiente — adjuntos aún en base64 dentro de la BD (tope
   2 MB); moverlos al filesystem guardando solo la referencia.
 - **RNF-06 / RNF-13:** 🟡 pendiente — vista de espacio ocupado por documentos y

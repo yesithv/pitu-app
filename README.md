@@ -13,9 +13,10 @@ Se recomienda recargar con **Ctrl/Cmd + F5** tras cada despliegue.
 ## 1. Estado del proyecto (resumen ejecutivo)
 
 - **Fase:** 1 — MVP local-first (sin backend).
-- **Estado:** **núcleo funcional ~95% completo.** El grueso de los requisitos
-  `[F1]` está implementado; quedan **huecos funcionales de recordatorios**
-  (RF-33 zona horaria, RF-35 alarmas exactas) más endurecimiento y publicación.
+- **Estado:** **núcleo funcional completo en código.** Los requisitos `[F1]` están
+  implementados (incluidos RF-33/RF-35 de recordatorios) y ya existe el **proyecto
+  nativo `android/`** (compila en CI). Quedan **validación en dispositivo**, firma y
+  publicación.
   > ⚠️ **Fuente de verdad del estado: `docs/ESTADO_MVP.md`** (esta tabla §3 es
   > orientativa; ante cualquier duda prevalece `ESTADO_MVP.md`).
 - **Última actualización de este documento:** 2026-08-05.
@@ -24,11 +25,11 @@ Se recomienda recargar con **Ctrl/Cmd + F5** tras cada despliegue.
   requieren hardware móvil (notificaciones, biometría, compras, guardado/selección
   de archivos nativos) están implementadas con aislamiento por plataforma y
   quedan **pendientes de validación en dispositivo**.
-- **Qué falta para el MVP:** (1) recordatorios fiables (RF-33/RF-35), (2) el
-  **proyecto nativo Android + AAB firmado**, (3) assets y cumplimiento de tienda,
-  y (4) **validar en dispositivo**. La persistencia **SQLite/Drift cifrada**
-  (RNF-10) ya está implementada en código. Detalle en `docs/ESTADO_MVP.md` y
-  `docs/PRODUCCION_PENDIENTES.md`; Fase 2 en `docs/ROADMAP_V2.md`.
+- **Qué falta para el MVP:** (1) **validar en dispositivo** los recordatorios y
+  funciones 📱, (2) **firma de release + AAB** (`docs/RELEASE_ANDROID.md`),
+  (3) assets y cumplimiento de tienda, y (4) el proyecto **iOS**. Ya hechos:
+  RF-33/RF-35, persistencia cifrada (RNF-10) y el proyecto `android/`. Detalle en
+  `docs/ESTADO_MVP.md` y `docs/PRODUCCION_PENDIENTES.md`; Fase 2 en `docs/ROADMAP_V2.md`.
 
 ---
 
@@ -103,9 +104,9 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 | RF-30 | Notificaciones locales por próxima fecha | ✅ 📱 | |
 | RF-31 | Del día / vencido persistente / anticipados (1/3/7, Pro) | ✅ 📱 | |
 | RF-32 | Tocar la notificación abre el cuidado/mascota | ✅ 📱 | |
-| RF-33 | Reprogramar tras reinstalar/restaurar/cambios | ❌ 📱 | **Pendiente**: `tz.local` queda en UTC (no se fija la zona local) y no hay listener de zona horaria → riesgo de hora equivocada. Ver `docs/ESTADO_MVP.md` §4 |
+| RF-33 | Reprogramar tras reinstalar/restaurar/cambios | ✅ 📱 | Fija la zona local del dispositivo y reprograma al reanudar si cambió. Falta validar en dispositivo |
 | RF-34 | Respetar el límite de 64 de iOS (por ventanas) | ✅ 📱 | |
-| RF-35 | Alarmas exactas Android + avisar permiso denegado | ❌ 📱 | **Pendiente**: usa modo inexacto; no pide `SCHEDULE_EXACT_ALARM`; sin manifiesto. Ver `docs/ESTADO_MVP.md` §4 |
+| RF-35 | Alarmas exactas Android + avisar permiso denegado | ✅ 📱 | Pide `SCHEDULE_EXACT_ALARM` y usa `exactAllowWhileIdle` si está concedido; declarado en el manifiesto. Falta validar en dispositivo |
 
 ### Cumplimiento y reporte
 | Req | Función | Estado | Observación |
@@ -146,31 +147,23 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 ## 4. Pendientes del MVP
 
 > Lista resumida. **Estado detallado y canónico en `docs/ESTADO_MVP.md`.**
-> Quedan dos huecos funcionales de recordatorios más endurecimiento y publicación:
+> El núcleo está en código; queda validación, firma y publicación:
 
-1. **Persistencia definitiva — SQLite/Drift cifrado (RNF-10).** ✅ **Implementado
-   en código** (pendiente de validar en dispositivo). En móvil los datos residen
-   en una base **SQLite cifrada con SQLCipher** (Drift), con la clave en el
-   **llavero del SO** (Keychain/Keystore vía `flutter_secure_storage`); la **web**
-   conserva el snapshot en `localStorage` (el navegador no tiene llavero). Gracias
-   al patrón repositorio (`LocalPersistence` con implementación por plataforma), el
-   dominio y las pantallas no cambian. Detalle en `docs/PRODUCCION_PENDIENTES.md` §3.
-2. **Validación en dispositivo.** Las funciones marcadas 📱 (recordatorios,
+1. **Validación en dispositivo.** Las funciones marcadas 📱 (recordatorios,
    biometría, compras, guardar/seleccionar archivos nativos) están implementadas
-   pero requieren probarse en Android/iOS. Guía paso a paso en
-   `docs/PRUEBAS_EN_DISPOSITIVO.md`.
-3. **Publicación en tiendas.** Generar los proyectos nativos, firmar y publicar en
-   App Store y Google Play (incluye crear el producto de compra `pituapp_pro_lifetime`).
-4. **Recordatorios fiables (huecos funcionales del MVP).** RF-33 (fijar la zona
-   horaria local y reprogramar ante cambios; hoy `tz.local`=UTC) y RF-35 (alarmas
-   exactas en Android + permiso `SCHEDULE_EXACT_ALARM`). Son criterio de aceptación
-   del MVP. Ver `docs/ESTADO_MVP.md` §4.
-5. **Endurecimiento/cumplimiento.** RF-29/RNF-04 (adjuntos al filesystem),
+   pero requieren probarse en Android. Guía en `docs/PRUEBAS_EN_DISPOSITIVO.md`.
+2. **Firma de release + AAB.** El proyecto `android/` ya existe; falta el keystore
+   y generar el App Bundle. Ver `docs/RELEASE_ANDROID.md`.
+3. **Publicación en tiendas.** Assets (icono/feature graphic/capturas), política de
+   privacidad en URL pública, Data Safety, clasificación por edad, y crear el
+   producto de compra `pituapp_pro_lifetime`. Proyecto **iOS** aún por generar.
+4. **Endurecimiento/cumplimiento.** RF-29/RNF-04 (adjuntos al filesystem),
    RNF-06 (espacio ocupado por documentos) y RNF-13 (borrar todos mis datos).
 
 > Ya resueltos (no confundir con versiones viejas de este README): RF-13, RF-15/26,
-> RF-21, el **entitlement de producción** (arranca en Free + auto-restore) y la
-> **persistencia cifrada** (RNF-10, punto 1).
+> RF-21, **RF-33/RF-35** (recordatorios fiables), el proyecto **`android/`**, el
+> **entitlement de producción** (arranca en Free + auto-restore) y la
+> **persistencia cifrada** (RNF-10).
 
 > **Fuera del alcance de la Fase 1 (van en Fase 2):** cuenta de usuario, hogar
 > compartido, sincronización en la nube, multi-dispositivo, plan Premium
