@@ -138,10 +138,11 @@ Detalle y severidad en `docs/ESTADO_MVP.md` §4. Resumen:
 - **RF-35:** ✅ hecho (en código) — se pide `SCHEDULE_EXACT_ALARM` (declarado en el
   manifiesto) y se usa `exactAllowWhileIdle` cuando está concedido, degradando a
   inexacto si no. Pendiente: validar en dispositivo (#4).
-- **RF-29 / RNF-04:** 🟠 pendiente — adjuntos aún en base64 dentro de la BD (tope
-  2 MB); moverlos al filesystem guardando solo la referencia.
-- **RNF-06 / RNF-13:** 🟡 pendiente — vista de espacio ocupado por documentos y
-  acción "borrar todos mis datos".
+- **RF-29 / RNF-04:** ✅ hecho (en código) — adjuntos en el filesystem
+  (`AttachmentFileStore`); la fila Drift guarda la ruta. Web sigue con snapshot.
+  Pendiente: validar en dispositivo (#4).
+- **RNF-06 / RNF-13:** ✅ hecho — espacio ocupado por documentos y "Borrar todos
+  mis datos" (doble confirmación) en Ajustes → Datos.
 
 ## 8. Publicación y cumplimiento — 🟠 (parcialmente hecho)
 

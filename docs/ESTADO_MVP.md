@@ -16,11 +16,11 @@ Leyenda: ✅ hecho y verificado en código · 🟠 parcial / interino · ❌ pen
 
 ## 1. Veredicto
 
-El **núcleo funcional del MVP está completo en código**. Los dos huecos de
-recordatorios fiables (RF-33 y RF-35) ya están **implementados** y el **proyecto
-nativo `android/`** ya existe (compila en CI). **Aún no está listo para publicar**:
-falta (a) **validar en dispositivo** los recordatorios y demás funciones 📱,
-(b) la **firma de release + AAB** (keystore del usuario), y (c) el paquete de
+**Todos los requisitos funcionales de Fase 1 (RF-01–50) están implementados en
+código**, incluidos RF-29 (adjuntos al filesystem), RF-33/RF-35 (recordatorios) y
+RNF-06/RNF-13. El **proyecto nativo `android/`** ya existe (compila en CI). **Aún
+no está listo para publicar**: falta (a) **validar en dispositivo** las funciones
+📱, (b) la **firma de release + AAB** (keystore del usuario), y (c) el paquete de
 **assets y cumplimiento** de la tienda. Detalle abajo, en `PRODUCCION_PENDIENTES.md`
 y en `RELEASE_ANDROID.md`.
 
@@ -71,7 +71,7 @@ y en `RELEASE_ANDROID.md`.
 | RF-26 | Adjuntar a mascota, visitas, vacunas y cuidados | ✅ | |
 | RF-27 | Galería con filtro por tipo | ✅ | |
 | RF-28 | Compresión de imágenes | ✅ | tope 2 MB por archivo |
-| RF-29 | Archivos en filesystem; BD guarda referencia | ❌ | **Pendiente**: hoy embebidos en base64 en la BD (ver §4 y RNF-04) |
+| RF-29 | Archivos en filesystem; BD guarda referencia | ✅ (en código) 📱 | Los bytes van a `<appDocs>/attachments/` (`AttachmentFileStore`) y la fila Drift guarda la ruta; en web siguen en el snapshot. Falta validar en dispositivo |
 
 ### Recordatorios y notificaciones (📱)
 | Req | Función | Estado | Nota |
@@ -101,8 +101,8 @@ y en `RELEASE_ANDROID.md`.
 | RF-49 | Restaurar compra | ✅ 📱 | |
 | RF-50 | Estado del plan + comparativa + candado honesto | ✅ | |
 
-**RF Fase 1: 48 de 49 completos** (RF-33 y RF-35 hechos en código, pendientes de
-validar en dispositivo). Único pendiente de implementación: **RF-29**.
+**RF Fase 1: 49 de 49 completos** (en código). Los ítems 📱 (RF-29, RF-33, RF-35,
+recordatorios, biometría, compras) quedan pendientes de **validar en dispositivo**.
 
 ---
 
@@ -113,16 +113,16 @@ validar en dispositivo). Único pendiente de implementación: **RF-29**.
 | RNF-01 | Arranque < 1,5 s | ✅ | app ligera, local-first |
 | RNF-02 | Guardado/consulta < 100 ms | ✅ | modelo en memoria reactivo |
 | RNF-03 | Cualquier dato en ≤ 3 toques | ✅ | |
-| RNF-04 | Adjuntos en filesystem, no en BD | ❌ | Incumplido: base64 en la BD (= RF-29) |
+| RNF-04 | Adjuntos en filesystem, no en BD | ✅ (en código) 📱 | Cumplido vía `AttachmentFileStore` (= RF-29); en web quedan en el snapshot |
 | RNF-05 | Compresión + manejo "sin espacio" | ✅ | |
-| RNF-06 | Visibilidad del espacio ocupado por documentos | ❌ | **Pendiente**: solo se ve el tamaño por archivo, no el total |
+| RNF-06 | Visibilidad del espacio ocupado por documentos | ✅ | Fila "Documentos: X · N archivos" en Ajustes → Datos |
 | RNF-07 | Escrituras atómicas (transacciones) | ✅ | Drift (móvil) usa transacción replace-all |
 | RNF-08 | Migraciones versionadas sin pérdida | ✅ | `db_codec` v4 + migración de snapshot |
 | RNF-09 | Respaldo compatible hacia adelante | ✅ | |
 | RNF-10 | BD local cifrada en reposo | ✅ (en código) 📱 | SQLite+SQLCipher; **falta validar en dispositivo** |
 | RNF-11 | Bloqueo biométrico opcional | ✅ 📱 | `security/` |
 | RNF-12 | No envía datos; declararlo en Data Safety | 🟠 | La app no envía datos; **falta el formulario Data Safety** en Play |
-| RNF-13 | Ley 1581: política + exportar + **eliminar todo** | 🟠 | Política (borrador) + exportar ✅; **falta "borrar todos mis datos"** (solo borrado por mascota) |
+| RNF-13 | Ley 1581: política + exportar + **eliminar todo** | ✅ | Política (borrador) + exportar + **"Borrar todos mis datos"** en Ajustes (con doble confirmación) |
 | RNF-15 | Validación de compras local + restauración | ✅ 📱 | server-side es Fase 2 |
 | RNF-16 | Soporte Android e iOS | 🟠 | Código listo; **faltan los proyectos nativos** |
 | RNF-17 | Publicación cumpliendo permisos/privacidad | ❌ | Ver `PRODUCCION_PENDIENTES.md` |
@@ -136,20 +136,19 @@ validar en dispositivo). Único pendiente de implementación: **RF-29**.
 
 ## 4. Faltantes del MVP (qué nos hace falta)
 
-**Recordatorios fiables (RF-33 y RF-35): ✅ implementados** — se fija la zona
-horaria local del dispositivo y se reprograma ante cambios (RF-33), y se piden
-alarmas exactas usando `exactAllowWhileIdle` cuando el permiso está concedido
-(RF-35). Quedan **pendientes de validación en dispositivo** (#4).
+**No quedan huecos funcionales de implementación.** Todo lo funcional de Fase 1
+está en código, incluidos los últimos pendientes:
 
-Pendientes de implementación:
+- **RF-29 / RNF-04** ✅ — adjuntos en el filesystem (`AttachmentFileStore`); la BD
+  guarda la ruta. En móvil el tope por archivo sube a 15 MB (2 MB en web).
+- **RNF-06** ✅ — espacio ocupado por documentos en Ajustes → Datos.
+- **RNF-13** ✅ — "Borrar todos mis datos" con doble confirmación (conserva el plan).
+- **RF-33 / RF-35** ✅ — zona horaria local + alarmas exactas.
 
-1. **RF-29 / RNF-04 — Adjuntos al filesystem (🟠).** Hoy viajan en base64 dentro
-   del snapshot cifrado (tope 2 MB por archivo). Funciona, pero incumple la spec y
-   no escala. Mover el binario al directorio de la app y guardar solo la ruta.
-2. **RNF-06 — Espacio ocupado por documentos (🟡).** Añadir en Ajustes → Datos el
-   total de almacenamiento usado por adjuntos.
-3. **RNF-13 — Eliminación total de datos (🟡, cumplimiento).** Añadir una acción
-   "borrar todos mis datos" (con confirmación) además del borrado por mascota.
+Lo único que resta es **verificación y publicación** (no features): validar en
+dispositivo (#4), firma/AAB y assets/cumplimiento de tienda (§5). Follow-up técnico
+opcional: carga **perezosa** de los bytes de adjuntos (hoy se hidratan en memoria
+al cargar).
 
 ---
 

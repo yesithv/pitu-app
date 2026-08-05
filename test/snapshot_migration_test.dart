@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pitu_app/core/data/attachment_file_store.dart';
 import 'package:pitu_app/core/data/db_codec.dart';
 import 'package:pitu_app/core/data/drift/app_database.dart';
 import 'package:pitu_app/core/data/drift_persistence.dart';
@@ -18,6 +20,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final clock = FixedClock(DateTime(2026, 7, 22));
 
+  AttachmentFileStore tempStore() =>
+      AttachmentFileStore(Directory.systemTemp.createTempSync('pitu_att_'));
+
   test('migra el snapshot v1 previo a la base sin pérdida de datos', () async {
     // Snapshot previo (formato DbCodec) presente en shared_preferences.
     final legacy = InMemoryDatabase();
@@ -27,7 +32,8 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
 
     final db = AppDatabase(NativeDatabase.memory());
-    final persistence = await DriftPersistence.open(db, prefs: prefs);
+    final files = tempStore();
+    final persistence = await DriftPersistence.open(db, files, prefs: prefs);
 
     // El cache tras la migración ya trae los datos.
     final restored = InMemoryDatabase();
@@ -36,7 +42,7 @@ void main() {
     expect(restored.pets.first.id, legacy.pets.first.id);
 
     // Y quedaron escritos en la base: reabrir SIN prefs debe leerlos de Drift.
-    final reopened = await DriftPersistence.open(db);
+    final reopened = await DriftPersistence.open(db, files);
     final again = InMemoryDatabase();
     expect(reopened.loadInto(again), isTrue);
     expect(again.pets.length, legacy.pets.length);
@@ -48,7 +54,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final db = AppDatabase(NativeDatabase.memory());
-    final persistence = await DriftPersistence.open(db, prefs: prefs);
+    final persistence =
+        await DriftPersistence.open(db, tempStore(), prefs: prefs);
     final restored = InMemoryDatabase();
     expect(persistence.loadInto(restored), isFalse);
     await db.close();

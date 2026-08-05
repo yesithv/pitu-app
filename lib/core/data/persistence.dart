@@ -57,6 +57,11 @@ class SnapshotPersistence implements LocalPersistence {
     }
   }
 
+  /// En web los adjuntos viven en el snapshot; no hay archivos que borrar (se
+  /// limpian al guardar la base vacía). No-op.
+  @override
+  Future<void> deleteAllAttachmentFiles() async {}
+
   /// Persiste automáticamente ante cada cambio, agrupando ráfagas por microtask
   /// para no serializar más de una vez por frame lógico.
   @override

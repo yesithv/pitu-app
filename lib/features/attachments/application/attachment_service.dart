@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import '../../../core/domain/sync_metadata.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/id_generator.dart';
@@ -27,10 +29,11 @@ class AttachmentService {
   final IdGenerator _ids;
   final Clock _clock;
 
-  /// Tope por archivo. Los adjuntos viajan en base64 dentro del snapshot local,
-  /// así que se acota su tamaño para no agotar el almacenamiento del navegador.
-  static const int maxBytes = 2 * 1024 * 1024;
-  static const String maxLabel = '2 MB';
+  /// Tope por archivo. En **móvil** los adjuntos viven en el filesystem (RF-29),
+  /// así que se permite hasta 15 MB; en **web** siguen embebidos en el snapshot
+  /// del navegador, por lo que se acota a 2 MB para no agotar su cuota.
+  static final int maxBytes = kIsWeb ? 2 * 1024 * 1024 : 15 * 1024 * 1024;
+  static final String maxLabel = kIsWeb ? '2 MB' : '15 MB';
 
   bool get canAdd => _files.canPickFile;
 
@@ -43,7 +46,7 @@ class AttachmentService {
     final compressed =
         compressImage(picked.bytes, mimeType: picked.mimeType);
     if (compressed.bytes.length > maxBytes) {
-      return const AddAttachmentResult(AddAttachmentStatus.tooLarge,
+      return AddAttachmentResult(AddAttachmentStatus.tooLarge,
           'El archivo supera el límite de $maxLabel por documento.');
     }
     final now = _clock.now();

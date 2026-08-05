@@ -96,7 +96,7 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 | RF-26 | Adjuntar a mascota, visitas, vacunas y cuidados | ✅ | Incluye adjuntar desde el registro de un cuidado |
 | RF-27 | Galería con filtro por tipo | ✅ | |
 | RF-28 | Compresión de imágenes (<500 KB objetivo) | ✅ | |
-| RF-29 | Archivos en filesystem, BD guarda referencia | ⚠️ | En el MVP local-first se guardan embebidos (base64) en el snapshot; se separa a filesystem con la migración a SQLite |
+| RF-29 | Archivos en filesystem, BD guarda referencia | ✅ 📱 | Bytes en `<appDocs>/attachments/`; la BD guarda la ruta. En web quedan en el snapshot. Falta validar en dispositivo |
 
 ### Recordatorios y notificaciones
 | Req | Función | Estado | Observación |
@@ -157,13 +157,11 @@ Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real s
 3. **Publicación en tiendas.** Assets (icono/feature graphic/capturas), política de
    privacidad en URL pública, Data Safety, clasificación por edad, y crear el
    producto de compra `pituapp_pro_lifetime`. Proyecto **iOS** aún por generar.
-4. **Endurecimiento/cumplimiento.** RF-29/RNF-04 (adjuntos al filesystem),
-   RNF-06 (espacio ocupado por documentos) y RNF-13 (borrar todos mis datos).
-
 > Ya resueltos (no confundir con versiones viejas de este README): RF-13, RF-15/26,
-> RF-21, **RF-33/RF-35** (recordatorios fiables), el proyecto **`android/`**, el
-> **entitlement de producción** (arranca en Free + auto-restore) y la
-> **persistencia cifrada** (RNF-10).
+> RF-21, **RF-29** (adjuntos al filesystem), **RF-33/RF-35** (recordatorios),
+> **RNF-06** (espacio de documentos), **RNF-13** (borrar todos mis datos), el
+> proyecto **`android/`**, el **entitlement de producción** (Free + auto-restore) y
+> la **persistencia cifrada** (RNF-10).
 
 > **Fuera del alcance de la Fase 1 (van en Fase 2):** cuenta de usuario, hogar
 > compartido, sincronización en la nube, multi-dispositivo, plan Premium

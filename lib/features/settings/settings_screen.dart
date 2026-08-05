@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/data/in_memory_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/common.dart';
+import '../../core/utils/byte_format.dart';
 import '../backup/application/backup_providers.dart';
 import '../backup/application/backup_service.dart';
 import '../backup/domain/backup_result.dart';
+import 'application/wipe_service.dart';
 import '../pets/presentation/pets_providers.dart';
 import '../plan/application/entitlement_controller.dart';
 import '../plan/presentation/plans_screen.dart';
@@ -164,6 +167,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _LinkRow(label: 'Crear respaldo', onTap: _onCreateBackup, divider: true),
               _LinkRow(label: 'Restaurar respaldo', onTap: _onRestoreBackup, divider: true),
               _Row(
+                label: _documentsSpaceLabel(ref.watch(databaseProvider)),
+                labelColor: c.text3,
+              ),
+              _Row(
                 label: _lastBackupLabel(ref.watch(databaseProvider).lastBackupAt),
                 labelColor: c.text3,
               ),
@@ -183,6 +190,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const InfoNote(
           'Toda la información se guarda solo en este dispositivo. No la enviamos a ningún servidor.',
           icon: Icons.shield_outlined,
+        ),
+        const SizedBox(height: 16),
+
+        // Borrar todos los datos (RNF-13, Ley 1581).
+        AppCard(
+          clip: true,
+          padding: EdgeInsets.zero,
+          child: _LinkRow(
+            label: 'Borrar todos mis datos',
+            color: c.over,
+            onTap: _onWipeData,
+          ),
         ),
         const SizedBox(height: 20),
 
@@ -228,6 +247,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static bool _shouldRemindBackup(DateTime? at) {
     if (at == null) return true;
     return DateTime.now().difference(at).inDays >= 7;
+  }
+
+  /// Espacio ocupado por los documentos adjuntos (RNF-06).
+  static String _documentsSpaceLabel(InMemoryDatabase db) {
+    final docs = db.attachments.where((a) => !a.meta.isDeleted).toList();
+    if (docs.isEmpty) return 'Documentos: sin archivos guardados';
+    final bytes = docs.fold<int>(0, (sum, a) => sum + a.sizeBytes);
+    return 'Documentos: ${formatBytes(bytes)} · '
+        '${docs.length} archivo${docs.length == 1 ? '' : 's'}';
+  }
+
+  /// Borra todos los datos del dispositivo con doble confirmación (RNF-13).
+  Future<void> _onWipeData() async {
+    final c = context.colors;
+    final first = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Borrar todos mis datos'),
+        content: const Text(
+          'Se eliminarán tus mascotas, su historial y todos los documentos de '
+          'este dispositivo. Tu plan (si compraste Pro) se conserva. Esta acción '
+          'no se puede deshacer.\n\nSi quieres conservar una copia, crea un '
+          'respaldo antes.',
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Continuar', style: TextStyle(color: c.over)),
+          ),
+        ],
+      ),
+    );
+    if (first != true || !mounted) return;
+
+    final second = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Seguro?'),
+        content: const Text(
+            'Esto borrará definitivamente todos tus datos de este dispositivo.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Sí, borrar todo', style: TextStyle(color: c.over)),
+          ),
+        ],
+      ),
+    );
+    if (second != true || !mounted) return;
+
+    await ref.read(wipeServiceProvider).wipeAll();
+    if (!mounted) return;
+    _snack('Se borraron todos tus datos.');
   }
 
   Future<void> _onCreateBackup() async {
@@ -453,14 +530,21 @@ class _Row extends StatelessWidget {
 }
 
 class _LinkRow extends StatelessWidget {
-  const _LinkRow({required this.label, required this.onTap, this.divider = false});
+  const _LinkRow({
+    required this.label,
+    required this.onTap,
+    this.divider = false,
+    this.color,
+  });
   final String label;
   final VoidCallback onTap;
   final bool divider;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final tint = color ?? c.brand;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -470,8 +554,8 @@ class _LinkRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: AppText.bodyStrong(c.brand))),
-            Icon(Icons.chevron_right, color: c.brand, size: 20),
+            Expanded(child: Text(label, style: AppText.bodyStrong(tint))),
+            Icon(Icons.chevron_right, color: tint, size: 20),
           ],
         ),
       ),

@@ -31,4 +31,9 @@ abstract class LocalPersistence {
 
   /// Persiste automáticamente ante cada mutación de [db], agrupando ráfagas.
   void attachAutosave(InMemoryDatabase db);
+
+  /// Borra los binarios de adjuntos guardados en el filesystem (RF-29). Se usa al
+  /// "borrar todos mis datos" (RNF-13). En web es un no-op (los adjuntos viven en
+  /// el snapshot, que se limpia al guardar la base vacía).
+  Future<void> deleteAllAttachmentFiles() async {}
 }

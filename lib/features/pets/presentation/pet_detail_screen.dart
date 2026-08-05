@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/utils/app_dates.dart';
+import '../../../core/utils/byte_format.dart';
 import '../../../core/utils/image_compressor.dart';
 import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/app_card.dart';
@@ -991,11 +992,7 @@ class _DocRow extends ConsumerWidget {
         AttachmentKind.other => 'Archivo',
       };
 
-  static String _size(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(0)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
+  static String _size(int bytes) => formatBytes(bytes);
 }
 
 class _Thumb extends StatelessWidget {

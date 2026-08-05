@@ -67,16 +67,15 @@ recibos server-side.
 
 Mejoras técnicas que conviene abordar pronto, aunque no dependan del backend:
 
-- **RF-29 / RNF-04** — Mover los adjuntos al **filesystem** guardando solo la
-  referencia (hoy van en base64 dentro de la BD). También cierra la escala del
-  cifrado.
+- **Carga perezosa de adjuntos** — Hoy los bytes de los adjuntos (ya en el
+  filesystem, RF-29) se **hidratan en memoria** al cargar; conviene cargarlos bajo
+  demanda para reducir el uso de RAM con muchos documentos.
 - **Escrituras incrementales en Drift** — Sustituir el reemplazo transaccional
   completo por upserts/borrados por entidad para rendimiento con volúmenes grandes.
 - **Crash reporting real** — Reemplazar el `NoopCrashReporter`
   (`lib/core/observability/`) por un backend real (Sentry/Crashlytics).
-- **RNF-06 / RNF-13** — Vista de espacio ocupado por documentos y acción de
-  "borrar todos mis datos" (también relevantes para el cierre del MVP; ver
-  `ESTADO_MVP.md` §4).
+- **Foto de la mascota al filesystem** — La foto sigue en base64 (es pequeña);
+  podría unificarse con el almacén de adjuntos.
 
 ---
 

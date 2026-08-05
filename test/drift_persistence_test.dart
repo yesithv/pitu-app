@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pitu_app/core/data/attachment_file_store.dart';
 import 'package:pitu_app/core/data/drift/app_database.dart';
 import 'package:pitu_app/core/data/drift_persistence.dart';
 import 'package:pitu_app/core/data/in_memory_database.dart';
@@ -14,12 +16,15 @@ import 'package:pitu_app/features/attachments/domain/entities/attachment.dart';
 import 'package:pitu_app/features/plan/domain/plan.dart';
 
 /// Pruebas de [DriftPersistence] usando una base Drift **en memoria sin cifrar**
-/// (`NativeDatabase.memory()`). El cifrado (SQLCipher) se valida en dispositivo
-/// (#4); aquí se cubre el mapeo entidad↔fila y el round-trip guardar/cargar.
+/// (`NativeDatabase.memory()`) y un [AttachmentFileStore] en un directorio
+/// temporal. El cifrado (SQLCipher) se valida en dispositivo (#4); aquí se cubre
+/// el mapeo entidad↔fila, el round-trip y que los adjuntos van al filesystem.
 void main() {
   final clock = FixedClock(DateTime(2026, 7, 22));
 
   AppDatabase memDb() => AppDatabase(NativeDatabase.memory());
+  AttachmentFileStore tempStore() =>
+      AttachmentFileStore(Directory.systemTemp.createTempSync('pitu_att_'));
 
   final attachmentBytes = Uint8List.fromList([1, 2, 3, 4]);
 
@@ -44,14 +49,15 @@ void main() {
 
   test('round-trip: guarda en Drift y rehidrata conservando datos', () async {
     final db = memDb();
+    final files = tempStore();
     final source = seededDb();
 
-    final persistence = await DriftPersistence.open(db);
+    final persistence = await DriftPersistence.open(db, files);
     persistence.save(source);
     await persistence.flush();
 
-    // Reabrir sobre la misma base y cargar en un modelo nuevo.
-    final reopened = await DriftPersistence.open(db);
+    // Reabrir sobre la misma base y carpeta, cargar en un modelo nuevo.
+    final reopened = await DriftPersistence.open(db, files);
     final restored = InMemoryDatabase();
     final had = reopened.loadInto(restored);
 
@@ -73,7 +79,7 @@ void main() {
     expect(restored.reminderLeadDays, 3);
     expect(restored.catalogAppliedVersion, 7);
 
-    // Adjunto: el binario viaja por la columna BLOB y se reconstruye el base64.
+    // Adjunto: el binario se rehidrata desde el archivo en disco.
     final att = restored.attachments.singleWhere((a) => a.id == 'att1');
     expect(att.dataBase64, base64Encode(attachmentBytes));
     expect(att.filename, 'doc.pdf');
@@ -84,9 +90,32 @@ void main() {
     await db.close();
   });
 
+  test('adjunto: los bytes van al filesystem y la fila guarda la ruta (RF-29)',
+      () async {
+    final db = memDb();
+    final files = tempStore();
+
+    final persistence = await DriftPersistence.open(db, files);
+    persistence.save(seededDb());
+    await persistence.flush();
+
+    // El archivo existe en disco con los bytes originales.
+    final onDisk = await files.readBytes(files.pathFor('att1'));
+    expect(onDisk, attachmentBytes);
+
+    // La fila NO guarda el binario (columna BLOB nula) y lleva la ruta en el JSON.
+    final rows = await db.readAll();
+    final attRow = rows.singleWhere((r) => r.kind == 'attachments');
+    expect(attRow.bytes, isNull);
+    expect(attRow.data, contains('filePath'));
+    expect(attRow.data, isNot(contains('dataBase64')));
+
+    await db.close();
+  });
+
   test('base vacía: loadInto devuelve false para que se siembre', () async {
     final db = memDb();
-    final persistence = await DriftPersistence.open(db);
+    final persistence = await DriftPersistence.open(db, tempStore());
     final restored = InMemoryDatabase();
     expect(persistence.loadInto(restored), isFalse);
     await db.close();
