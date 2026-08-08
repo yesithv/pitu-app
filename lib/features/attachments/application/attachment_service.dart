@@ -46,7 +46,7 @@ class AttachmentService {
     final compressed =
         compressImage(picked.bytes, mimeType: picked.mimeType);
     if (compressed.bytes.length > maxBytes) {
-      return AddAttachmentResult(AddAttachmentStatus.tooLarge,
+      return const AddAttachmentResult(AddAttachmentStatus.tooLarge,
           'El archivo supera el límite de $maxLabel por documento.');
     }
     final now = _clock.now();
