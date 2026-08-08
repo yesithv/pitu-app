@@ -12,6 +12,7 @@ import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/domain/entities/pet.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/weight_record.dart';
+import '../domain/services/weight_analysis.dart';
 import 'record_delete_button.dart';
 
 /// Registrar peso (RF-22) y editarlo/eliminarlo una vez insertado.
@@ -80,10 +81,9 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
   bool get _valid =>
       _parsed != null && _parsed! > 0 && _parsed! <= FormLimits.maxWeight;
 
-  static double _toKg(double v, WeightUnit u) =>
-      u == WeightUnit.lb ? v * 0.453592 : v;
-
-  /// Aviso informativo (no diagnóstico) ante una variación >10% (RF-23).
+  /// Aviso informativo (no diagnóstico) ante una variación >10% (RF-23). La
+  /// decisión numérica vive en `weightVariation` (dominio, con pruebas); aquí
+  /// solo se arma el texto localizado.
   String? _variationNotice(double newValue) {
     final previous = ref
         .read(clinicalRepositoryProvider)
@@ -92,15 +92,18 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
         .toList();
     if (previous.isEmpty) return null;
     final prev = previous.last; // ordenado ascendente por fecha
-    final prevKg = _toKg(prev.value, prev.unit);
-    final newKg = _toKg(newValue, _unit);
-    if (prevKg <= 0) return null;
-    final delta = (newKg - prevKg) / prevKg;
-    if (delta.abs() < 0.10) return null;
-    final pct = (delta.abs() * 100).round();
+    final variation = weightVariation(
+      previousValue: prev.value,
+      previousUnit: prev.unit,
+      newValue: newValue,
+      newUnit: _unit,
+    );
+    if (variation == null) return null;
     final l10n = AppLocalizations.of(context)!;
-    final dir = delta > 0 ? l10n.weightDirectionUp : l10n.weightDirectionDown;
-    return l10n.weightVariationNotice(dir, pct);
+    final dir = variation.trend == WeightTrend.up
+        ? l10n.weightDirectionUp
+        : l10n.weightDirectionDown;
+    return l10n.weightVariationNotice(dir, variation.percent);
   }
 
   void _save() {

@@ -228,8 +228,13 @@ lib/
 ```bash
 flutter pub get
 flutter run          # móvil o web
-flutter test         # pruebas de dominio
+flutter test         # 132 pruebas unitarias de dominio/aplicación (verde)
 ```
+
+La lógica de negocio de Fase 1 está cubierta por **pruebas unitarias** (dominio y
+capa de aplicación, sin UI). El mapa de qué requisito valida cada archivo está en
+`docs/ESTADO_MVP.md` §6. Los plugins nativos (notificaciones, biometría, compras,
+archivos) se validan en dispositivo, no por unidad.
 
 Cada push a `main` compila la web y la publica en GitHub Pages
 (`.github/workflows/deploy.yml`). El flujo de trabajo valida el build en la rama
