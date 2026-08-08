@@ -9,6 +9,7 @@ import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/common.dart';
 import '../../core/utils/byte_format.dart';
+import '../auth/application/auth_providers.dart';
 import '../backup/application/backup_providers.dart';
 import '../backup/application/backup_service.dart';
 import '../backup/domain/backup_result.dart';
@@ -37,6 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final owner = ref.watch(ownerNameProvider);
     final entitlement = ref.watch(entitlementProvider);
     final isPro = entitlement.isPro;
+    final session = ref.watch(sessionControllerProvider);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.screenH, 8, Gap.screenH, 100),
@@ -226,12 +228,59 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 8),
         ],
+        // Cuenta local: se muestra solo con sesión iniciada (no en la demo).
+        if (session.status == SessionStatus.authenticated) ...[
+          const GroupHeader('Cuenta'),
+          AppCard(
+            clip: true,
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                if (session.user != null)
+                  _Row(label: session.user!.email, labelColor: c.text3),
+                _LinkRow(
+                  label: 'Cerrar sesión',
+                  color: c.over,
+                  onTap: _onLogout,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+
         Center(
           child: Text('Hecho con cariño, en memoria de Pitufo 🐾',
               style: AppText.meta(c.text3)),
         ),
       ],
     );
+  }
+
+  /// Cierra la sesión de la cuenta local y vuelve a la pantalla de login. Los
+  /// datos locales quedan intactos (no se borran); se recuperan al iniciar
+  /// sesión de nuevo.
+  Future<void> _onLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text(
+          'Volverás a la pantalla de acceso. Tus datos siguen guardados en este '
+          'dispositivo y estarán aquí cuando vuelvas a iniciar sesión.',
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Cerrar sesión')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref.read(sessionControllerProvider.notifier).logout();
   }
 
   static String _lastBackupLabel(DateTime? at) {
