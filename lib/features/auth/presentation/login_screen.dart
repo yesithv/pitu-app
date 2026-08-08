@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../../core/widgets/app_buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_fields.dart';
 import '../application/auth_providers.dart';
+import '../domain/auth_repository.dart';
 
 /// Pantalla de acceso (Fase 1, cuenta **local**). Permite iniciar sesión o
 /// crear una cuenta, y entrar a una demostración con datos de ejemplo.
@@ -29,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _confirm = TextEditingController();
 
   bool _submitting = false;
-  String? _error;
+  AuthError? _errorCode;
 
   @override
   void dispose() {
@@ -56,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_mode == mode) return;
     setState(() {
       _mode = mode;
-      _error = null;
+      _errorCode = null;
     });
   }
 
@@ -65,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
     setState(() {
       _submitting = true;
-      _error = null;
+      _errorCode = null;
     });
 
     final controller = ref.read(sessionControllerProvider.notifier);
@@ -84,7 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!result.ok && mounted) {
       setState(() {
         _submitting = false;
-        _error = result.error;
+        _errorCode = result.errorCode;
       });
     }
   }
@@ -92,6 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: c.bg,
       body: SafeArea(
@@ -107,30 +110,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 _modeToggle(c),
                 const SizedBox(height: 22),
                 if (_isRegister) ...[
-                  const FieldLabel('Nombre'),
+                  FieldLabel(l10n.loginFieldName),
                   AppTextField(
                     controller: _name,
-                    hint: 'Tu nombre',
+                    hint: l10n.loginHintName,
                     textCapitalization: TextCapitalization.words,
                     maxLength: 40,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
                 ],
-                const FieldLabel('Correo'),
+                FieldLabel(l10n.loginFieldEmail),
                 AppTextField(
                   controller: _email,
-                  hint: 'tucorreo@ejemplo.com',
+                  hint: l10n.loginHintEmail,
                   keyboardType: TextInputType.emailAddress,
                   textCapitalization: TextCapitalization.none,
                   maxLength: 80,
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
-                const FieldLabel('Contraseña'),
+                FieldLabel(l10n.loginFieldPassword),
                 AppPasswordField(
                   controller: _password,
-                  hint: 'Mínimo 6 caracteres',
+                  hint: l10n.loginHintPassword,
                   textInputAction:
                       _isRegister ? TextInputAction.next : TextInputAction.done,
                   onChanged: (_) => setState(() {}),
@@ -140,10 +143,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 if (_isRegister) ...[
                   const SizedBox(height: 16),
-                  const FieldLabel('Confirmar contraseña'),
+                  FieldLabel(l10n.loginFieldConfirmPassword),
                   AppPasswordField(
                     controller: _confirm,
-                    hint: 'Repite la contraseña',
+                    hint: l10n.loginHintConfirmPassword,
                     textInputAction: TextInputAction.done,
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) {
@@ -151,13 +154,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     },
                   ),
                 ],
-                if (_error != null) ...[
+                if (_errorCode != null) ...[
                   const SizedBox(height: 16),
-                  InfoNote(_error!, icon: Icons.error_outline, accent: c.over),
+                  InfoNote(_authErrorText(l10n, _errorCode!),
+                      icon: Icons.error_outline, accent: c.over),
                 ],
                 const SizedBox(height: 24),
                 PrimaryButton(
-                  label: _isRegister ? 'Crear cuenta' : 'Ingresar',
+                  label: _isRegister ? l10n.loginCreateAccount : l10n.loginSignIn,
                   onPressed: (_valid && !_submitting) ? _submit : null,
                 ),
                 const SizedBox(height: 20),
@@ -181,10 +185,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Icon(Icons.pets, size: 40, color: c.brand),
         ),
         const SizedBox(height: 18),
-        Text('PituApp', style: AppText.display(c.text)),
+        Text(AppLocalizations.of(context)!.appTitle, style: AppText.display(c.text)),
         const SizedBox(height: 6),
         Text(
-          'El cuidado de tu mascota, siempre al día.',
+          AppLocalizations.of(context)!.appTagline,
           textAlign: TextAlign.center,
           style: AppText.body(c.text2),
         ),
@@ -224,8 +228,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
       child: Row(
         children: [
-          seg('Ingresar', _Mode.login),
-          seg('Crear cuenta', _Mode.register),
+          seg(AppLocalizations.of(context)!.loginTabLogin, _Mode.login),
+          seg(AppLocalizations.of(context)!.loginTabRegister, _Mode.register),
         ],
       ),
     );
@@ -239,24 +243,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Expanded(child: Divider(color: c.border)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text('o', style: AppText.meta(c.text3)),
+              child: Text(AppLocalizations.of(context)!.loginOr, style: AppText.meta(c.text3)),
             ),
             Expanded(child: Divider(color: c.border)),
           ],
         ),
         const SizedBox(height: 12),
         SecondaryButton(
-          label: 'Ver demo',
+          label: AppLocalizations.of(context)!.loginSeeDemo,
           icon: Icons.play_circle_outline,
           onPressed: _submitting
               ? null
               : () => ref.read(sessionControllerProvider.notifier).enterDemo(),
         ),
         const SizedBox(height: 10),
-        const InfoNote(
-          'La demo usa datos de ejemplo; puedes explorar todo, pero los cambios '
-          'no se guardan y no afectan tu cuenta.',
-        ),
+        InfoNote(AppLocalizations.of(context)!.loginDemoNote),
       ],
     );
   }
@@ -264,3 +265,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
 bool _isValidEmail(String email) =>
     RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
+
+/// Traduce el motivo del fallo de autenticación al idioma activo.
+String _authErrorText(AppLocalizations l10n, AuthError code) => switch (code) {
+      AuthError.emptyName => l10n.authEmptyName,
+      AuthError.invalidEmail => l10n.authInvalidEmail,
+      AuthError.weakPassword => l10n.authWeakPassword,
+      AuthError.accountExists => l10n.authAccountExists,
+      AuthError.noAccount => l10n.authNoAccount,
+      AuthError.invalidCredentials => l10n.authInvalidCredentials,
+    };

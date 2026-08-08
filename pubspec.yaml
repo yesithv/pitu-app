@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.6
   flutter_riverpod: ^2.5.1
   google_fonts: ^6.2.1
@@ -46,3 +48,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Genera la clase de localizaciones (AppLocalizations) a partir de los ARB en
+  # lib/l10n al hacer `flutter pub get` (config en l10n.yaml). Autodetección de
+  # idioma con inglés por defecto (es, en, fr, pt, de).
+  generate: true

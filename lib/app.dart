@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/data/in_memory_database.dart';
+import 'core/i18n/locale_controller.dart';
 import 'core/data/seed.dart';
 import 'core/di/providers.dart';
 import 'core/theme/app_colors.dart';
@@ -27,6 +29,9 @@ class PituApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(sessionControllerProvider);
+    // `null` = automático: MaterialApp resuelve el idioma del dispositivo con
+    // `localeResolutionCallback` (fallback a inglés).
+    final locale = ref.watch(localeControllerProvider);
     return MaterialApp(
       title: 'PituApp',
       navigatorKey: rootNavigatorKey,
@@ -34,6 +39,19 @@ class PituApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (deviceLocale, supported) {
+        // Autodetección: usa el idioma del dispositivo si está soportado; si no,
+        // inglés por defecto.
+        if (deviceLocale != null) {
+          for (final l in supported) {
+            if (l.languageCode == deviceLocale.languageCode) return l;
+          }
+        }
+        return kDefaultLocale;
+      },
       home: _home(session),
     );
   }
@@ -107,6 +125,7 @@ class _DemoScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: c.bg,
       body: Column(
@@ -127,11 +146,11 @@ class _DemoScaffold extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Modo demo · los cambios no se guardan',
+                          l10n.demoBanner,
                           style: AppText.metaStrong(c.accentInk),
                         ),
                       ),
-                      Text('Salir', style: AppText.button(c.accentInk).copyWith(fontSize: 14)),
+                      Text(l10n.demoExit, style: AppText.button(c.accentInk).copyWith(fontSize: 14)),
                       Icon(Icons.chevron_right, size: 18, color: c.accentInk),
                     ],
                   ),

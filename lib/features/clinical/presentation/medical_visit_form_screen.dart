@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/domain/sync_metadata.dart';
 import '../../../core/utils/form_limits.dart';
 import '../../../core/theme/app_colors.dart';
@@ -132,19 +134,21 @@ class _MedicalVisitFormScreenState
       }
     }
 
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
-          content: Text(_isEdit ? 'Visita actualizada' : 'Visita registrada')));
+          content: Text(_isEdit ? l10n.visitUpdated : l10n.visitSaved)));
   }
 
   void _delete() {
+    final l10n = AppLocalizations.of(context)!;
     ref.read(clinicalRepositoryProvider).deleteVisit(widget.recordId!);
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Visita eliminada')));
+      ..showSnackBar(SnackBar(content: Text(l10n.visitDeleted)));
   }
 
   String? _clean(TextEditingController c) =>
@@ -154,35 +158,36 @@ class _MedicalVisitFormScreenState
   Widget build(BuildContext context) {
     final pet = ref.watch(petByIdProvider(widget.petId));
 
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: _isEdit ? 'Editar visita' : 'Visita médica',
-      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar visita',
+      title: _isEdit ? l10n.visitFormEditTitle : l10n.visitFormNewTitle,
+      saveLabel: _isEdit ? l10n.commonSaveChanges : l10n.visitFormSave,
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
           : PetFormHeader(emoji: pet.species.emoji, name: pet.name),
       children: [
-        const FieldLabel('Fecha'),
+        FieldLabel(l10n.visitFormDate),
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
-        const FieldLabel('Veterinario / clínica'),
+        FieldLabel(l10n.visitFormClinic),
         AppTextField(
             controller: _clinic,
-            hint: 'Ej. Clínica Veterinaria del Norte',
+            hint: l10n.visitFormClinicHint,
             maxLength: FormLimits.shortText),
         const SizedBox(height: 16),
-        const FieldLabel('Motivo de la visita'),
+        FieldLabel(l10n.visitFormReason),
         AppTextField(
           controller: _reason,
-          hint: 'Ej. Control dermatológico',
+          hint: l10n.visitFormReasonHint,
           maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Diagnóstico (opcional)'),
+        FieldLabel(l10n.visitFormDiagnosis),
         AppTextField(
           controller: _diagnosis,
-          hint: 'Ej. Dermatitis leve',
+          hint: l10n.visitFormDiagnosisHint,
           maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
@@ -205,16 +210,16 @@ class _MedicalVisitFormScreenState
           ),
         ],
         const SizedBox(height: 16),
-        const FieldLabel('Tratamiento'),
-        AppMultilineField(controller: _treatment, hint: 'Indicaciones…', minLines: 2),
+        FieldLabel(l10n.visitFormTreatment),
+        AppMultilineField(controller: _treatment, hint: l10n.visitFormTreatmentHint, minLines: 2),
         const SizedBox(height: 16),
-        const FieldLabel('Notas (opcional)'),
-        AppMultilineField(controller: _notes, hint: 'Añade una nota…', minLines: 2),
+        FieldLabel(l10n.visitFormNotes),
+        AppMultilineField(controller: _notes, hint: l10n.commonAddNotePlaceholder, minLines: 2),
         const SizedBox(height: 16),
-        const FieldLabel('Documentos'),
+        FieldLabel(l10n.visitFormDocs),
         const SizedBox(height: 4),
-        AttachmentAddButton(petId: widget.petId, source: 'Visita médica'),
-        if (_isEdit) RecordDeleteButton(label: 'Eliminar visita', onDelete: _delete),
+        AttachmentAddButton(petId: widget.petId, source: l10n.attachmentSourceVisit),
+        if (_isEdit) RecordDeleteButton(label: l10n.visitFormDelete, onDelete: _delete),
       ],
     );
   }
@@ -238,7 +243,7 @@ class _DxChip extends StatelessWidget {
           borderRadius: Radii.pillAll,
           border: selected ? null : Border.all(color: c.borderStrong),
         ),
-        child: Text(status.label,
+        child: Text(status.localized(AppLocalizations.of(context)!),
             style: AppText.metaStrong(selected ? Colors.white : c.text2)),
       ),
     );

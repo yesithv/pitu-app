@@ -58,7 +58,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
       _db.vaccines.where((v) => v.petId == petId && !v.meta.isDeleted).toList();
 
   @override
-  List<TimelineEntry> timelineForPet(String petId) {
+  List<TimelineEntry> timelineForPet(String petId, TimelineLabels labels) {
     final entries = <TimelineEntry>[];
 
     for (final v in visitsForPet(petId)) {
@@ -66,8 +66,8 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         date: v.date,
         kind: TimelineKind.visit,
         title: v.reason == null
-            ? 'Visita médica'
-            : 'Visita médica — ${v.reason}',
+            ? labels.visit
+            : labels.visitWithReason(v.reason!),
         subtitle: v.clinic,
         sourceId: v.id,
       ));
@@ -89,7 +89,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
         subtitle: d.notes,
         sourceId: d.id,
         diagnosisStatus: d.status,
-        diagnosisLabel: d.status.label,
+        diagnosisLabel: labels.diagnosisStatusLabel(d.status),
       ));
     }
     for (final e in _db.executions
@@ -106,7 +106,7 @@ class InMemoryClinicalRepository implements ClinicalRepository {
       entries.add(TimelineEntry(
         date: w.date,
         kind: TimelineKind.weight,
-        title: 'Peso registrado: ${_fmtWeight(w)} ${w.unit.label}',
+        title: labels.weightLogged(_fmtWeight(w), w.unit.label),
         subtitle: w.note,
         sourceId: w.id,
       ));
@@ -116,11 +116,13 @@ class InMemoryClinicalRepository implements ClinicalRepository {
       entries.add(TimelineEntry(
         date: ch.changedAt,
         kind: TimelineKind.diagnosis,
-        title: 'Cambio de estado: ${ch.condition}',
-        subtitle: '${ch.fromStatus.label} → ${ch.toStatus.label}',
+        title: labels.statusChange(ch.condition),
+        subtitle: labels.statusTransition(
+            labels.diagnosisStatusLabel(ch.fromStatus),
+            labels.diagnosisStatusLabel(ch.toStatus)),
         sourceId: ch.diagnosisId,
         diagnosisStatus: ch.toStatus,
-        diagnosisLabel: ch.toStatus.label,
+        diagnosisLabel: labels.diagnosisStatusLabel(ch.toStatus),
       ));
     }
 

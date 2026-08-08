@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
@@ -97,7 +98,9 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
             size: 20,
             color: c.text3,
           ),
-          tooltip: _obscured ? 'Mostrar' : 'Ocultar',
+          tooltip: _obscured
+              ? AppLocalizations.of(context)!.commonShow
+              : AppLocalizations.of(context)!.commonHide,
         ),
       ),
     );
@@ -155,12 +158,14 @@ class AppDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final now = DateTime.now();
+    final localeName = Localizations.localeOf(context).toString();
     final isToday = value.year == now.year &&
         value.month == now.month &&
         value.day == now.day;
+    final longDate = AppDates.longDate(value, localeName);
     final label = (todayLabel && isToday)
-        ? 'Hoy, ${AppDates.longDate(value)}'
-        : AppDates.longDate(value);
+        ? AppLocalizations.of(context)!.dateFieldToday(longDate)
+        : longDate;
 
     return InkWell(
       borderRadius: Radii.fieldAll,

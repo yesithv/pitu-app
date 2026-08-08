@@ -43,8 +43,13 @@ abstract interface class ReminderScheduler {
   Future<bool> refreshTimeZone();
 
   /// Reprograma la ventana de próximos recordatorios (RF-34): cancela los
-  /// anteriores y agenda los recibidos.
-  Future<void> rescheduleAll(List<ReminderRequest> requests);
+  /// anteriores y agenda los recibidos. [channelName] y [channelDescription]
+  /// (localizados) etiquetan el canal de Android.
+  Future<void> rescheduleAll(
+    List<ReminderRequest> requests, {
+    String? channelName,
+    String? channelDescription,
+  });
 
   Future<void> cancelAll();
 }
@@ -69,7 +74,11 @@ class NoopReminderScheduler implements ReminderScheduler {
   Future<bool> refreshTimeZone() async => false;
 
   @override
-  Future<void> rescheduleAll(List<ReminderRequest> requests) async {}
+  Future<void> rescheduleAll(
+    List<ReminderRequest> requests, {
+    String? channelName,
+    String? channelDescription,
+  }) async {}
 
   @override
   Future<void> cancelAll() async {}

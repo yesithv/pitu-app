@@ -1,6 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/data/in_memory_database.dart';
+import '../../../core/i18n/l10n_labels.dart';
+import '../../../core/i18n/locale_controller.dart';
 import '../../../core/utils/clock.dart';
 import '../../care/domain/entities/care_kind.dart';
 import '../domain/reminder_scheduler.dart';
@@ -8,11 +12,12 @@ import '../domain/reminder_scheduler.dart';
 /// Traduce el estado de la base en recordatorios y los reprograma por ventanas
 /// (RF-33/RF-34). En web no hace nada (el scheduler no es soportado).
 class RemindersCoordinator {
-  RemindersCoordinator(this._db, this._scheduler, this._clock);
+  RemindersCoordinator(this._db, this._scheduler, this._clock, this._prefs);
 
   final InMemoryDatabase _db;
   final ReminderScheduler _scheduler;
   final Clock _clock;
+  final SharedPreferences _prefs;
 
   /// Tope de notificaciones pendientes (por debajo del límite de 64 de iOS).
   static const int _window = 60;
@@ -22,6 +27,9 @@ class RemindersCoordinator {
 
   Future<void> resync() async {
     if (!_scheduler.isSupported) return;
+    // Notificaciones en el idioma efectivo (preferencia guardada o dispositivo,
+    // con fallback a inglés). Se carga fuera del árbol de widgets.
+    final l10n = await AppLocalizations.delegate.load(effectiveLocale(_prefs));
     final now = _clock.now();
     final leadDays = _db.reminderLeadDays.clamp(0, 30);
     final today = DateTime(now.year, now.month, now.day);
@@ -39,6 +47,7 @@ class RemindersCoordinator {
       final dueDate =
           DateTime(s.nextDate.year, s.nextDate.month, s.nextDate.day);
 
+      final careName = careDisplayName(l10n, s.kind, s.name);
       final DateTime when;
       final String title;
       final String body;
@@ -46,8 +55,8 @@ class RemindersCoordinator {
         // Tarea vencida (RF-31): se recuerda de nuevo a la próxima mañana.
         if (isBirthday) continue; // un cumpleaños no se "vence"
         when = nextMorning;
-        title = '${pet.name}: ${s.name} vencido';
-        body = '${s.name} de ${pet.name} sigue pendiente. 🐾';
+        title = l10n.notifOverdueTitle(pet.name, careName);
+        body = l10n.notifOverdueBody(careName, pet.name);
       } else {
         // Anticipación configurable (Pro): avisar N días antes, a la hora fija.
         final target = dueDate.subtract(Duration(days: leadDays));
@@ -57,13 +66,14 @@ class RemindersCoordinator {
         }
         if (!w.isAfter(now)) continue;
         when = w;
-        title =
-            isBirthday ? '🎂 ${pet.name} cumple años' : '${pet.name}: ${s.name}';
+        title = isBirthday
+            ? l10n.notifBirthdayTitle(pet.name)
+            : l10n.notifDueTitle(pet.name, careName);
         body = isBirthday
-            ? '¡Hoy ${pet.name} está de cumpleaños! 🎂'
+            ? l10n.notifBirthdayBody(pet.name)
             : (leadDays == 0
-                ? 'Hoy le toca ${s.name.toLowerCase()} a ${pet.name}. 🐾'
-                : 'Pronto le toca ${s.name.toLowerCase()} a ${pet.name}. 🐾');
+                ? l10n.notifDueTodayBody(pet.name, careName)
+                : l10n.notifDueSoonBody(pet.name, careName));
       }
 
       requests.add(ReminderRequest(
@@ -76,6 +86,10 @@ class RemindersCoordinator {
     }
 
     requests.sort((a, b) => a.when.compareTo(b.when));
-    await _scheduler.rescheduleAll(requests.take(_window).toList());
+    await _scheduler.rescheduleAll(
+      requests.take(_window).toList(),
+      channelName: l10n.notifChannelName,
+      channelDescription: l10n.notifChannelDescription,
+    );
   }
 }

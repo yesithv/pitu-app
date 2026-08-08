@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text.dart';
@@ -18,7 +19,7 @@ class WeightChart extends StatelessWidget {
       return SizedBox(
         height: 90,
         child: Center(
-          child: Text('Registra el peso para ver su evolución.',
+          child: Text(AppLocalizations.of(context)!.weightChartEmpty,
               style: AppText.meta(c.text3)),
         ),
       );
@@ -37,7 +38,7 @@ class WeightChart extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(labels.isNotEmpty ? labels.first : '', style: AppText.meta(c.text3)),
-            Text('hoy · ${_fmt(last)} kg',
+            Text(AppLocalizations.of(context)!.weightChartToday(_fmt(last)),
                 style: AppText.meta(c.text3)),
           ],
         ),

@@ -1,0 +1,6 @@
+# Configuración de gen-l10n (Flutter). El inglés es el idioma plantilla y el
+# valor por defecto cuando el idioma del dispositivo no está soportado.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations

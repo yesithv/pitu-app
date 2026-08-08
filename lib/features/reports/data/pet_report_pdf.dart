@@ -76,6 +76,71 @@ class ReportCare {
   final String next;
 }
 
+/// Etiquetas ya localizadas para el PDF (secciones, columnas, vacíos, pie).
+class PetReportStrings {
+  const PetReportStrings({
+    required this.title,
+    required this.guardian,
+    required this.footer,
+    required this.sectionDiagnoses,
+    required this.sectionVisits,
+    required this.sectionVaccines,
+    required this.sectionWeights,
+    required this.sectionCares,
+    required this.emptyDiagnoses,
+    required this.emptyVisits,
+    required this.emptyVaccines,
+    required this.emptyWeights,
+    required this.emptyCares,
+    required this.colCondition,
+    required this.colStatus,
+    required this.colSince,
+    required this.colDate,
+    required this.colReason,
+    required this.colClinic,
+    required this.colDiagnosis,
+    required this.colTreatment,
+    required this.colVaccine,
+    required this.colApplied,
+    required this.colNext,
+    required this.colWeight,
+    required this.colNote,
+    required this.colCare,
+    required this.colFrequency,
+    required this.colUpcoming,
+  });
+
+  final String title;
+  final String guardian;
+  final String Function(int page, int total) footer;
+  final String sectionDiagnoses;
+  final String sectionVisits;
+  final String sectionVaccines;
+  final String sectionWeights;
+  final String sectionCares;
+  final String emptyDiagnoses;
+  final String emptyVisits;
+  final String emptyVaccines;
+  final String emptyWeights;
+  final String emptyCares;
+  final String colCondition;
+  final String colStatus;
+  final String colSince;
+  final String colDate;
+  final String colReason;
+  final String colClinic;
+  final String colDiagnosis;
+  final String colTreatment;
+  final String colVaccine;
+  final String colApplied;
+  final String colNext;
+  final String colWeight;
+  final String colNote;
+  final String colCare;
+  final String colFrequency;
+  final String colUpcoming;
+}
+
 // Paleta alineada con la identidad visual de PituApp. Se usa el constructor
 // const de PdfColor (fromInt no es const) para poder marcar los estilos const.
 const _teal = PdfColor(0x14 / 255, 0x59 / 255, 0x5F / 255);
@@ -85,29 +150,29 @@ const _line = PdfColor(0xE3 / 255, 0xE0 / 255, 0xD8 / 255);
 const _soft = PdfColor(0xF3 / 255, 0xF1 / 255, 0xEA / 255);
 
 /// Construye el PDF del reporte veterinario y devuelve sus bytes (RF-38/39).
-Future<Uint8List> buildPetReportPdf(PetReportData d) async {
-  final doc = pw.Document(title: 'Reporte veterinario — ${d.petName}');
+Future<Uint8List> buildPetReportPdf(PetReportData d, PetReportStrings s) async {
+  final doc = pw.Document(title: '${s.title} — ${d.petName}');
 
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(36, 40, 36, 44),
       build: (context) => [
-        _header(d),
+        _header(d, s),
         pw.SizedBox(height: 16),
         _petCard(d),
         pw.SizedBox(height: 20),
-        _diagnosesSection(d.diagnoses),
-        _visitsSection(d.visits),
-        _vaccinesSection(d.vaccines),
-        _weightsSection(d.weights),
-        _caresSection(d.cares),
+        _diagnosesSection(d.diagnoses, s),
+        _visitsSection(d.visits, s),
+        _vaccinesSection(d.vaccines, s),
+        _weightsSection(d.weights, s),
+        _caresSection(d.cares, s),
       ],
       footer: (context) => pw.Container(
         alignment: pw.Alignment.centerRight,
         margin: const pw.EdgeInsets.only(top: 8),
         child: pw.Text(
-          'Generado por PituApp · página ${context.pageNumber} de ${context.pagesCount}',
+          s.footer(context.pageNumber, context.pagesCount),
           style: const pw.TextStyle(color: _muted, fontSize: 8),
         ),
       ),
@@ -117,7 +182,7 @@ Future<Uint8List> buildPetReportPdf(PetReportData d) async {
   return doc.save();
 }
 
-pw.Widget _header(PetReportData d) {
+pw.Widget _header(PetReportData d, PetReportStrings s) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -129,14 +194,14 @@ pw.Widget _header(PetReportData d) {
               style: const pw.TextStyle(
                   color: _teal, fontSize: 22, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 2),
-          pw.Text('Reporte veterinario',
+          pw.Text(s.title,
               style: const pw.TextStyle(color: _muted, fontSize: 11)),
         ],
       ),
       pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.end,
         children: [
-          pw.Text('Tutor: ${d.ownerName}',
+          pw.Text(s.guardian,
               style: const pw.TextStyle(color: _ink, fontSize: 10)),
           pw.SizedBox(height: 2),
           pw.Text(d.generatedAtText,
@@ -230,27 +295,27 @@ pw.Widget _table(List<int> flex, List<String> headers,
   );
 }
 
-pw.Widget _diagnosesSection(List<ReportDiagnosis> items) {
+pw.Widget _diagnosesSection(List<ReportDiagnosis> items, PetReportStrings s) {
   return _section(
-    'Condiciones y diagnósticos',
+    s.sectionDiagnoses,
     items.isEmpty
-        ? _empty('Sin condiciones registradas.')
+        ? _empty(s.emptyDiagnoses)
         : _table(
             [5, 3, 3],
-            const ['Condición', 'Estado', 'Desde'],
+            [s.colCondition, s.colStatus, s.colSince],
             [for (final d in items) [d.condition, d.status, d.since]],
           ),
   );
 }
 
-pw.Widget _visitsSection(List<ReportVisit> items) {
+pw.Widget _visitsSection(List<ReportVisit> items, PetReportStrings s) {
   return _section(
-    'Visitas médicas',
+    s.sectionVisits,
     items.isEmpty
-        ? _empty('Sin visitas registradas.')
+        ? _empty(s.emptyVisits)
         : _table(
             [3, 4, 4, 4, 4],
-            const ['Fecha', 'Motivo', 'Clínica', 'Diagnóstico', 'Tratamiento'],
+            [s.colDate, s.colReason, s.colClinic, s.colDiagnosis, s.colTreatment],
             [
               for (final v in items)
                 [v.date, v.reason, v.clinic, v.diagnosis, v.treatment]
@@ -259,14 +324,14 @@ pw.Widget _visitsSection(List<ReportVisit> items) {
   );
 }
 
-pw.Widget _vaccinesSection(List<ReportVaccine> items) {
+pw.Widget _vaccinesSection(List<ReportVaccine> items, PetReportStrings s) {
   return _section(
-    'Vacunas',
+    s.sectionVaccines,
     items.isEmpty
-        ? _empty('Sin vacunas registradas.')
+        ? _empty(s.emptyVaccines)
         : _table(
             [5, 3, 3, 4],
-            const ['Vacuna', 'Aplicada', 'Próxima', 'Clínica'],
+            [s.colVaccine, s.colApplied, s.colNext, s.colClinic],
             [
               for (final v in items) [v.type, v.applied, v.next, v.clinic]
             ],
@@ -274,27 +339,27 @@ pw.Widget _vaccinesSection(List<ReportVaccine> items) {
   );
 }
 
-pw.Widget _weightsSection(List<ReportWeight> items) {
+pw.Widget _weightsSection(List<ReportWeight> items, PetReportStrings s) {
   return _section(
-    'Historial de peso',
+    s.sectionWeights,
     items.isEmpty
-        ? _empty('Sin registros de peso.')
+        ? _empty(s.emptyWeights)
         : _table(
             [3, 3, 6],
-            const ['Fecha', 'Peso', 'Nota'],
+            [s.colDate, s.colWeight, s.colNote],
             [for (final w in items) [w.date, w.value, w.note]],
           ),
   );
 }
 
-pw.Widget _caresSection(List<ReportCare> items) {
+pw.Widget _caresSection(List<ReportCare> items, PetReportStrings s) {
   return _section(
-    'Plan de cuidados',
+    s.sectionCares,
     items.isEmpty
-        ? _empty('Sin cuidados programados.')
+        ? _empty(s.emptyCares)
         : _table(
             [5, 4, 3],
-            const ['Cuidado', 'Frecuencia', 'Próximo'],
+            [s.colCare, s.colFrequency, s.colUpcoming],
             [for (final ca in items) [ca.name, ca.frequency, ca.next]],
           ),
   );

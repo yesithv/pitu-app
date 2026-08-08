@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -46,8 +47,9 @@ class _AppLockGateState extends ConsumerState<AppLockGate> {
   }
 
   Future<void> _authenticate() async {
-    final ok =
-        await ref.read(appLockProvider).authenticate('Desbloquea PituApp');
+    final ok = await ref
+        .read(appLockProvider)
+        .authenticate(AppLocalizations.of(context)!.appLockPrompt);
     if (ok && mounted) setState(() => _locked = false);
   }
 
@@ -56,6 +58,7 @@ class _AppLockGateState extends ConsumerState<AppLockGate> {
     if (!_resolved || !_locked) return widget.child;
 
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: c.bg,
       body: Center(
@@ -73,12 +76,12 @@ class _AppLockGateState extends ConsumerState<AppLockGate> {
                 child: Icon(Icons.lock_outline, size: 40, color: c.brand),
               ),
               const SizedBox(height: 20),
-              Text('PituApp está bloqueada', style: AppText.title2(c.text)),
+              Text(l10n.appLockTitle, style: AppText.title2(c.text)),
               const SizedBox(height: 6),
-              Text('Desbloquea con tu huella o Face ID.',
+              Text(l10n.appLockSubtitle,
                   textAlign: TextAlign.center, style: AppText.body(c.text2)),
               const SizedBox(height: 24),
-              PrimaryButton(label: 'Desbloquear', onPressed: _authenticate),
+              PrimaryButton(label: l10n.appLockButton, onPressed: _authenticate),
             ],
           ),
         ),

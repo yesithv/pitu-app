@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -55,7 +57,7 @@ class PetDetailScreen extends ConsumerWidget {
     if (pet == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('Mascota no encontrada')),
+        body: Center(child: Text(AppLocalizations.of(context)!.petNotFound)),
       );
     }
 
@@ -82,11 +84,11 @@ class PetDetailScreen extends ConsumerWidget {
                   dividerColor: c.border,
                   labelStyle: AppText.button(c.brand).copyWith(fontSize: 14),
                   unselectedLabelStyle: AppText.button(c.text3).copyWith(fontSize: 14),
-                  tabs: const [
-                    Tab(text: 'Resumen'),
-                    Tab(text: 'Cuidados'),
-                    Tab(text: 'Historial'),
-                    Tab(text: 'Docs'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.petTabSummary),
+                    Tab(text: AppLocalizations.of(context)!.petTabCares),
+                    Tab(text: AppLocalizations.of(context)!.petTabHistory),
+                    Tab(text: AppLocalizations.of(context)!.petTabDocs),
                   ],
                 ),
                 c.bg,
@@ -148,7 +150,8 @@ class _PetHeader extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(pet.name, style: AppText.display(c.text)),
           const SizedBox(height: 2),
-          Text(pet.subtitle, style: AppText.body(c.text2)),
+          Text(petSubtitle(AppLocalizations.of(context)!, pet),
+              style: AppText.body(c.text2)),
         ],
       ),
     );
@@ -167,13 +170,15 @@ class _PetHeader extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: Text(hasPhoto ? 'Cambiar foto' : 'Agregar foto'),
+              title: Text(hasPhoto
+                  ? AppLocalizations.of(context)!.petPhotoChange
+                  : AppLocalizations.of(context)!.petPhotoAdd),
               onTap: () => Navigator.of(sheet).pop('pick'),
             ),
             if (hasPhoto)
               ListTile(
                 leading: const Icon(Icons.delete_outline),
-                title: const Text('Quitar foto'),
+                title: Text(AppLocalizations.of(context)!.petPhotoRemove),
                 onTap: () => Navigator.of(sheet).pop('remove'),
               ),
           ],
@@ -189,13 +194,12 @@ class _PetHeader extends ConsumerWidget {
     }
 
     final files = ref.read(fileTransferProvider);
+    final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     if (!files.canPickFile) {
       messenger
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(
-            content: Text(
-                'Cambiar la foto está disponible en la versión web por ahora.')));
+        ..showSnackBar(SnackBar(content: Text(l10n.petPhotoWebOnly)));
       return;
     }
     final picked = await files.pickBinaryFile(accept: 'image/*');
@@ -203,7 +207,7 @@ class _PetHeader extends ConsumerWidget {
     if (!picked.mimeType.startsWith('image/')) {
       messenger
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(content: Text('Elige una imagen (JPG o PNG).')));
+        ..showSnackBar(SnackBar(content: Text(l10n.petFormChooseImage)));
       return;
     }
     final compressed =
@@ -212,14 +216,13 @@ class _PetHeader extends ConsumerWidget {
     if (compressed.bytes.length > maxBytes) {
       messenger
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(
-            content: Text('La imagen es demasiado grande incluso tras comprimir.')));
+        ..showSnackBar(SnackBar(content: Text(l10n.petFormImageTooLarge)));
       return;
     }
     repo.update(pet.copyWith(photoBase64: base64Encode(compressed.bytes)));
     messenger
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Foto actualizada')));
+      ..showSnackBar(SnackBar(content: Text(l10n.petPhotoUpdated)));
   }
 }
 
@@ -230,6 +233,8 @@ class _SummaryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final localeName = Localizations.localeOf(context).toString();
     final scheduling = ref.read(schedulingServiceProvider);
     final now = ref.read(clockProvider).now();
     final schedules = ref.watch(scheduleViewsForPetProvider(petId));
@@ -255,8 +260,8 @@ class _SummaryTab extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Cumplimiento', style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
-                    Text('${compliance.upToDate} de ${compliance.total} al día',
+                    Text(l10n.summaryCompliance, style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
+                    Text(l10n.summaryComplianceRatio(compliance.upToDate, compliance.total),
                         style: AppText.meta(c.text2)),
                   ],
                 ),
@@ -274,10 +279,10 @@ class _SummaryTab extends ConsumerWidget {
               ],
             ),
           ),
-        const SectionHeader('Condiciones activas'),
+        SectionHeader(l10n.summaryActiveConditions),
         if (diagnoses.isEmpty)
           AppCard(
-            child: Text('Sin condiciones activas registradas.',
+            child: Text(l10n.summaryNoConditions,
                 style: AppText.body(c.text3)),
           )
         else
@@ -289,7 +294,7 @@ class _SummaryTab extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
           ],
-        const SectionHeader('Próximas tareas'),
+        SectionHeader(l10n.summaryNextTasks),
         AppCard(
           clip: true,
           padding: EdgeInsets.zero,
@@ -313,11 +318,15 @@ class _SummaryTab extends ConsumerWidget {
                       child: Icon(iconForCareKind(nextTasks[i].schedule.kind),
                           size: 18, color: c.text2),
                     ),
-                    title: Text(nextTasks[i].name, style: AppText.bodyStrong(c.text)),
+                    title: Text(
+                        careDisplayName(l10n, nextTasks[i].schedule.kind,
+                            nextTasks[i].name),
+                        style: AppText.bodyStrong(c.text)),
                     trailing: Text(
                       nextTasks[i].status.name == 'overdue'
-                          ? 'Atrasada'
-                          : AppDates.shortDate(nextTasks[i].schedule.nextDate),
+                          ? l10n.summaryOverdue
+                          : AppDates.shortDate(
+                              nextTasks[i].schedule.nextDate, localeName),
                       style: AppText.meta(
                           nextTasks[i].status.name == 'overdue' ? c.over : c.text3),
                     ),
@@ -330,9 +339,9 @@ class _SummaryTab extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Peso', style: AppText.title2(c.text)),
+            Text(l10n.summaryWeight, style: AppText.title2(c.text)),
             _SmallPillButton(
-              label: '+ Registrar',
+              label: l10n.summaryLogWeightShort,
               onTap: () => WeightFormScreen.open(context, petId),
             ),
           ],
@@ -341,7 +350,9 @@ class _SummaryTab extends ConsumerWidget {
         AppCard(
           child: WeightChart(
             values: [for (final w in weights) w.value],
-            labels: [for (final w in weights) AppDates.weekdayShort(w.date)],
+            labels: [
+              for (final w in weights) AppDates.weekdayShort(w.date, localeName)
+            ],
           ),
         ),
       ],
@@ -369,7 +380,10 @@ class _DiagnosisCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(diagnosis.condition, style: AppText.bodyStrong(c.text)),
-                Text('desde ${AppDates.shortDateYear(diagnosis.date)}',
+                Text(
+                    AppLocalizations.of(context)!.diagnosisSince(
+                        AppDates.shortDateYear(diagnosis.date,
+                            Localizations.localeOf(context).toString())),
                     style: AppText.meta(c.text3)),
               ],
             ),
@@ -410,7 +424,7 @@ class _DxTag extends StatelessWidget {
         borderRadius: Radii.pillAll,
         border: filled ? null : Border.all(color: c.borderStrong),
       ),
-      child: Text(status.label,
+      child: Text(status.localized(AppLocalizations.of(context)!),
           style: AppText.label(filled ? Colors.white : c.text2)
               .copyWith(letterSpacing: 0)),
     );
@@ -424,6 +438,7 @@ class _CaresTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final schedules = ref.watch(scheduleViewsForPetProvider(petId));
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
@@ -451,19 +466,23 @@ class _CaresTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(v.name, style: AppText.bodyStrong(c.text)),
-                        Text(v.schedule.frequency.label, style: AppText.meta(c.text3)),
+                        Text(careDisplayName(l10n, v.schedule.kind, v.name),
+                            style: AppText.bodyStrong(c.text)),
+                        Text(careFrequencyLabel(l10n, v.schedule.frequency),
+                            style: AppText.meta(c.text3)),
                       ],
                     ),
                   ),
-                  StatusPill(status: v.status, label: v.relativeLabel),
+                  StatusPill(
+                      status: v.status,
+                      label: relativeLabelFor(l10n, v.daysUntil)),
                 ],
               ),
             ),
           ),
         const SizedBox(height: 4),
         DashedActionButton(
-          label: 'Agregar cuidado',
+          label: l10n.caresAdd,
           onPressed: () => _onAddCustomCare(context, ref, schedules.length),
         ),
       ],
@@ -479,7 +498,8 @@ class _CaresTab extends ConsumerWidget {
         .where((s) => s.kind == CareKind.custom)
         .length;
     if (max != null && customCount >= max) {
-      PlansScreen.open(context, blockedFeature: 'Cuidados personalizados ilimitados');
+      PlansScreen.open(context,
+          blockedFeature: AppLocalizations.of(context)!.caresBlockedFeature);
       return;
     }
     CareScheduleFormScreen.openCreate(context, petId);
@@ -498,20 +518,22 @@ class _HistoryTabState extends ConsumerState<_HistoryTab> {
   TimelineKind? _kind; // null = todos
   DateTimeRange? _range;
 
-  static const _filters = <(String, TimelineKind?)>[
-    ('Todos', null),
-    ('Visitas', TimelineKind.visit),
-    ('Vacunas', TimelineKind.vaccine),
-    ('Diagnósticos', TimelineKind.diagnosis),
-    ('Cuidados', TimelineKind.care),
-    ('Peso', TimelineKind.weight),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final filters = <(String, TimelineKind?)>[
+      (l10n.historyFilterAll, null),
+      (l10n.historyFilterVisits, TimelineKind.visit),
+      (l10n.historyFilterVaccines, TimelineKind.vaccine),
+      (l10n.historyFilterDiagnoses, TimelineKind.diagnosis),
+      (l10n.historyFilterCares, TimelineKind.care),
+      (l10n.historyFilterWeight, TimelineKind.weight),
+    ];
     ref.watch(databaseProvider);
-    final all = ref.read(clinicalRepositoryProvider).timelineForPet(widget.petId);
+    final all = ref
+        .read(clinicalRepositoryProvider)
+        .timelineForPet(widget.petId, timelineLabels(l10n));
     final entries = all.where((e) {
       if (_kind != null && e.kind != _kind) return false;
       if (_range != null) {
@@ -524,7 +546,7 @@ class _HistoryTabState extends ConsumerState<_HistoryTab> {
     return Column(
       children: [
         _FilterBar(
-          filters: _filters,
+          filters: filters,
           selected: _kind,
           range: _range,
           onKind: (k) => setState(() => _kind = k),
@@ -536,8 +558,8 @@ class _HistoryTabState extends ConsumerState<_HistoryTab> {
               ? Center(
                   child: Text(
                       all.isEmpty
-                          ? 'Aún no hay registros en el historial.'
-                          : 'Sin registros para este filtro.',
+                          ? l10n.historyEmpty
+                          : l10n.historyEmptyFilter,
                       style: AppText.body(c.text3)),
                 )
               : ListView.builder(
@@ -643,8 +665,12 @@ class _FilterBar extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         range == null
-                            ? 'Filtrar por fechas'
-                            : '${AppDates.shortDate(range!.start)} – ${AppDates.shortDate(range!.end)}',
+                            ? AppLocalizations.of(context)!.historyFilterByDate
+                            : AppLocalizations.of(context)!.historyDateRange(
+                                AppDates.shortDate(range!.start,
+                                    Localizations.localeOf(context).toString()),
+                                AppDates.shortDate(range!.end,
+                                    Localizations.localeOf(context).toString())),
                         style: AppText.metaStrong(c.brand),
                       ),
                     ],
@@ -740,7 +766,8 @@ class _TimelineTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       [
-                        AppDates.shortDateYear(entry.date),
+                        AppDates.shortDateYear(entry.date,
+                            Localizations.localeOf(context).toString()),
                         if (entry.subtitle != null) entry.subtitle!,
                       ].join(' · '),
                       style: AppText.meta(c.text3),
@@ -770,6 +797,7 @@ class _DocsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final docs = ref.watch(attachmentsForPetProvider(petId));
     final limits = ref.watch(entitlementProvider).limits;
     final max = limits.maxAttachmentsPerPet;
@@ -787,11 +815,10 @@ class _DocsTab extends ConsumerWidget {
               children: [
                 Icon(Icons.folder_open_outlined, size: 40, color: c.text3),
                 const SizedBox(height: 12),
-                Text('Sin documentos todavía',
+                Text(l10n.docsEmptyTitle,
                     style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
                 const SizedBox(height: 4),
-                Text('Adjunta fotos y PDFs de tu mascota (hasta '
-                    '${AttachmentService.maxLabel} cada uno).',
+                Text(l10n.docsEmptySubtitle(AttachmentService.maxLabel),
                     textAlign: TextAlign.center, style: AppText.meta(c.text3)),
               ],
             ),
@@ -801,8 +828,8 @@ class _DocsTab extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               max == null
-                  ? '${docs.length} documento(s)'
-                  : '${docs.length} de $max documento(s) · plan Free',
+                  ? l10n.docsCount(docs.length)
+                  : l10n.docsCountLimited(docs.length, max),
               style: AppText.meta(c.text3),
             ),
           ),
@@ -811,11 +838,11 @@ class _DocsTab extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                for (final f in const <(String, AttachmentKind?)>[
-                  ('Todos', null),
-                  ('Imágenes', AttachmentKind.image),
-                  ('PDF', AttachmentKind.pdf),
-                  ('Otros', AttachmentKind.other),
+                for (final f in <(String, AttachmentKind?)>[
+                  (l10n.docsFilterAll, null),
+                  (l10n.docsFilterImages, AttachmentKind.image),
+                  (l10n.docsFilterPdf, AttachmentKind.pdf),
+                  (l10n.docsFilterOther, AttachmentKind.other),
                 ]) ...[
                   _Chip(
                     label: f.$1,
@@ -833,7 +860,7 @@ class _DocsTab extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Center(
-                child: Text('Sin documentos de este tipo.',
+                child: Text(l10n.docsEmptyOfType,
                     style: AppText.meta(c.text3)),
               ),
             ),
@@ -844,7 +871,7 @@ class _DocsTab extends ConsumerWidget {
         ],
         const SizedBox(height: 4),
         DashedActionButton(
-          label: 'Agregar documento',
+          label: l10n.docsAdd,
           onPressed: () => _onAdd(context, ref, docs.length, max),
         ),
       ],
@@ -854,23 +881,25 @@ class _DocsTab extends ConsumerWidget {
   Future<void> _onAdd(
       BuildContext context, WidgetRef ref, int current, int? max) async {
     final service = ref.read(attachmentServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
     if (!service.canAdd) {
-      _snack(context,
-          'Adjuntar documentos está disponible en la versión web por ahora.');
+      _snack(context, l10n.docsWebOnly);
       return;
     }
     if (max != null && current >= max) {
-      PlansScreen.open(context, blockedFeature: 'Documentos ilimitados');
+      PlansScreen.open(context, blockedFeature: l10n.docsBlockedFeature);
       return;
     }
-    final result = await service.pickAndAdd(petId);
+    final result =
+        await service.pickAndAdd(petId, source: l10n.attachmentDefaultSource);
     if (!context.mounted) return;
     switch (result.status) {
       case AddAttachmentStatus.success:
-        _snack(context, 'Documento agregado.');
+        _snack(context, l10n.docsAdded);
       case AddAttachmentStatus.tooLarge:
+        _snack(context, l10n.attachmentTooLarge(AttachmentService.maxLabel));
       case AddAttachmentStatus.quota:
-        _snack(context, result.message);
+        _snack(context, l10n.attachmentNoSpace);
       case AddAttachmentStatus.cancelled:
         break;
     }
@@ -885,6 +914,7 @@ class _DocRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       onTap: () => _open(context, ref),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -906,7 +936,7 @@ class _DocRow extends ConsumerWidget {
                       if (attachment.source != null &&
                           attachment.source!.isNotEmpty)
                         attachment.source!,
-                      _kindLabel(attachment.kind),
+                      attachment.kind.localized(l10n),
                       _size(attachment.sizeBytes),
                     ].join(' · '),
                     style: AppText.meta(c.text3)),
@@ -919,9 +949,9 @@ class _DocRow extends ConsumerWidget {
               if (v == 'open') _open(context, ref);
               if (v == 'delete') _confirmDelete(context, ref);
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'open', child: Text('Abrir / Descargar')),
-              PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'open', child: Text(l10n.docsOpenDownload)),
+              PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete)),
             ],
           ),
         ],
@@ -959,24 +989,25 @@ class _DocRow extends ConsumerWidget {
     }
     await ref.read(attachmentServiceProvider).download(attachment);
     if (!context.mounted) return;
-    _snack(context, 'Descargando ${attachment.filename}…');
+    _snack(context,
+        AppLocalizations.of(context)!.docsDownloading(attachment.filename));
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar documento'),
-        content: Text('Se eliminará "${attachment.filename}" de este '
-            'dispositivo. Esta acción no se puede deshacer.'),
+        title: Text(l10n.docsDeleteTitle),
+        content: Text(l10n.docsDeleteMessage(attachment.filename)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Eliminar'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -985,12 +1016,6 @@ class _DocRow extends ConsumerWidget {
       ref.read(attachmentRepositoryProvider).remove(attachment.id);
     }
   }
-
-  static String _kindLabel(AttachmentKind k) => switch (k) {
-        AttachmentKind.image => 'Imagen',
-        AttachmentKind.pdf => 'PDF',
-        AttachmentKind.other => 'Archivo',
-      };
 
   static String _size(int bytes) => formatBytes(bytes);
 }
@@ -1056,10 +1081,10 @@ class _PetMenu extends ConsumerWidget {
             ArchivePetScreen.open(context, petId);
         }
       },
-      itemBuilder: (context) => const [
-        PopupMenuItem(value: 'edit', child: Text('Editar')),
-        PopupMenuItem(value: 'share', child: Text('Compartir con veterinario')),
-        PopupMenuItem(value: 'archive', child: Text('Archivar')),
+      itemBuilder: (context) => [
+        PopupMenuItem(value: 'edit', child: Text(AppLocalizations.of(context)!.petMenuEdit)),
+        PopupMenuItem(value: 'share', child: Text(AppLocalizations.of(context)!.petMenuShare)),
+        PopupMenuItem(value: 'archive', child: Text(AppLocalizations.of(context)!.petMenuArchive)),
       ],
     );
   }
@@ -1090,34 +1115,37 @@ void _showAddSheet(BuildContext context, String petId) {
   showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    builder: (sheet) => SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _AddSheetItem(
-            icon: Icons.monitor_weight_outlined,
-            label: 'Registrar peso',
-            onTap: () => WeightFormScreen.open(context, petId),
-          ),
-          _AddSheetItem(
-            icon: Icons.vaccines_outlined,
-            label: 'Registrar vacuna',
-            onTap: () => VaccineFormScreen.open(context, petId),
-          ),
-          _AddSheetItem(
-            icon: Icons.medical_services_outlined,
-            label: 'Agregar visita médica',
-            onTap: () => MedicalVisitFormScreen.open(context, petId),
-          ),
-          _AddSheetItem(
-            icon: Icons.coronavirus_outlined,
-            label: 'Agregar diagnóstico',
-            onTap: () => DiagnosisFormScreen.open(context, petId),
-          ),
-        ],
-      ),
-    ),
+    builder: (sheet) {
+      final l10n = AppLocalizations.of(sheet)!;
+      return SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _AddSheetItem(
+              icon: Icons.monitor_weight_outlined,
+              label: l10n.addSheetLogWeight,
+              onTap: () => WeightFormScreen.open(context, petId),
+            ),
+            _AddSheetItem(
+              icon: Icons.vaccines_outlined,
+              label: l10n.addSheetLogVaccine,
+              onTap: () => VaccineFormScreen.open(context, petId),
+            ),
+            _AddSheetItem(
+              icon: Icons.medical_services_outlined,
+              label: l10n.addSheetAddVisit,
+              onTap: () => MedicalVisitFormScreen.open(context, petId),
+            ),
+            _AddSheetItem(
+              icon: Icons.coronavirus_outlined,
+              label: l10n.addSheetAddDiagnosis,
+              onTap: () => DiagnosisFormScreen.open(context, petId),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }
 
@@ -1190,9 +1218,11 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
 /// guarda como archivo (pendiente de validación en dispositivo).
 Future<void> _shareReport(
     BuildContext context, WidgetRef ref, String petId) async {
+  final l10n = AppLocalizations.of(context)!;
+  final localeName = Localizations.localeOf(context).toString();
   final isPro = ref.read(entitlementProvider).isPro;
   if (!isPro) {
-    PlansScreen.open(context, blockedFeature: 'Reporte para el veterinario (PDF)');
+    PlansScreen.open(context, blockedFeature: l10n.reportBlockedFeature);
     return;
   }
   final options = await _pickReportScope(context);
@@ -1200,9 +1230,13 @@ Future<void> _shareReport(
   final messenger = ScaffoldMessenger.of(context);
   messenger
     ..clearSnackBars()
-    ..showSnackBar(const SnackBar(content: Text('Generando reporte PDF…')));
-  final result =
-      await ref.read(petReportServiceProvider).generate(petId, options: options);
+    ..showSnackBar(SnackBar(content: Text(l10n.reportGenerating)));
+  final result = await ref.read(petReportServiceProvider).generate(
+        petId,
+        options: options,
+        l10n: l10n,
+        localeName: localeName,
+      );
   messenger
     ..clearSnackBars()
     ..showSnackBar(SnackBar(content: Text(result.message)));
@@ -1213,29 +1247,32 @@ Future<ReportOptions?> _pickReportScope(BuildContext context) async {
   final choice = await showModalBottomSheet<String>(
     context: context,
     showDragHandle: true,
-    builder: (sheetContext) => SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: const Text('Historial completo'),
-            onTap: () => Navigator.of(sheetContext).pop('full'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.vaccines_outlined),
-            title: const Text('Solo vacunas'),
-            onTap: () => Navigator.of(sheetContext).pop('vac'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.date_range_outlined),
-            title: const Text('Rango de fechas'),
-            onTap: () => Navigator.of(sheetContext).pop('range'),
-          ),
-        ],
-      ),
-    ),
+    builder: (sheetContext) {
+      final l10n = AppLocalizations.of(sheetContext)!;
+      return SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: Text(l10n.reportScopeFull),
+              onTap: () => Navigator.of(sheetContext).pop('full'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.vaccines_outlined),
+              title: Text(l10n.reportScopeVaccines),
+              onTap: () => Navigator.of(sheetContext).pop('vac'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.date_range_outlined),
+              title: Text(l10n.reportScopeRange),
+              onTap: () => Navigator.of(sheetContext).pop('range'),
+            ),
+          ],
+        ),
+      );
+    },
   );
   switch (choice) {
     case 'full':

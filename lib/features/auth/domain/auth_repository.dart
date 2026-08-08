@@ -1,15 +1,26 @@
 import 'auth_user.dart';
 
+/// Motivo de un fallo de autenticación. La presentación lo traduce al idioma
+/// activo (no se guardan cadenas en el dominio).
+enum AuthError {
+  emptyName,
+  invalidEmail,
+  weakPassword,
+  accountExists,
+  noAccount,
+  invalidCredentials,
+}
+
 /// Resultado de una operación de autenticación. Un `AuthResult` es éxito (con el
-/// usuario) o error (con un mensaje en español listo para mostrar).
+/// usuario) o error (con un [AuthError] que la UI localiza).
 class AuthResult {
-  const AuthResult._({this.user, this.error});
+  const AuthResult._({this.user, this.errorCode});
 
   factory AuthResult.success(AuthUser user) => AuthResult._(user: user);
-  factory AuthResult.failure(String message) => AuthResult._(error: message);
+  factory AuthResult.failure(AuthError code) => AuthResult._(errorCode: code);
 
   final AuthUser? user;
-  final String? error;
+  final AuthError? errorCode;
 
   bool get ok => user != null;
 }

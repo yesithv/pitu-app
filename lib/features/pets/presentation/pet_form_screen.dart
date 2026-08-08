@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -116,7 +118,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
       );
       ref.read(petRepositoryProvider).update(updated);
       ref.read(careRepositoryProvider).syncBirthday(updated.id, _birthDate);
-      message = 'Datos de ${updated.name} actualizados';
+      message = AppLocalizations.of(context)!.petFormUpdated(updated.name);
     } else {
       final pet = ref.read(petOnboardingServiceProvider).createPet(
             name: _name.text,
@@ -129,7 +131,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
             photoBase64: _photoBase64,
           );
       ref.read(careRepositoryProvider).syncBirthday(pet.id, _birthDate);
-      message = 'Preparamos el plan de cuidados de ${pet.name} 🐾';
+      message = AppLocalizations.of(context)!.petFormCreated(pet.name);
     }
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
@@ -140,13 +142,13 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   Future<void> _pickPhoto() async {
     final files = ref.read(fileTransferProvider);
     if (!files.canPickFile) {
-      _snack('Agregar foto está disponible en la versión web por ahora.');
+      _snack(AppLocalizations.of(context)!.petFormPhotoWebOnly);
       return;
     }
     final picked = await files.pickBinaryFile(accept: 'image/*');
     if (picked == null) return;
     if (!picked.mimeType.startsWith('image/')) {
-      _snack('Elige una imagen (JPG o PNG).');
+      _snack(AppLocalizations.of(context)!.petFormChooseImage);
       return;
     }
     // Comprime la foto (RF-28); la foto de perfil se reduce más aún.
@@ -154,7 +156,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
         compressImage(picked.bytes, mimeType: picked.mimeType, maxDim: 720);
     const maxBytes = 1536 * 1024; // 1.5 MB
     if (compressed.bytes.length > maxBytes) {
-      _snack('La imagen es demasiado grande incluso tras comprimir.');
+      _snack(AppLocalizations.of(context)!.petFormImageTooLarge);
       return;
     }
     setState(() => _photoBase64 = base64Encode(compressed.bytes));
@@ -167,7 +169,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
       initialDate: _birthDate ?? DateTime(now.year - 1, now.month, now.day),
       firstDate: DateTime(now.year - 40),
       lastDate: now,
-      helpText: 'Cumpleaños de la mascota',
+      helpText: AppLocalizations.of(context)!.petFormBirthdayHelp,
     );
     if (picked != null) setState(() => _birthDate = picked);
   }
@@ -181,9 +183,10 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Editar mascota' : 'Nueva mascota'),
+        title: Text(_isEdit ? l10n.petFormEditTitle : l10n.petFormNewTitle),
         leading: const CloseButton(),
       ),
       body: SafeArea(
@@ -202,14 +205,14 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                         : () => setState(() => _photoBase64 = null),
                   )),
                   const SizedBox(height: 20),
-                  const FieldLabel('Nombre'),
+                  FieldLabel(l10n.petFormName),
                   _TextField(
                       controller: _name,
-                      hint: 'Ej. Pitufo',
+                      hint: l10n.petFormNameHint,
                       maxLength: FormLimits.name,
                       onChanged: (_) => setState(() {})),
                   const SizedBox(height: 16),
-                  const FieldLabel('Especie'),
+                  FieldLabel(l10n.petFormSpecies),
                   Row(
                     children: [
                       for (final s in Species.values) ...[
@@ -225,26 +228,26 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const FieldLabel('Edad aproximada (opcional)'),
+                  FieldLabel(l10n.petFormAge),
                   _TextField(
                       controller: _age,
-                      hint: 'Ej. 4 años',
+                      hint: l10n.petFormAgeHint,
                       maxLength: FormLimits.ageText),
                   const SizedBox(height: 16),
-                  const FieldLabel('Cumpleaños (opcional)'),
+                  FieldLabel(l10n.petFormBirthday),
                   _BirthdayField(
                     value: _birthDate,
                     onPick: _pickBirthday,
                     onClear: () => setState(() => _birthDate = null),
                   ),
                   const SizedBox(height: 16),
-                  const FieldLabel('Peso'),
+                  FieldLabel(l10n.petFormWeight),
                   Row(
                     children: [
                       Expanded(
                         child: _TextField(
                           controller: _weight,
-                          hint: 'valor',
+                          hint: l10n.petFormWeightHint,
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),
                           inputFormatters: FormLimits.weight,
@@ -259,15 +262,13 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const FieldLabel('Raza (opcional)'),
+                  FieldLabel(l10n.petFormBreed),
                   _TextField(
                       controller: _breed,
-                      hint: 'Ej. Labrador',
+                      hint: l10n.petFormBreedHint,
                       maxLength: FormLimits.breed),
                   const SizedBox(height: 18),
-                  const InfoNote(
-                      'Prepararemos un plan de cuidados según la especie. Si '
-                      'agregas el cumpleaños, te lo recordaremos cada año 🎂'),
+                  InfoNote(l10n.petFormNote),
                 ],
               ),
             ),
@@ -278,7 +279,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
                 border: Border(top: BorderSide(color: c.border)),
               ),
               child: PrimaryButton(
-                label: _isEdit ? 'Guardar' : 'Finalizar',
+                label: _isEdit ? l10n.commonSave : l10n.commonFinish,
                 onPressed: _valid ? _save : null,
               ),
             ),
@@ -369,7 +370,7 @@ class _SpeciesCard extends StatelessWidget {
             children: [
               Text(species.emoji, style: const TextStyle(fontSize: 24)),
               const SizedBox(height: 6),
-              Text(species.label,
+              Text(species.localized(AppLocalizations.of(context)!),
                   style: AppText.button(selected ? c.brand : c.text2)
                       .copyWith(fontSize: 14)),
             ],
@@ -509,7 +510,10 @@ class _BirthdayField extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                value == null ? 'Agregar fecha' : AppDates.longDate(value!),
+                value == null
+                    ? AppLocalizations.of(context)!.petFormBirthdayAdd
+                    : AppDates.longDate(
+                        value!, Localizations.localeOf(context).toString()),
                 style: value == null
                     ? AppText.body(c.text3)
                     : AppText.body(c.text),

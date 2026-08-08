@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'core/config/app_config.dart';
+import 'core/i18n/locale_controller.dart';
 import 'core/data/in_memory_database.dart';
 import 'core/data/persistence_factory.dart';
 import 'core/data/seed.dart';
@@ -28,6 +30,10 @@ import 'features/security/data/app_lock_factory.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Carga los símbolos de fecha de todos los locales soportados para que
+  // `intl` (AppDates) formatee meses y días en el idioma activo.
+  await initializeDateFormatting();
 
   // Reporte de errores (no-op por ahora; se enchufa un backend real después).
   // Se conecta a los handlers globales de Flutter antes de arrancar la app.
@@ -75,7 +81,7 @@ Future<void> main() async {
       MaterialPageRoute(builder: (_) => PetDetailScreen(petId: petId)),
     );
   });
-  final reminders = RemindersCoordinator(db, scheduler, const SystemClock());
+  final reminders = RemindersCoordinator(db, scheduler, const SystemClock(), prefs);
   _attachReminderResync(db, reminders);
   await reminders.resync();
   // Al volver a primer plano, si cambió la zona horaria del dispositivo (RF-33),
@@ -109,6 +115,7 @@ Future<void> main() async {
         crashReporterProvider.overrideWithValue(crashReporter),
         authRepositoryProvider.overrideWithValue(authRepository),
         initialSessionProvider.overrideWithValue(initialSession),
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const PituApp(),
     ),

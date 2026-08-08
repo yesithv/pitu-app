@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/domain/sync_metadata.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -101,43 +103,46 @@ class _DiagnosisFormScreenState extends ConsumerState<DiagnosisFormScreen> {
         notes: notes,
       ));
     }
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
           content:
-              Text(_isEdit ? 'Diagnóstico actualizado' : 'Diagnóstico registrado')));
+              Text(_isEdit ? l10n.diagnosisUpdated : l10n.diagnosisSaved)));
   }
 
   void _delete() {
+    final l10n = AppLocalizations.of(context)!;
     ref.read(clinicalRepositoryProvider).deleteDiagnosis(widget.recordId!);
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Diagnóstico eliminado')));
+      ..showSnackBar(SnackBar(content: Text(l10n.diagnosisDeleted)));
   }
 
   @override
   Widget build(BuildContext context) {
     final pet = ref.watch(petByIdProvider(widget.petId));
 
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: _isEdit ? 'Editar diagnóstico' : 'Diagnóstico',
-      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar',
+      title: _isEdit ? l10n.diagnosisFormEditTitle : l10n.diagnosisFormNewTitle,
+      saveLabel: _isEdit ? l10n.commonSaveChanges : l10n.commonSave,
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
           : PetFormHeader(emoji: pet.species.emoji, name: pet.name),
       children: [
-        const FieldLabel('Condición'),
+        FieldLabel(l10n.diagnosisFormCondition),
         AppTextField(
           controller: _condition,
-          hint: 'Ej. Dermatitis',
+          hint: l10n.diagnosisFormConditionHint,
           maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Estado'),
+        FieldLabel(l10n.diagnosisFormStatus),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -151,13 +156,13 @@ class _DiagnosisFormScreenState extends ConsumerState<DiagnosisFormScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Fecha'),
+        FieldLabel(l10n.diagnosisFormDate),
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
-        const FieldLabel('Notas (opcional)'),
-        AppMultilineField(controller: _notes, hint: 'Añade una nota…', minLines: 2),
+        FieldLabel(l10n.diagnosisFormNotes),
+        AppMultilineField(controller: _notes, hint: l10n.commonAddNotePlaceholder, minLines: 2),
         if (_isEdit)
-          RecordDeleteButton(label: 'Eliminar diagnóstico', onDelete: _delete),
+          RecordDeleteButton(label: l10n.diagnosisFormDelete, onDelete: _delete),
       ],
     );
   }
@@ -188,7 +193,7 @@ class _DxChip extends StatelessWidget {
           borderRadius: Radii.pillAll,
           border: selected ? null : Border.all(color: c.borderStrong),
         ),
-        child: Text(status.label,
+        child: Text(status.localized(AppLocalizations.of(context)!),
             style: AppText.metaStrong(selected ? Colors.white : c.text2)),
       ),
     );

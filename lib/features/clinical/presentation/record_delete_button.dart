@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
@@ -25,15 +26,14 @@ class RecordDeleteButton extends StatelessWidget {
               context: context,
               builder: (d) => AlertDialog(
                 title: Text(label),
-                content: const Text(
-                    'Se eliminará este registro. Esta acción no se puede deshacer.'),
+                content: Text(AppLocalizations.of(context)!.recordDeleteMessage),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.of(d).pop(false),
-                      child: const Text('Cancelar')),
+                      child: Text(AppLocalizations.of(context)!.commonCancel)),
                   TextButton(
                       onPressed: () => Navigator.of(d).pop(true),
-                      child: const Text('Eliminar')),
+                      child: Text(AppLocalizations.of(context)!.commonDelete)),
                 ],
               ),
             );

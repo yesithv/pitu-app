@@ -1,42 +1,34 @@
-/// Formato de fechas en español sin requerir inicialización de locale de intl.
-/// (La arquitectura queda preparada para i18n; aquí se resuelve el es-CO.)
+import 'package:intl/intl.dart';
+
+/// Formato de fechas dependiente del idioma activo. Cada método recibe el nombre
+/// de locale (p. ej. "es", "en") para que los nombres de meses y días salgan en
+/// el idioma correcto. Los símbolos de fecha se cargan en `main` con
+/// `initializeDateFormatting()`.
 abstract class AppDates {
-  static const _months = [
-    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
-  ];
-
-  static const _monthsShort = [
-    'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-    'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-  ];
-
-  static const _weekdays = [
-    'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo',
-  ];
-
   static String _cap(String s) =>
       s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
-  /// "Martes 22 de julio"
-  static String longWeekday(DateTime d) {
-    final wd = _weekdays[d.weekday - 1];
-    return '${_cap(wd)} ${d.day} de ${_months[d.month - 1]}';
-  }
+  /// "Tuesday, 22 July" / "Martes, 22 de julio"
+  static String longWeekday(DateTime d, String locale) =>
+      _cap(DateFormat.MMMMEEEEd(locale).format(d));
 
-  /// "22 de julio de 2026"
-  static String longDate(DateTime d) =>
-      '${d.day} de ${_months[d.month - 1]} de ${d.year}';
+  /// "22 July 2026" / "22 de julio de 2026"
+  static String longDate(DateTime d, String locale) =>
+      DateFormat.yMMMMd(locale).format(d);
 
-  /// "22 jul"
-  static String shortDate(DateTime d) => '${d.day} ${_monthsShort[d.month - 1]}';
+  /// "22 Jul" / "22 jul"
+  static String shortDate(DateTime d, String locale) =>
+      DateFormat.MMMd(locale).format(d);
 
-  /// "22 jul 2026"
-  static String shortDateYear(DateTime d) =>
-      '${d.day} ${_monthsShort[d.month - 1]} ${d.year}';
+  /// "22 Jul 2026"
+  static String shortDateYear(DateTime d, String locale) =>
+      DateFormat.yMMMd(locale).format(d);
 
-  static String monthYear(DateTime d) =>
-      '${_cap(_months[d.month - 1])} ${d.year}';
+  /// "July 2026" / "Julio 2026"
+  static String monthYear(DateTime d, String locale) =>
+      _cap(DateFormat.yMMMM(locale).format(d));
 
-  static String weekdayShort(DateTime d) => _weekdays[d.weekday - 1];
+  /// "Tue" / "mar."
+  static String weekdayShort(DateTime d, String locale) =>
+      DateFormat.E(locale).format(d);
 }

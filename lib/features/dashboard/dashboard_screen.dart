@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/i18n/l10n_labels.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
@@ -27,6 +29,8 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final localeName = Localizations.localeOf(context).toString();
     final owner = ref.watch(ownerNameProvider);
     final petViews = ref.watch(petViewsProvider);
     final filter = ref.watch(petFilterProvider);
@@ -51,7 +55,7 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         _Header(
           owner: owner,
-          date: AppDates.longWeekday(now),
+          date: AppDates.longWeekday(now, localeName),
           pendingCount: pending.length,
           overdueCount: overdueCount,
           onEditProfile: () => ProfileEditScreen.open(context),
@@ -67,7 +71,7 @@ class DashboardScreen extends ConsumerWidget {
                   onTap: () => PlansScreen.open(context),
                 ),
         if (pending.isNotEmpty) ...[
-          const SectionHeader('Hoy'),
+          SectionHeader(l10n.dashboardSectionToday),
           for (final v in pending)
             TaskCard(
               view: v,
@@ -77,17 +81,17 @@ class DashboardScreen extends ConsumerWidget {
                 context,
                 scheduleId: v.schedule.id,
                 petId: v.pet.id,
-                careName: v.name,
+                careName: careDisplayName(l10n, v.schedule.kind, v.name),
                 petName: v.pet.name,
                 petEmoji: v.pet.species.emoji,
               ),
             ),
         ] else ...[
-          const SectionHeader('Hoy'),
+          SectionHeader(l10n.dashboardSectionToday),
           _AllClearCard(),
         ],
         if (upcoming.isNotEmpty) ...[
-          const SectionHeader('Próximos 7 días'),
+          SectionHeader(l10n.dashboardSectionUpcoming),
           for (final v in upcoming) _UpcomingRow(view: v),
         ],
       ],
@@ -114,9 +118,10 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final summary = pendingCount == 0
-        ? 'Todo al día por hoy 🐾'
-        : 'Tienes $pendingCount pendiente${pendingCount == 1 ? '' : 's'}';
+        ? l10n.dashboardAllClearToday
+        : l10n.dashboardPendingCount(pendingCount);
     final summaryColor = overdueCount > 0 ? c.over : c.text3;
 
     return Row(
@@ -126,7 +131,7 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(date, style: AppText.meta(c.text3)),
-              Text('Hola, $owner', style: AppText.title1(c.text)),
+              Text(l10n.dashboardGreeting(owner), style: AppText.title1(c.text)),
               const SizedBox(height: 2),
               Text(summary, style: AppText.meta(summaryColor)),
             ],
@@ -139,7 +144,7 @@ class _Header extends StatelessWidget {
             backgroundColor: c.over,
             child: Icon(Icons.notifications_none, color: c.text2),
           ),
-          tooltip: 'Recordatorios',
+          tooltip: l10n.dashboardRemindersTooltip,
         ),
         GestureDetector(
           onTap: onEditProfile,
@@ -160,9 +165,8 @@ class _Header extends StatelessWidget {
 void _showRemindersInfo(BuildContext context) {
   ScaffoldMessenger.of(context)
     ..clearSnackBars()
-    ..showSnackBar(const SnackBar(
-      content: Text(
-          'Los recordatorios se envían desde la app móvil. Actívalos en Ajustes.'),
+    ..showSnackBar(SnackBar(
+      content: Text(AppLocalizations.of(context)!.dashboardRemindersInfo),
     ));
 }
 
@@ -173,10 +177,11 @@ class _ComplianceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final comp = view.compliance;
     final title = comp.isAllUpToDate
-        ? '${view.pet.name} está al día'
-        : '${view.pet.name}: ${comp.overdue} atrasado${comp.overdue == 1 ? '' : 's'}';
+        ? l10n.dashboardPetUpToDate(view.pet.name)
+        : l10n.dashboardPetOverdue(view.pet.name, comp.overdue);
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
@@ -201,7 +206,7 @@ class _ComplianceCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text('${comp.upToDate} de ${comp.total} cuidados',
+          Text(l10n.dashboardCaresRatio(comp.upToDate, comp.total),
               style: AppText.meta(c.brand).copyWith(color: c.brand.withValues(alpha: 0.85))),
           const SizedBox(height: 10),
           ClipRRect(
@@ -226,6 +231,7 @@ class _ComplianceTeaser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       onTap: onTap,
       child: Row(
@@ -236,9 +242,9 @@ class _ComplianceTeaser extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Panel de cumplimiento', style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
+                Text(l10n.dashboardCompliancePanel, style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
                 const SizedBox(height: 2),
-                Text('Compara lo recomendado con lo realizado',
+                Text(l10n.dashboardComplianceTeaser,
                     style: AppText.meta(c.text3)),
               ],
             ),
@@ -260,7 +266,7 @@ class _AllClearCard extends StatelessWidget {
           Icon(Icons.check_circle_outline, color: c.ok),
           const SizedBox(width: 12),
           Expanded(
-            child: Text('Todo al día por hoy. ¡Buen trabajo! 🐾',
+            child: Text(AppLocalizations.of(context)!.dashboardAllClearCard,
                 style: AppText.body(c.text2)),
           ),
         ],
@@ -276,6 +282,8 @@ class _UpcomingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final localeName = Localizations.localeOf(context).toString();
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.md),
       child: AppCard(
@@ -296,12 +304,13 @@ class _UpcomingRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(view.name, style: AppText.bodyStrong(c.text)),
+                  Text(careDisplayName(l10n, view.schedule.kind, view.name),
+                      style: AppText.bodyStrong(c.text)),
                   Text(view.pet.name, style: AppText.meta(c.text3)),
                 ],
               ),
             ),
-            Text(AppDates.weekdayShort(view.schedule.nextDate),
+            Text(AppDates.weekdayShort(view.schedule.nextDate, localeName),
                 style: AppText.meta(c.text3)),
           ],
         ),

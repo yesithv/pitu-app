@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/app_buttons.dart';
@@ -14,45 +15,54 @@ class AttachmentAddButton extends ConsumerWidget {
     super.key,
     required this.petId,
     this.source,
-    this.label = 'Adjuntar documento',
+    this.label,
   });
   final String petId;
   final String? source;
-  final String label;
+
+  /// Etiqueta del botón; si es `null` usa "Adjuntar documento" localizado.
+  final String? label;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return DashedActionButton(label: label, onPressed: () => _add(context, ref));
+    final l10n = AppLocalizations.of(context)!;
+    return DashedActionButton(
+        label: label ?? l10n.attachmentAdd,
+        onPressed: () => _add(context, ref));
   }
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
     final service = ref.read(attachmentServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     if (!service.canAdd) {
       messenger
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(
-            content: Text(
-                'Adjuntar documentos está disponible en la versión web por ahora.')));
+        ..showSnackBar(SnackBar(content: Text(l10n.attachmentWebOnly)));
       return;
     }
     final max = ref.read(entitlementProvider).limits.maxAttachmentsPerPet;
     final count = ref.read(attachmentRepositoryProvider).countForPet(petId);
     if (max != null && count >= max) {
-      PlansScreen.open(context, blockedFeature: 'Documentos ilimitados');
+      PlansScreen.open(context, blockedFeature: l10n.docsBlockedFeature);
       return;
     }
-    final result = await service.pickAndAdd(petId, source: source);
+    final result = await service.pickAndAdd(petId,
+        source: source ?? l10n.attachmentDefaultSource);
     switch (result.status) {
       case AddAttachmentStatus.success:
         messenger
           ..clearSnackBars()
-          ..showSnackBar(const SnackBar(content: Text('Documento adjuntado.')));
+          ..showSnackBar(SnackBar(content: Text(l10n.attachmentAdded)));
       case AddAttachmentStatus.tooLarge:
+        messenger
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(
+              content: Text(l10n.attachmentTooLarge(AttachmentService.maxLabel))));
       case AddAttachmentStatus.quota:
         messenger
           ..clearSnackBars()
-          ..showSnackBar(SnackBar(content: Text(result.message)));
+          ..showSnackBar(SnackBar(content: Text(l10n.attachmentNoSpace)));
       case AddAttachmentStatus.cancelled:
         break;
     }
