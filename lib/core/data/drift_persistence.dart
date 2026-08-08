@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'attachment_file_store.dart';
