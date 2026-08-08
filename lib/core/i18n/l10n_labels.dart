@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 
 import '../../features/attachments/domain/entities/attachment.dart';
 import '../../features/care/domain/entities/care_frequency.dart';

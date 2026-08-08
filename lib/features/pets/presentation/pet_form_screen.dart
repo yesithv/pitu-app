@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -140,15 +140,17 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
   }
 
   Future<void> _pickPhoto() async {
+    // Se captura l10n antes del await para no usar el context tras el gap async.
+    final l10n = AppLocalizations.of(context)!;
     final files = ref.read(fileTransferProvider);
     if (!files.canPickFile) {
-      _snack(AppLocalizations.of(context)!.petFormPhotoWebOnly);
+      _snack(l10n.petFormPhotoWebOnly);
       return;
     }
     final picked = await files.pickBinaryFile(accept: 'image/*');
     if (picked == null) return;
     if (!picked.mimeType.startsWith('image/')) {
-      _snack(AppLocalizations.of(context)!.petFormChooseImage);
+      _snack(l10n.petFormChooseImage);
       return;
     }
     // Comprime la foto (RF-28); la foto de perfil se reduce más aún.
@@ -156,7 +158,7 @@ class _PetFormScreenState extends ConsumerState<PetFormScreen> {
         compressImage(picked.bytes, mimeType: picked.mimeType, maxDim: 720);
     const maxBytes = 1536 * 1024; // 1.5 MB
     if (compressed.bytes.length > maxBytes) {
-      _snack(AppLocalizations.of(context)!.petFormImageTooLarge);
+      _snack(l10n.petFormImageTooLarge);
       return;
     }
     setState(() => _photoBase64 = base64Encode(compressed.bytes));

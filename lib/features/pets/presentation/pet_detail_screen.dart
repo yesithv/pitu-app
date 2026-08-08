@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -171,14 +171,14 @@ class _PetHeader extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: Text(hasPhoto
-                  ? AppLocalizations.of(context)!.petPhotoChange
-                  : AppLocalizations.of(context)!.petPhotoAdd),
+                  ? AppLocalizations.of(sheet)!.petPhotoChange
+                  : AppLocalizations.of(sheet)!.petPhotoAdd),
               onTap: () => Navigator.of(sheet).pop('pick'),
             ),
             if (hasPhoto)
               ListTile(
                 leading: const Icon(Icons.delete_outline),
-                title: Text(AppLocalizations.of(context)!.petPhotoRemove),
+                title: Text(AppLocalizations.of(sheet)!.petPhotoRemove),
                 onTap: () => Navigator.of(sheet).pop('remove'),
               ),
           ],

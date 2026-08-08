@@ -4,3 +4,6 @@ arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
+# No usar el paquete sintético `flutter_gen` (retirado en Flutter reciente): se
+# genera en lib/l10n/ y se importa como package:pitu_app/l10n/app_localizations.dart.
+synthetic-package: false
