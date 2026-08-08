@@ -32,8 +32,8 @@ class AttachmentService {
   /// Tope por archivo. En **móvil** los adjuntos viven en el filesystem (RF-29),
   /// así que se permite hasta 15 MB; en **web** siguen embebidos en el snapshot
   /// del navegador, por lo que se acota a 2 MB para no agotar su cuota.
-  static final int maxBytes = kIsWeb ? 2 * 1024 * 1024 : 15 * 1024 * 1024;
-  static final String maxLabel = kIsWeb ? '2 MB' : '15 MB';
+  static const int maxBytes = kIsWeb ? 2 * 1024 * 1024 : 15 * 1024 * 1024;
+  static const String maxLabel = kIsWeb ? '2 MB' : '15 MB';
 
   bool get canAdd => _files.canPickFile;
 

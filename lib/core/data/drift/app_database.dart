@@ -33,7 +33,7 @@ class Entities extends Table {
 /// esquema: aquí solo vive la estructura y las operaciones.
 @DriftDatabase(tables: [Entities])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase(QueryExecutor executor) : super(executor);
+  AppDatabase(super.executor);
 
   @override
   int get schemaVersion => 1;
