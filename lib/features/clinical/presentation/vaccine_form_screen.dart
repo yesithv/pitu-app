@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -105,42 +106,45 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
         clinic: clinic,
       ));
     }
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
-          content: Text(_isEdit ? 'Vacuna actualizada' : 'Vacuna registrada')));
+          content: Text(_isEdit ? l10n.vaccineUpdated : l10n.vaccineSaved)));
   }
 
   void _delete() {
+    final l10n = AppLocalizations.of(context)!;
     ref.read(clinicalRepositoryProvider).deleteVaccine(widget.recordId!);
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Vacuna eliminada')));
+      ..showSnackBar(SnackBar(content: Text(l10n.vaccineDeleted)));
   }
 
   @override
   Widget build(BuildContext context) {
     final pet = ref.watch(petByIdProvider(widget.petId));
 
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: _isEdit ? 'Editar vacuna' : 'Vacuna',
-      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar vacuna',
+      title: _isEdit ? l10n.vaccineFormEditTitle : l10n.vaccineFormNewTitle,
+      saveLabel: _isEdit ? l10n.commonSaveChanges : l10n.vaccineFormSave,
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
           : PetFormHeader(emoji: pet.species.emoji, name: pet.name),
       children: [
-        const FieldLabel('Tipo de vacuna'),
+        FieldLabel(l10n.vaccineFormType),
         AppTextField(
           controller: _type,
-          hint: 'Ej. Antirrábica',
+          hint: l10n.vaccineFormTypeHint,
           maxLength: FormLimits.shortText,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Fecha de aplicación'),
+        FieldLabel(l10n.vaccineFormApplied),
         AppDateField(
           value: _applied,
           onChanged: (d) => setState(() {
@@ -149,7 +153,7 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
           }),
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Próxima dosis (autosugerida)'),
+        FieldLabel(l10n.vaccineFormNext),
         AppDateField(
           value: _nextDose,
           allowFuture: true,
@@ -160,19 +164,18 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
           }),
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Veterinario / clínica (opcional)'),
+        FieldLabel(l10n.vaccineFormClinic),
         AppTextField(
             controller: _clinic,
-            hint: 'Ej. Clínica Veterinaria del Norte',
+            hint: l10n.vaccineFormClinicHint,
             maxLength: FormLimits.shortText),
         const SizedBox(height: 18),
-        const InfoNote(
-            'Sugerimos la próxima dosis a un año; ajústala según la indicación del veterinario.'),
+        InfoNote(l10n.vaccineFormNote),
         const SizedBox(height: 16),
-        const FieldLabel('Documentos'),
+        FieldLabel(l10n.vaccineFormDocs),
         const SizedBox(height: 4),
-        AttachmentAddButton(petId: widget.petId, source: 'Vacuna'),
-        if (_isEdit) RecordDeleteButton(label: 'Eliminar vacuna', onDelete: _delete),
+        AttachmentAddButton(petId: widget.petId, source: l10n.attachmentSourceVaccine),
+        if (_isEdit) RecordDeleteButton(label: l10n.vaccineFormDelete, onDelete: _delete),
       ],
     );
   }

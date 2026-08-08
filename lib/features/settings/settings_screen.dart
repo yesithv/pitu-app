@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/data/in_memory_database.dart';
+import '../../core/i18n/locale_controller.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/app_dates.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/widgets/app_card.dart';
@@ -35,6 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final owner = ref.watch(ownerNameProvider);
     final entitlement = ref.watch(entitlementProvider);
     final isPro = entitlement.isPro;
@@ -45,7 +49,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: Text('Ajustes', style: AppText.display(c.text)),
+          child: Text(l10n.settingsTitle, style: AppText.display(c.text)),
         ),
 
         // Perfil local
@@ -67,7 +71,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(owner, style: AppText.cardTitle(c.text).copyWith(fontSize: 16)),
-                    Text('Perfil local', style: AppText.meta(c.text3)),
+                    Text(l10n.settingsLocalProfile, style: AppText.meta(c.text3)),
                   ],
                 ),
               ),
@@ -77,7 +81,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         const SizedBox(height: 20),
 
-        const GroupHeader('Suscripción'),
+        GroupHeader(l10n.settingsGroupSubscription),
         AppCard(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -86,12 +90,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isPro ? 'Pro · Comprado' : 'Plan Free',
+                    Text(isPro ? l10n.settingsPlanProPurchased : l10n.settingsPlanFree,
                         style: AppText.cardTitle(c.text).copyWith(fontSize: 15)),
                     Text(
                       isPro
-                          ? 'Todas las funciones locales, para siempre'
-                          : '1 mascota · funciones básicas',
+                          ? l10n.settingsPlanProDesc
+                          : l10n.settingsPlanFreeDesc,
                       style: AppText.meta(c.text3),
                     ),
                   ],
@@ -100,11 +104,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               if (isPro)
                 TextButton(
                   onPressed: () => PlansScreen.open(context),
-                  child: Text('Ver planes', style: AppText.metaStrong(c.brand)),
+                  child: Text(l10n.settingsViewPlans, style: AppText.metaStrong(c.brand)),
                 )
               else
                 _AccentButton(
-                  label: 'Desbloquear Pro',
+                  label: l10n.settingsUnlockPro,
                   onTap: () => PlansScreen.open(context),
                 ),
             ],
@@ -112,14 +116,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         const SizedBox(height: 20),
 
-        const GroupHeader('Notificaciones'),
+        GroupHeader(l10n.settingsGroupNotifications),
         AppCard(
           clip: true,
           padding: EdgeInsets.zero,
           child: Column(
             children: [
               _SwitchRow(
-                label: 'Recordatorios',
+                label: l10n.settingsReminders,
                 value: _reminders,
                 onChanged: _onRemindersToggle,
                 divider: true,
@@ -131,10 +135,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                          child: Text('Anticipación por defecto',
+                          child: Text(l10n.settingsDefaultLead,
                               style: AppText.body(c.text))),
                       if (isPro) ...[
-                        Text(_leadLabel(ref.watch(databaseProvider).reminderLeadDays),
+                        Text(_leadLabel(l10n, ref.watch(databaseProvider).reminderLeadDays),
                             style: AppText.meta(c.text3)),
                         const SizedBox(width: 4),
                         Icon(Icons.chevron_right, color: c.text3),
@@ -149,31 +153,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         const SizedBox(height: 20),
 
-        const GroupHeader('Seguridad'),
+        GroupHeader(l10n.settingsGroupSecurity),
         AppCard(
           padding: EdgeInsets.zero,
           child: _SwitchRow(
-            label: 'Desbloqueo con huella / Face ID',
+            label: l10n.settingsBiometric,
             value: ref.watch(biometricEnabledProvider),
             onChanged: _onBiometricToggle,
           ),
         ),
         const SizedBox(height: 20),
 
-        const GroupHeader('Datos'),
+        GroupHeader(l10n.settingsGroupData),
         AppCard(
           clip: true,
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              _LinkRow(label: 'Crear respaldo', onTap: _onCreateBackup, divider: true),
-              _LinkRow(label: 'Restaurar respaldo', onTap: _onRestoreBackup, divider: true),
+              _LinkRow(label: l10n.settingsCreateBackup, onTap: _onCreateBackup, divider: true),
+              _LinkRow(label: l10n.settingsRestoreBackup, onTap: _onRestoreBackup, divider: true),
               _Row(
-                label: _documentsSpaceLabel(ref.watch(databaseProvider)),
+                label: _documentsSpaceLabel(l10n, ref.watch(databaseProvider)),
                 labelColor: c.text3,
               ),
               _Row(
-                label: _lastBackupLabel(ref.watch(databaseProvider).lastBackupAt),
+                label: _lastBackupLabel(l10n, ref.watch(databaseProvider).lastBackupAt),
                 labelColor: c.text3,
               ),
             ],
@@ -181,26 +185,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         if (_shouldRemindBackup(ref.watch(databaseProvider).lastBackupAt)) ...[
           const SizedBox(height: 12),
-          const InfoNote(
-            'Te recomendamos crear un respaldo para no perder tus datos si '
-            'cambias de dispositivo.',
+          InfoNote(
+            l10n.settingsBackupRecommend,
             icon: Icons.backup_outlined,
           ),
         ],
         const SizedBox(height: 16),
 
-        const InfoNote(
-          'Toda la información se guarda solo en este dispositivo. No la enviamos a ningún servidor.',
+        InfoNote(
+          l10n.settingsLocalOnly,
           icon: Icons.shield_outlined,
         ),
         const SizedBox(height: 16),
+
+        // Idioma / Language (RF: multiidioma con selector manual).
+        GroupHeader(l10n.settingsGroupLanguage),
+        AppCard(
+          clip: true,
+          padding: EdgeInsets.zero,
+          child: _LanguageRow(),
+        ),
+        const SizedBox(height: 20),
 
         // Borrar todos los datos (RNF-13, Ley 1581).
         AppCard(
           clip: true,
           padding: EdgeInsets.zero,
           child: _LinkRow(
-            label: 'Borrar todos mis datos',
+            label: l10n.settingsWipe,
             color: c.over,
             onTap: _onWipeData,
           ),
@@ -221,7 +233,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 }
               },
               child: Text(
-                isPro ? 'Demo: ver como plan Free' : 'Demo: volver a Pro',
+                isPro ? l10n.settingsDemoSeeFree : l10n.settingsDemoBackToPro,
                 style: AppText.meta(c.text3),
               ),
             ),
@@ -230,7 +242,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
         // Cuenta local: se muestra solo con sesión iniciada (no en la demo).
         if (session.status == SessionStatus.authenticated) ...[
-          const GroupHeader('Cuenta'),
+          GroupHeader(l10n.settingsGroupAccount),
           AppCard(
             clip: true,
             padding: EdgeInsets.zero,
@@ -239,7 +251,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (session.user != null)
                   _Row(label: session.user!.email, labelColor: c.text3),
                 _LinkRow(
-                  label: 'Cerrar sesión',
+                  label: l10n.settingsLogout,
                   color: c.over,
                   onTap: _onLogout,
                 ),
@@ -250,7 +262,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
 
         Center(
-          child: Text('Hecho con cariño, en memoria de Pitufo 🐾',
+          child: Text(l10n.settingsMadeWithLove,
               style: AppText.meta(c.text3)),
         ),
       ],
@@ -261,21 +273,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   /// datos locales quedan intactos (no se borran); se recuperan al iniciar
   /// sesión de nuevo.
   Future<void> _onLogout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text(
-          'Volverás a la pantalla de acceso. Tus datos siguen guardados en este '
-          'dispositivo y estarán aquí cuando vuelvas a iniciar sesión.',
-        ),
+        title: Text(l10n.logoutTitle),
+        content: Text(l10n.logoutMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar')),
+              child: Text(l10n.commonCancel)),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Cerrar sesión')),
+              child: Text(l10n.settingsLogout)),
         ],
       ),
     );
@@ -283,14 +293,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await ref.read(sessionControllerProvider.notifier).logout();
   }
 
-  static String _lastBackupLabel(DateTime? at) {
-    if (at == null) return 'Aún no has creado un respaldo.';
+  static String _lastBackupLabel(AppLocalizations l10n, DateTime? at) {
+    if (at == null) return l10n.backupNever;
     final d = DateTime.now().difference(at);
-    if (d.inDays >= 1) {
-      return 'Último respaldo: hace ${d.inDays} día${d.inDays == 1 ? '' : 's'}';
-    }
-    if (d.inHours >= 1) return 'Último respaldo: hace ${d.inHours} h';
-    return 'Último respaldo: hace un momento';
+    if (d.inDays >= 1) return l10n.backupDaysAgo(d.inDays);
+    if (d.inHours >= 1) return l10n.backupHoursAgo(d.inHours);
+    return l10n.backupMomentAgo;
   }
 
   static bool _shouldRemindBackup(DateTime? at) {
@@ -299,34 +307,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   /// Espacio ocupado por los documentos adjuntos (RNF-06).
-  static String _documentsSpaceLabel(InMemoryDatabase db) {
+  static String _documentsSpaceLabel(AppLocalizations l10n, InMemoryDatabase db) {
     final docs = db.attachments.where((a) => !a.meta.isDeleted).toList();
-    if (docs.isEmpty) return 'Documentos: sin archivos guardados';
+    if (docs.isEmpty) return l10n.docsSpaceEmpty;
     final bytes = docs.fold<int>(0, (sum, a) => sum + a.sizeBytes);
-    return 'Documentos: ${formatBytes(bytes)} · '
-        '${docs.length} archivo${docs.length == 1 ? '' : 's'}';
+    return l10n.docsSpaceUsed(formatBytes(bytes), docs.length);
   }
 
   /// Borra todos los datos del dispositivo con doble confirmación (RNF-13).
   Future<void> _onWipeData() async {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final first = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Borrar todos mis datos'),
-        content: const Text(
-          'Se eliminarán tus mascotas, su historial y todos los documentos de '
-          'este dispositivo. Tu plan (si compraste Pro) se conserva. Esta acción '
-          'no se puede deshacer.\n\nSi quieres conservar una copia, crea un '
-          'respaldo antes.',
-        ),
+        title: Text(l10n.wipeTitle),
+        content: Text(l10n.wipeMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar')),
+              child: Text(l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Continuar', style: TextStyle(color: c.over)),
+            child: Text(l10n.commonContinue, style: TextStyle(color: c.over)),
           ),
         ],
       ),
@@ -336,15 +339,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final second = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('¿Seguro?'),
-        content: const Text(
-            'Esto borrará definitivamente todos tus datos de este dispositivo.'),
+        title: Text(l10n.wipeConfirmTitle),
+        content: Text(l10n.wipeConfirmMessage),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+              onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonNo)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Sí, borrar todo', style: TextStyle(color: c.over)),
+            child: Text(l10n.wipeConfirmButton, style: TextStyle(color: c.over)),
           ),
         ],
       ),
@@ -353,32 +355,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     await ref.read(wipeServiceProvider).wipeAll();
     if (!mounted) return;
-    _snack('Se borraron todos tus datos.');
+    _snack(l10n.wipeDone);
   }
 
   Future<void> _onCreateBackup() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final path = await ref.read(backupServiceProvider).export();
-      _snack(path == null
-          ? 'Respaldo descargado (revisa tus descargas).'
-          : 'Respaldo guardado en: $path');
+      _snack(path == null ? l10n.backupDownloaded : l10n.backupSavedTo(path));
     } catch (_) {
-      _snack('No se pudo crear el respaldo.');
+      _snack(l10n.backupFailed);
     }
   }
 
   Future<void> _onRestoreBackup() async {
+    final l10n = AppLocalizations.of(context)!;
     final service = ref.read(backupServiceProvider);
     if (!service.canImport) {
-      _snack('La restauración desde archivo está disponible en la versión web '
-          'por ahora.');
+      _snack(l10n.restoreWebOnly);
       return;
     }
     // 1) Selecciona y muestra un resumen antes de aplicar (RF-42).
     final pick = await service.pickForImport();
     if (pick.cancelled) return;
     if (pick.error != null) {
-      _snack(pick.error!);
+      _snack(l10n.restoreFailed);
       return;
     }
     final preview = pick.preview!;
@@ -392,10 +393,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final result = service.apply(preview, mode);
     switch (result.status) {
       case BackupImportStatus.success:
-        _snack('Respaldo restaurado: ${result.pets} mascota(s) y '
-            '${result.records} registro(s).');
+        _snack(l10n.restoreSuccess(result.pets, result.records));
       case BackupImportStatus.invalid:
-        _snack(result.message ?? 'No se pudo restaurar el respaldo.');
+        _snack(l10n.restoreFailed);
       case BackupImportStatus.cancelled:
         break;
     }
@@ -403,9 +403,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<BackupMode?> _chooseImportMode(BackupPreview p) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final localeName = Localizations.localeOf(context).toString();
+    final summary =
+        l10n.importSummary(p.pets, p.records, p.attachments);
     final when = p.exportedAt == null
-        ? ''
-        : ' · creado el ${p.exportedAt!.day}/${p.exportedAt!.month}/${p.exportedAt!.year}';
+        ? summary
+        : '$summary · ${l10n.importCreatedOn(AppDates.shortDateYear(p.exportedAt!, localeName))}';
     return showModalBottomSheet<BackupMode>(
       context: context,
       showDragHandle: true,
@@ -417,26 +421,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Contenido del respaldo', style: AppText.title2(c.text)),
+              Text(l10n.importContentTitle, style: AppText.title2(c.text)),
               const SizedBox(height: 6),
               Text(
-                '${p.pets} mascota(s) · ${p.records} registro(s) · '
-                '${p.attachments} documento(s)$when',
+                when,
                 style: AppText.body(c.text2),
               ),
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.merge_type, color: c.brand),
-                title: const Text('Combinar (recomendado)'),
-                subtitle: const Text('Agrega lo que falte, sin duplicar.'),
+                title: Text(l10n.importCombine),
+                subtitle: Text(l10n.importCombineDesc),
                 onTap: () => Navigator.of(sheetContext).pop(BackupMode.combine),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.swap_horiz, color: c.over),
-                title: const Text('Reemplazar todo'),
-                subtitle: const Text('Borra los datos actuales de este dispositivo.'),
+                title: Text(l10n.importReplace),
+                subtitle: Text(l10n.importReplaceDesc),
                 onTap: () => Navigator.of(sheetContext).pop(BackupMode.replace),
               ),
             ],
@@ -447,37 +450,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _onRemindersToggle(bool value) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _reminders = value);
     if (!value) return;
     final scheduler = ref.read(reminderSchedulerProvider);
     if (!scheduler.isSupported) {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(
-            content: Text(
-                'Los recordatorios funcionan en la app móvil (Android / iOS).')));
+        ..showSnackBar(SnackBar(content: Text(l10n.remindersMobileOnly)));
       return;
     }
     final granted = await scheduler.requestPermission();
     if (!granted) {
-      _snack('Permiso de notificaciones denegado. Actívalo en los Ajustes del '
-          'sistema para recibir recordatorios.');
+      _snack(l10n.notifPermissionDenied);
     }
   }
 
   Future<void> _onBiometricToggle(bool value) async {
+    final l10n = AppLocalizations.of(context)!;
     final lock = ref.read(appLockProvider);
     final db = ref.read(databaseProvider);
     if (value) {
       if (!lock.isSupported) {
-        _snack('El bloqueo biométrico funciona en la app móvil (Android / iOS).');
+        _snack(l10n.biometricMobileOnly);
         return;
       }
       if (!await lock.canAuthenticate()) {
-        _snack('No hay biometría configurada en este dispositivo.');
+        _snack(l10n.biometricNotConfigured);
         return;
       }
-      if (!await lock.authenticate('Confirma para activar el bloqueo')) return;
+      if (!await lock.authenticate(l10n.biometricConfirmEnable)) return;
     }
     db.biometricLockEnabled = value;
     db.bump();
@@ -489,15 +491,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
-  static String _leadLabel(int d) => switch (d) {
-        0 => 'Mismo día',
-        1 => '1 día antes',
-        _ => '$d días antes',
+  static String _leadLabel(AppLocalizations l10n, int d) => switch (d) {
+        0 => l10n.leadSameDay,
+        1 => l10n.leadOneDayBefore,
+        _ => l10n.leadDaysBefore(d),
       };
 
   Future<void> _onAnticipation(bool isPro) async {
+    final l10n = AppLocalizations.of(context)!;
     if (!isPro) {
-      PlansScreen.open(context, blockedFeature: 'Anticipación configurable');
+      PlansScreen.open(context, blockedFeature: l10n.anticipationBlockedFeature);
       return;
     }
     final choice = await showModalBottomSheet<int>(
@@ -510,7 +513,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             for (final d in const [0, 1, 3, 7])
               ListTile(
-                title: Text(_leadLabel(d)),
+                title: Text(_leadLabel(l10n, d)),
                 onTap: () => Navigator.of(sheetContext).pop(d),
               ),
           ],
@@ -609,6 +612,84 @@ class _LinkRow extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Nombre de cada idioma en su propio idioma (para el selector).
+String _languageNativeName(String code) => switch (code) {
+      'es' => 'Español',
+      'en' => 'English',
+      'fr' => 'Français',
+      'pt' => 'Português',
+      'de' => 'Deutsch',
+      _ => code,
+    };
+
+/// Fila de Ajustes para elegir idioma: muestra la selección actual (Automático o
+/// un idioma) y abre una hoja con las opciones. `null` = automático (dispositivo).
+class _LanguageRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final current = ref.watch(localeControllerProvider);
+    final currentLabel = current == null
+        ? l10n.settingsLanguageAutomatic
+        : _languageNativeName(current.languageCode);
+
+    return InkWell(
+      onTap: () => _pick(context, ref, current),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        child: Row(
+          children: [
+            Icon(Icons.language, color: c.text3, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(l10n.settingsGroupLanguage, style: AppText.body(c.text))),
+            Text(currentLabel, style: AppText.meta(c.text3)),
+            const SizedBox(width: 4),
+            Icon(Icons.chevron_right, color: c.text3),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pick(BuildContext context, WidgetRef ref, Locale? current) async {
+    final l10n = AppLocalizations.of(context)!;
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final c = sheetContext.colors;
+        // 'auto' representa el modo automático (sin override).
+        final options = <(String, String)>[
+          ('auto', l10n.settingsLanguageAutomatic),
+          for (final loc in kSupportedLocales)
+            (loc.languageCode, _languageNativeName(loc.languageCode)),
+        ];
+        final currentKey = current?.languageCode ?? 'auto';
+        return SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final o in options)
+                ListTile(
+                  title: Text(o.$2),
+                  trailing: o.$1 == currentKey
+                      ? Icon(Icons.check, color: c.brand)
+                      : null,
+                  onTap: () => Navigator.of(sheetContext).pop(o.$1),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+    if (selected == null) return;
+    final notifier = ref.read(localeControllerProvider.notifier);
+    await notifier.setLocale(selected == 'auto' ? null : Locale(selected));
   }
 }
 

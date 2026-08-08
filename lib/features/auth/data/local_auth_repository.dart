@@ -35,17 +35,16 @@ class LocalAuthRepository implements AuthRepository {
     final cleanName = name.trim();
     final cleanEmail = _normalizeEmail(email);
     if (cleanName.isEmpty) {
-      return AuthResult.failure('Escribe tu nombre.');
+      return AuthResult.failure(AuthError.emptyName);
     }
     if (!_isValidEmail(cleanEmail)) {
-      return AuthResult.failure('Escribe un correo válido.');
+      return AuthResult.failure(AuthError.invalidEmail);
     }
     if (password.length < 6) {
-      return AuthResult.failure('La contraseña debe tener al menos 6 caracteres.');
+      return AuthResult.failure(AuthError.weakPassword);
     }
     if (await hasAccount()) {
-      return AuthResult.failure(
-          'Ya hay una cuenta en este dispositivo. Inicia sesión o usa la demo.');
+      return AuthResult.failure(AuthError.accountExists);
     }
 
     final salt = _randomHex(16);
@@ -68,12 +67,12 @@ class LocalAuthRepository implements AuthRepository {
     final cleanEmail = _normalizeEmail(email);
     final account = await _readAccount();
     if (account == null) {
-      return AuthResult.failure('Aún no hay una cuenta. Crea una para empezar.');
+      return AuthResult.failure(AuthError.noAccount);
     }
     final matches = account['email'] == cleanEmail &&
         account['hash'] == _hash(account['salt'] as String, password);
     if (!matches) {
-      return AuthResult.failure('Correo o contraseña incorrectos.');
+      return AuthResult.failure(AuthError.invalidCredentials);
     }
     await _store.write(_sessionKey, cleanEmail);
     return AuthResult.success(

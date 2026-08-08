@@ -7,6 +7,16 @@ import 'package:pitu_app/features/clinical/data/clinical_repository_impl.dart';
 import 'package:pitu_app/features/clinical/domain/entities/diagnosis.dart';
 import 'package:pitu_app/features/clinical/domain/entities/timeline_entry.dart';
 
+/// Etiquetas de prueba para la línea de tiempo (equivalentes a las de es).
+TimelineLabels _labels() => TimelineLabels(
+      visit: 'Visita médica',
+      visitWithReason: (r) => 'Visita médica — $r',
+      weightLogged: (v, u) => 'Peso registrado: $v $u',
+      statusChange: (c) => 'Cambio de estado: $c',
+      statusTransition: (f, t) => '$f → $t',
+      diagnosisStatusLabel: (s) => s.name,
+    );
+
 void main() {
   late InMemoryDatabase db;
   late InMemoryClinicalRepository repo;
@@ -51,7 +61,7 @@ void main() {
     final dx = addDiagnosis();
     repo.updateDiagnosis(dx.copyWith(status: DiagnosisStatus.chronic));
 
-    final timeline = repo.timelineForPet('p1');
+    final timeline = repo.timelineForPet('p1', _labels());
     final changeEntry = timeline.where(
         (e) => e.kind == TimelineKind.diagnosis && e.title.startsWith('Cambio de estado'));
     expect(changeEntry, hasLength(1));

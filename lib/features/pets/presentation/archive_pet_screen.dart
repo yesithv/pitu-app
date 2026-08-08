@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -35,12 +37,14 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
     Navigator.of(context).popUntil((r) => r.isFirst);
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Mascota archivada')));
+      ..showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.archiveDone)));
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final pet = ref.watch(petByIdProvider(widget.petId));
     if (pet == null) {
       return Scaffold(appBar: AppBar(), body: const SizedBox.shrink());
@@ -48,7 +52,7 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
     final isDeceased = _reason == ArchiveReason.deceased;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Archivar a ${pet.name}')),
+      appBar: AppBar(title: Text(l10n.archiveTitle(pet.name))),
       body: SafeArea(
         child: Column(
           children: [
@@ -70,13 +74,13 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Al archivar, se detienen los recordatorios y ${pet.name} sale del panel y del conteo de tu plan.',
+                          l10n.archiveIntro(pet.name),
                           textAlign: TextAlign.center,
                           style: AppText.body(c.text2),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Su historial y documentos se conservan íntegros.',
+                          l10n.archiveHistoryKept,
                           textAlign: TextAlign.center,
                           style: AppText.bodyStrong(c.text),
                         ),
@@ -84,7 +88,7 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text('Motivo (opcional)', style: AppText.metaStrong(c.text2)),
+                  Text(l10n.archiveReasonLabel, style: AppText.metaStrong(c.text2)),
                   const SizedBox(height: 8),
                   for (final r in ArchiveReason.values) ...[
                     _ReasonOption(
@@ -103,7 +107,7 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
                         borderRadius: Radii.cardAll,
                       ),
                       child: Text(
-                        'Lamentamos tu pérdida. Guardaremos con cuidado los recuerdos de ${pet.name} por si algún día quieres volver a verlos. 🐾',
+                        l10n.archiveDeceasedNote(pet.name),
                         textAlign: TextAlign.center,
                         style: AppText.body(c.brand),
                       ),
@@ -121,17 +125,17 @@ class _ArchivePetScreenState extends ConsumerState<ArchivePetScreen> {
               child: Column(
                 children: [
                   PrimaryButton(
-                      label: 'Archivar a ${pet.name}', onPressed: _archive),
+                      label: l10n.archiveButton(pet.name), onPressed: _archive),
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () => Navigator.of(context).maybePop(),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text('Cancelar',
+                      child: Text(l10n.commonCancel,
                           style: AppText.button(c.text2).copyWith(fontSize: 15)),
                     ),
                   ),
-                  Text('Podrás desarchivarlo cuando quieras.',
+                  Text(l10n.archiveUndoHint,
                       style: AppText.meta(c.text3)),
                 ],
               ),
@@ -173,7 +177,7 @@ class _ReasonOption extends StatelessWidget {
           children: [
             _Radio(selected: selected),
             const SizedBox(width: 12),
-            Text(reason.label,
+            Text(reason.localized(AppLocalizations.of(context)!),
                 style: AppText.button(selected ? c.brand : c.text)
                     .copyWith(fontSize: 15)),
           ],

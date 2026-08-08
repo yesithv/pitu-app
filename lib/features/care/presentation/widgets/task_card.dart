@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 
+import '../../../../core/i18n/l10n_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_text.dart';
@@ -27,6 +29,7 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final style = complianceStyle(context, view.status);
 
     return Container(
@@ -64,7 +67,10 @@ class TaskCard extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(view.name, style: AppText.cardTitle(c.text)),
+                                    Text(
+                                        careDisplayName(
+                                            l10n, view.schedule.kind, view.name),
+                                        style: AppText.cardTitle(c.text)),
                                     if (showPet) ...[
                                       const SizedBox(height: 2),
                                       Text(view.pet.name, style: AppText.meta(c.text3)),
@@ -75,7 +81,9 @@ class TaskCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          StatusPill(status: view.status, label: view.relativeLabel),
+                          StatusPill(
+                              status: view.status,
+                              label: relativeLabelFor(l10n, view.daysUntil)),
                           const SizedBox(height: 14),
                           _MarkDoneButton(onPressed: onMarkDone),
                         ],
@@ -133,7 +141,7 @@ class _MarkDoneButton extends StatelessWidget {
               borderRadius: Radii.fieldAll,
               border: Border.all(color: c.borderStrong),
             ),
-            child: Text('Marcar como hecha',
+            child: Text(AppLocalizations.of(context)!.careMarkDone,
                 style: AppText.button(c.text).copyWith(fontSize: 15)),
           ),
         ),

@@ -12,7 +12,8 @@ abstract interface class ClinicalRepository {
   List<Vaccine> vaccinesForPet(String petId);
 
   /// Línea de tiempo unificada y ordenada (más reciente primero) (RF-24).
-  List<TimelineEntry> timelineForPet(String petId);
+  /// [labels] aporta los textos ya localizados para los títulos generados.
+  List<TimelineEntry> timelineForPet(String petId, TimelineLabels labels);
 
   void addWeight(WeightRecord record);
   void addVisit(MedicalVisit visit);

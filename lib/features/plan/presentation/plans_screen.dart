@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
@@ -50,6 +51,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final plan = ref.watch(entitlementProvider).plan;
 
     return Scaffold(
@@ -59,14 +61,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           children: [
-            Text('Desbloquea todo el cuidado de tus mascotas',
+            Text(l10n.plansHeadline,
                 style: AppText.title1(c.text)),
             const SizedBox(height: 4),
-            Text('Un solo pago. Para siempre. Sin suscripción.',
+            Text(l10n.plansSubhead,
                 style: AppText.body(c.text2)),
             const SizedBox(height: 18),
             if (widget.blockedFeature != null) ...[
-              InfoNote('Disponible en Pro: ${widget.blockedFeature}',
+              InfoNote(l10n.plansAvailableInPro(widget.blockedFeature!),
                   icon: Icons.lock_outline),
               const SizedBox(height: 14),
             ],
@@ -83,7 +85,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
               child: TextButton(
                 onPressed: _busy ? null : _restore,
                 child:
-                    Text('Restaurar compra', style: AppText.metaStrong(c.text3)),
+                    Text(l10n.plansRestore, style: AppText.metaStrong(c.text3)),
               ),
             ),
           ],
@@ -103,7 +105,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
         entitlement.unlockPro();
         _finishSuccess();
       } else {
-        _snack('La compra está disponible en la app móvil.');
+        _snack(AppLocalizations.of(context)!.purchaseMobileOnly);
       }
       return;
     }
@@ -119,11 +121,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
     } else if (result.status == PurchaseStatus.cancelled) {
       // El usuario canceló: sin ruido.
     } else if (result.status == PurchaseStatus.pending) {
-      _snack('Tu compra quedó pendiente de confirmación.');
+      _snack(AppLocalizations.of(context)!.purchasePending);
     } else {
-      _snack(result.message.isEmpty
-          ? 'No se pudo completar la compra.'
-          : result.message);
+      _snack(AppLocalizations.of(context)!.purchaseFailed);
     }
   }
 
@@ -132,7 +132,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
     final entitlement = ref.read(entitlementProvider.notifier);
 
     if (!purchases.isSupported) {
-      _snack('Restaurar compras está disponible en la app móvil.');
+      _snack(AppLocalizations.of(context)!.restoreMobileOnly);
       return;
     }
 
@@ -145,15 +145,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
       entitlement.unlockPro();
       _finishSuccess(restored: true);
     } else {
-      _snack('No encontramos compras para restaurar.');
+      _snack(AppLocalizations.of(context)!.restoreNoneFound);
     }
   }
 
   void _finishSuccess({bool restored = false}) {
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
-    _snack(restored
-        ? 'Compra restaurada. ¡Bienvenido a Pro! 🐾'
-        : '¡Pro desbloqueado! Gracias 🐾');
+    _snack(restored ? l10n.purchaseRestored : l10n.purchaseUnlocked);
   }
 
   void _snack(String message) {
@@ -170,6 +169,7 @@ class _FreeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,16 +179,16 @@ class _FreeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('Free', style: AppText.title2(c.text)),
+              Text(l10n.planNameFree, style: AppText.title2(c.text)),
               Text('\$0', style: AppText.title1(c.text)),
             ],
           ),
           const SizedBox(height: 12),
-          const _Feature(text: '1 mascota', yes: true),
-          const _Feature(text: 'Recordatorios y catálogo', yes: true),
-          const _Feature(text: 'Historial básico · respaldo', yes: true),
-          const _Feature(text: 'Mascotas ilimitadas', yes: false),
-          const _Feature(text: 'Panel de cumplimiento', yes: false),
+          _Feature(text: l10n.planFreeFeature1, yes: true),
+          _Feature(text: l10n.planFreeFeature2, yes: true),
+          _Feature(text: l10n.planFreeFeature3, yes: true),
+          _Feature(text: l10n.planFreeFeature4, yes: false),
+          _Feature(text: l10n.planFreeFeature5, yes: false),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
@@ -199,7 +199,7 @@ class _FreeCard extends StatelessWidget {
               borderRadius: Radii.pillAll,
               border: Border.all(color: c.border),
             ),
-            child: Text(current ? 'Plan actual' : 'Plan gratuito',
+            child: Text(current ? l10n.planCurrent : l10n.planFreeButton,
                 style: AppText.button(c.text2).copyWith(fontSize: 15)),
           ),
         ],
@@ -223,6 +223,7 @@ class _ProCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
@@ -236,23 +237,23 @@ class _ProCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ProBadge(label: 'Pago único · Para siempre'),
+          ProBadge(label: l10n.planProBadge),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('Pro', style: AppText.title2(c.text)),
+              Text(l10n.planNamePro, style: AppText.title2(c.text)),
               Text(priceLabel, style: AppText.display(c.text)),
             ],
           ),
           const SizedBox(height: 12),
-          const _Feature(text: 'Mascotas ilimitadas', yes: true),
-          const _Feature(text: 'Adjuntos y tareas ilimitadas', yes: true),
-          const _Feature(text: 'Panel recomendado vs. realizado', yes: true),
-          const _Feature(text: 'Reporte PDF para el veterinario', yes: true),
-          const _Feature(text: 'Recordatorios avanzados', yes: true),
+          _Feature(text: l10n.planProFeature1, yes: true),
+          _Feature(text: l10n.planProFeature2, yes: true),
+          _Feature(text: l10n.planProFeature3, yes: true),
+          _Feature(text: l10n.planProFeature4, yes: true),
+          _Feature(text: l10n.planProFeature5, yes: true),
           const SizedBox(height: 14),
           if (isCurrent)
             Container(
@@ -263,11 +264,11 @@ class _ProCard extends StatelessWidget {
                 color: c.brandSoft,
                 borderRadius: Radii.pillAll,
               ),
-              child: Text('Pro · Comprado', style: AppText.button(c.brand).copyWith(fontSize: 15)),
+              child: Text(l10n.planProPurchasedButton, style: AppText.button(c.brand).copyWith(fontSize: 15)),
             )
           else
             PrimaryButton(
-              label: busy ? 'Procesando…' : 'Desbloquear Pro',
+              label: busy ? l10n.planProcessing : l10n.planUnlockPro,
               onPressed: busy ? null : onUnlock,
             ),
         ],

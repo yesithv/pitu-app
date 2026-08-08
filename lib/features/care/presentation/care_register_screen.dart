@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -66,13 +67,14 @@ class _CareRegisterScreenState extends ConsumerState<CareRegisterScreen> {
       date: _date,
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
     );
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
-        content: Text('${widget.careName} registrado'),
+        content: Text(l10n.careRegisteredSnack(widget.careName)),
         action: SnackBarAction(
-          label: 'Deshacer',
+          label: l10n.careUndo,
           onPressed: () => repo.undo(execution.id),
         ),
       ));
@@ -80,29 +82,29 @@ class _CareRegisterScreenState extends ConsumerState<CareRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: 'Registrar cuidado',
-      saveLabel: 'Guardar',
+      title: l10n.careRegisterTitle,
+      saveLabel: l10n.commonSave,
       onSave: _save,
       header: PetFormHeader(
         emoji: widget.petEmoji,
-        name: '${widget.careName} · ${widget.petName}',
+        name: l10n.careRegisterHeader(widget.careName, widget.petName),
       ),
       children: [
-        const FieldLabel('Fecha'),
+        FieldLabel(l10n.careRegisterDate),
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
-        const FieldLabel('Notas (opcional)'),
-        AppMultilineField(controller: _notes, hint: 'Añade una nota…'),
+        FieldLabel(l10n.careRegisterNotes),
+        AppMultilineField(controller: _notes, hint: l10n.commonAddNotePlaceholder),
         const SizedBox(height: 16),
-        const FieldLabel('Documentos (opcional)'),
+        FieldLabel(l10n.careRegisterDocs),
         AttachmentAddButton(
           petId: widget.petId,
-          source: 'Cuidado: ${widget.careName}',
+          source: l10n.attachmentSourceCare(widget.careName),
         ),
         const SizedBox(height: 18),
-        const InfoNote(
-            'Al guardar, calcularemos la próxima fecha automáticamente.'),
+        InfoNote(l10n.careRegisterNote),
       ],
     );
   }

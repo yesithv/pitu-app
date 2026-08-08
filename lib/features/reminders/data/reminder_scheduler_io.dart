@@ -101,7 +101,11 @@ class LocalReminderScheduler implements ReminderScheduler {
   }
 
   @override
-  Future<void> rescheduleAll(List<ReminderRequest> requests) async {
+  Future<void> rescheduleAll(
+    List<ReminderRequest> requests, {
+    String? channelName,
+    String? channelDescription,
+  }) async {
     await init();
     await _plugin.cancelAll();
     // Con permiso de alarmas exactas (RF-35), agenda exacto; si no, inexacto
@@ -118,15 +122,16 @@ class LocalReminderScheduler implements ReminderScheduler {
         r.title,
         r.body,
         when,
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'pitu_reminders',
-            'Recordatorios de cuidados',
-            channelDescription: 'Avisos de los cuidados de tus mascotas',
+            channelName ?? 'Care reminders',
+            channelDescription:
+                channelDescription ?? 'Alerts for your pets\' cares',
             importance: Importance.high,
             priority: Priority.high,
           ),
-          iOS: DarwinNotificationDetails(),
+          iOS: const DarwinNotificationDetails(),
         ),
         androidScheduleMode: scheduleMode,
         uiLocalNotificationDateInterpretation:

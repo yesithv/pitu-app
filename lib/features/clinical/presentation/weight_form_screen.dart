@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -97,9 +98,9 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
     final delta = (newKg - prevKg) / prevKg;
     if (delta.abs() < 0.10) return null;
     final pct = (delta.abs() * 100).round();
-    final dir = delta > 0 ? 'subió' : 'bajó';
-    return 'El peso $dir ~$pct% respecto al registro anterior. '
-        'Es un aviso informativo, no un diagnóstico.';
+    final l10n = AppLocalizations.of(context)!;
+    final dir = delta > 0 ? l10n.weightDirectionUp : l10n.weightDirectionDown;
+    return l10n.weightVariationNotice(dir, pct);
   }
 
   void _save() {
@@ -127,19 +128,21 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
         note: note,
       ));
     }
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(
-          content: Text(notice ?? (_isEdit ? 'Peso actualizado' : 'Peso registrado'))));
+          content: Text(notice ?? (_isEdit ? l10n.weightUpdated : l10n.weightSaved))));
   }
 
   void _delete() {
+    final l10n = AppLocalizations.of(context)!;
     ref.read(clinicalRepositoryProvider).deleteWeight(widget.recordId!);
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Registro de peso eliminado')));
+      ..showSnackBar(SnackBar(content: Text(l10n.weightDeleted)));
   }
 
   @override
@@ -150,21 +153,22 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
       _initialized = true;
     }
 
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: _isEdit ? 'Editar peso' : 'Registrar peso',
-      saveLabel: _isEdit ? 'Guardar cambios' : 'Guardar',
+      title: _isEdit ? l10n.weightFormEditTitle : l10n.weightFormNewTitle,
+      saveLabel: _isEdit ? l10n.commonSaveChanges : l10n.commonSave,
       onSave: _valid ? _save : null,
       header: pet == null
           ? null
           : PetFormHeader(emoji: pet.species.emoji, name: pet.name),
       children: [
-        const FieldLabel('Peso'),
+        FieldLabel(l10n.weightFormLabel),
         Row(
           children: [
             Expanded(
               child: AppTextField(
                 controller: _value,
-                hint: 'valor',
+                hint: l10n.weightFormValueHint,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 textCapitalization: TextCapitalization.none,
                 inputFormatters: FormLimits.weight,
@@ -179,16 +183,14 @@ class _WeightFormScreenState extends ConsumerState<WeightFormScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        const FieldLabel('Fecha'),
+        FieldLabel(l10n.weightFormDate),
         AppDateField(value: _date, onChanged: (d) => setState(() => _date = d)),
         const SizedBox(height: 16),
-        const FieldLabel('Nota (opcional)'),
-        AppMultilineField(controller: _note, hint: 'Añade una nota…', minLines: 2),
+        FieldLabel(l10n.weightFormNote),
+        AppMultilineField(controller: _note, hint: l10n.commonAddNotePlaceholder, minLines: 2),
         const SizedBox(height: 18),
-        const InfoNote(
-          'Ante un cambio de peso notable, te lo señalamos como aviso informativo, no diagnóstico.',
-        ),
-        if (_isEdit) RecordDeleteButton(label: 'Eliminar registro', onDelete: _delete),
+        InfoNote(l10n.weightFormInfo),
+        if (_isEdit) RecordDeleteButton(label: l10n.weightFormDelete, onDelete: _delete),
       ],
     );
   }

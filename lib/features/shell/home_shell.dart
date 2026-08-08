@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -75,9 +76,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             case 'care':
               ScaffoldMessenger.of(context)
                 ..clearSnackBars()
-                ..showSnackBar(const SnackBar(
+                ..showSnackBar(SnackBar(
                     content: Text(
-                        'Marca un cuidado como hecho desde su tarjeta en Inicio')));
+                        AppLocalizations.of(context)!.careRegisterFromCard)));
           }
         },
       ),
@@ -89,7 +90,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final limits = ref.read(entitlementProvider).limits;
     final max = limits.maxActivePets;
     if (max != null && pets.length >= max) {
-      PlansScreen.open(context, blockedFeature: 'Mascotas ilimitadas');
+      PlansScreen.open(context,
+          blockedFeature: AppLocalizations.of(context)!.blockedUnlimitedPets);
     } else {
       PetFormScreen.open(context);
     }
@@ -119,16 +121,18 @@ class _BottomNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onSelect;
 
-  static const _items = [
-    (Icons.home_outlined, Icons.home_rounded, 'Inicio'),
-    (Icons.pets_outlined, Icons.pets, 'Mascotas'),
-    (Icons.calendar_today_outlined, Icons.calendar_today, 'Calendario'),
-    (Icons.settings_outlined, Icons.settings, 'Ajustes'),
+  static const _icons = [
+    (Icons.home_outlined, Icons.home_rounded),
+    (Icons.pets_outlined, Icons.pets),
+    (Icons.calendar_today_outlined, Icons.calendar_today),
+    (Icons.settings_outlined, Icons.settings),
   ];
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
+    final labels = [l10n.navHome, l10n.navPets, l10n.navCalendar, l10n.navSettings];
     return Container(
       decoration: BoxDecoration(
         color: c.card,
@@ -140,12 +144,12 @@ class _BottomNav extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
           child: Row(
             children: [
-              for (var i = 0; i < _items.length; i++)
+              for (var i = 0; i < _icons.length; i++)
                 Expanded(
                   child: _NavItem(
-                    icon: _items[i].$1,
-                    activeIcon: _items[i].$2,
-                    label: _items[i].$3,
+                    icon: _icons[i].$1,
+                    activeIcon: _icons[i].$2,
+                    label: labels[i],
                     active: index == i,
                     onTap: () => onSelect(i),
                   ),
@@ -207,6 +211,7 @@ class _ActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Padding(
@@ -217,30 +222,30 @@ class _ActionSheet extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 6),
-              child: Text('¿Qué quieres registrar?', style: AppText.title2(c.text)),
+              child: Text(l10n.actionSheetTitle, style: AppText.title2(c.text)),
             ),
             _SheetRow(
               icon: Icons.check_circle_outline,
-              title: 'Registrar cuidado',
-              subtitle: 'Marcar una tarea como hecha',
+              title: l10n.actionRegisterCareTitle,
+              subtitle: l10n.actionRegisterCareSubtitle,
               onTap: () => onAction('care'),
             ),
             _SheetRow(
               icon: Icons.medical_services_outlined,
-              title: 'Agregar visita médica',
-              subtitle: 'Consulta, diagnóstico o tratamiento',
+              title: l10n.actionAddVisitTitle,
+              subtitle: l10n.actionAddVisitSubtitle,
               onTap: () => onAction('visit'),
             ),
             _SheetRow(
               icon: Icons.monitor_weight_outlined,
-              title: 'Registrar peso',
-              subtitle: 'Actualiza la curva de peso',
+              title: l10n.actionLogWeightTitle,
+              subtitle: l10n.actionLogWeightSubtitle,
               onTap: () => onAction('weight'),
             ),
             _SheetRow(
               icon: Icons.add,
-              title: 'Nueva mascota',
-              subtitle: 'Agregar otra al hogar',
+              title: l10n.actionNewPetTitle,
+              subtitle: l10n.actionNewPetSubtitle,
               onTap: () => onAction('newpet'),
             ),
           ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -25,17 +27,18 @@ class ArchivedPetsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     final archived = ref.watch(archivedPetsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mascotas archivadas')),
+      appBar: AppBar(title: Text(l10n.archivedTitle)),
       body: SafeArea(
         top: false,
         child: archived.isEmpty
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
-                  child: Text('No hay mascotas archivadas.',
+                  child: Text(l10n.archivedEmpty,
                       style: AppText.body(c.text3)),
                 ),
               )
@@ -60,6 +63,7 @@ class _ArchivedRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       onTap: () => PetDetailScreen.open(context, pet.id),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -75,8 +79,9 @@ class _ArchivedRow extends ConsumerWidget {
                 Text(pet.name, style: AppText.title2(c.text)),
                 Text(
                   [
-                    pet.shortSubtitle,
-                    if (pet.archiveReason != null) pet.archiveReason!.label,
+                    petShortSubtitle(l10n, pet),
+                    if (pet.archiveReason != null)
+                      pet.archiveReason!.localized(l10n),
                   ].join(' · '),
                   style: AppText.meta(c.text3),
                 ),
@@ -89,9 +94,9 @@ class _ArchivedRow extends ConsumerWidget {
               if (v == 'unarchive') _unarchive(context, ref);
               if (v == 'delete') _confirmDelete(context, ref);
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'unarchive', child: Text('Desarchivar')),
-              PopupMenuItem(value: 'delete', child: Text('Eliminar definitivamente')),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'unarchive', child: Text(l10n.petMenuUnarchive)),
+              PopupMenuItem(value: 'delete', child: Text(l10n.petMenuDeleteForever)),
             ],
           ),
         ],
@@ -103,25 +108,26 @@ class _ArchivedRow extends ConsumerWidget {
     ref.read(petRepositoryProvider).unarchive(pet.id);
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text('${pet.name} está activa de nuevo')));
+      ..showSnackBar(SnackBar(
+          content: Text(
+              AppLocalizations.of(context)!.archivedReactivated(pet.name))));
   }
 
   /// Doble confirmación (RF-06): acción destructiva, sin oferta comercial (RN-11).
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final first = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Eliminar definitivamente'),
-        content: Text(
-            'Se eliminarán ${pet.name} y todo su historial y documentos de este '
-            'dispositivo. Esta acción no se puede deshacer.'),
+        title: Text(l10n.archivedDeleteTitle),
+        content: Text(l10n.archivedDeleteMessage(pet.name)),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(d).pop(false),
-              child: const Text('Cancelar')),
+              child: Text(l10n.commonCancel)),
           TextButton(
               onPressed: () => Navigator.of(d).pop(true),
-              child: const Text('Continuar')),
+              child: Text(l10n.commonContinue)),
         ],
       ),
     );
@@ -130,15 +136,15 @@ class _ArchivedRow extends ConsumerWidget {
     final second = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: Text('¿Eliminar a ${pet.name}?'),
-        content: const Text('Confirma que quieres borrar todos sus datos.'),
+        title: Text(l10n.archivedDeleteConfirmTitle(pet.name)),
+        content: Text(l10n.archivedDeleteConfirmMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(d).pop(false),
-              child: const Text('Cancelar')),
+              child: Text(l10n.commonCancel)),
           TextButton(
               onPressed: () => Navigator.of(d).pop(true),
-              child: const Text('Eliminar')),
+              child: Text(l10n.commonDelete)),
         ],
       ),
     );
@@ -148,7 +154,7 @@ class _ArchivedRow extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
-        ..showSnackBar(const SnackBar(content: Text('Mascota eliminada')));
+        ..showSnackBar(SnackBar(content: Text(l10n.archivedDeleted)));
     }
   }
 }

@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/l10n_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/theme/app_text.dart';
@@ -116,20 +118,21 @@ class _CareScheduleFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ModalFormScaffold(
-      title: _isEdit ? 'Editar cuidado' : 'Nuevo cuidado',
-      saveLabel: _isEdit ? 'Guardar cambios' : 'Crear cuidado',
+      title: _isEdit ? l10n.careScheduleEditTitle : l10n.careScheduleNewTitle,
+      saveLabel: _isEdit ? l10n.commonSaveChanges : l10n.careScheduleCreate,
       onSave: _valid ? _save : null,
       children: [
-        const FieldLabel('Nombre del cuidado'),
+        FieldLabel(l10n.careScheduleName),
         AppTextField(
           controller: _name,
-          hint: 'Ej. Corte de uñas',
+          hint: l10n.careScheduleNameHint,
           maxLength: FormLimits.name,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 18),
-        const FieldLabel('Repetir cada'),
+        FieldLabel(l10n.careScheduleRepeatEvery),
         _FrequencyEditor(
           every: _every,
           unit: _unit,
@@ -142,7 +145,8 @@ class _CareScheduleFormScreenState
           onChanged: (v) => setState(() => _reminder = v),
         ),
         const SizedBox(height: 18),
-        InfoNote('Frecuencia elegida: ${_frequency.label.toLowerCase()}.'),
+        InfoNote(l10n.careScheduleFrequencyNote(
+            careFrequencyLabel(l10n, _frequency).toLowerCase())),
         if (_isEdit) ...[
           const SizedBox(height: 24),
           _DeactivateButton(onTap: _deactivate),
@@ -220,7 +224,7 @@ class _FrequencyEditor extends StatelessWidget {
                                 color: u == unit ? c.brand : c.border),
                           ),
                           child: Text(
-                            _label(u),
+                            u.pickerLabel(AppLocalizations.of(context)!),
                             style: AppText.button(
                                     u == unit ? c.onBrand : c.text2)
                                 .copyWith(fontSize: 13),
@@ -238,13 +242,6 @@ class _FrequencyEditor extends StatelessWidget {
       ],
     );
   }
-
-  String _label(FrequencyUnit u) => switch (u) {
-        FrequencyUnit.days => 'Días',
-        FrequencyUnit.weeks => 'Semanas',
-        FrequencyUnit.months => 'Meses',
-        FrequencyUnit.years => 'Años',
-      };
 }
 
 class _StepBtn extends StatelessWidget {
@@ -283,7 +280,7 @@ class _ReminderRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: Text('Recordatorio activado', style: AppText.body(c.text))),
+          Expanded(child: Text(AppLocalizations.of(context)!.careScheduleReminderOn, style: AppText.body(c.text))),
           Switch(
             value: value,
             onChanged: onChanged,
@@ -307,7 +304,7 @@ class _DeactivateButton extends StatelessWidget {
       child: TextButton.icon(
         onPressed: onTap,
         icon: Icon(Icons.visibility_off_outlined, size: 18, color: c.over),
-        label: Text('Desactivar este cuidado',
+        label: Text(AppLocalizations.of(context)!.careScheduleDeactivate,
             style: AppText.button(c.over).copyWith(fontSize: 15)),
       ),
     );

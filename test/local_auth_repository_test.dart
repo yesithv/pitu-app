@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pitu_app/features/auth/data/auth_store.dart';
 import 'package:pitu_app/features/auth/data/local_auth_repository.dart';
+import 'package:pitu_app/features/auth/domain/auth_repository.dart';
 
 /// [AuthStore] en memoria para las pruebas (sin plugins de plataforma).
 class _MemoryAuthStore implements AuthStore {
@@ -59,7 +60,7 @@ void main() {
 
       final result = await repo.login(email: 'ana@ejemplo.com', password: 'incorrecta');
       expect(result.ok, isFalse);
-      expect(result.error, 'Correo o contraseña incorrectos.');
+      expect(result.errorCode, AuthError.invalidCredentials);
       expect(await repo.currentSession(), isNull);
     });
 
@@ -72,7 +73,7 @@ void main() {
         password: 'otra1234',
       );
       expect(result.ok, isFalse);
-      expect(result.error, contains('Ya hay una cuenta'));
+      expect(result.errorCode, AuthError.accountExists);
     });
 
     test('contraseña demasiado corta se rechaza', () async {

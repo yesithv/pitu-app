@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/di/providers.dart';
@@ -41,31 +42,33 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(const SnackBar(content: Text('Perfil actualizado')));
+      ..showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.profileUpdated)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!_initialized) {
       _name.text = ref.read(databaseProvider).ownerName;
       _initialized = true;
     }
 
     return ModalFormScaffold(
-      title: 'Editar perfil',
-      saveLabel: 'Guardar',
+      title: l10n.profileEditTitle,
+      saveLabel: l10n.commonSave,
       onSave: _valid ? _save : null,
       children: [
-        const FieldLabel('Tu nombre'),
+        FieldLabel(l10n.profileYourName),
         AppTextField(
           controller: _name,
-          hint: 'Cómo te llamas',
+          hint: l10n.profileYourNameHint,
           maxLength: FormLimits.name,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 12),
-        const InfoNote(
-          'Es solo local y aparece en tu saludo. Se guarda en este dispositivo.',
+        InfoNote(
+          l10n.profileNote,
           icon: Icons.person_outline,
         ),
       ],

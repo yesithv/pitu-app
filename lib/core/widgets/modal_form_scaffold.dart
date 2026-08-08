@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -39,7 +40,7 @@ class ModalFormScaffold extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.of(context).maybePop(),
-                    child: Text('Cancelar', style: AppText.button(c.brand).copyWith(fontSize: 15)),
+                    child: Text(AppLocalizations.of(context)!.commonCancel, style: AppText.button(c.brand).copyWith(fontSize: 15)),
                   ),
                   Expanded(
                     child: Text(title,

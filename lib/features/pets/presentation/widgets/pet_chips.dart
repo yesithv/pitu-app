@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pitu_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -22,7 +23,7 @@ class PetChips extends ConsumerWidget {
         children: [
           _Chip(
             emoji: '🐾',
-            label: 'Todas',
+            label: AppLocalizations.of(context)!.chipsAll,
             selected: selected == null,
             onTap: () => ref.read(petFilterProvider.notifier).state = null,
           ),
