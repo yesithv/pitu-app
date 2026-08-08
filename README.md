@@ -37,9 +37,15 @@ Se recomienda recargar con **Ctrl/Cmd + F5** tras cada despliegue.
 
 En https://yesithv.github.io/pitu-app/ :
 
-- La demo arranca con datos de ejemplo (Firulais y Luna) y con **plan Pro** para
-  exhibir todas las funciones. En Ajustes hay un interruptor *"Demo: ver como
-  plan Free"* para explorar los límites y el paywall.
+- Al abrir se muestra la **pantalla de acceso**. Puedes **crear una cuenta local**
+  (correo + contraseña, guardados solo en el dispositivo — sin backend) e ingresar,
+  o pulsar **"Ver demo"** para entrar sin cuenta a una sesión de exhibición. La
+  demo carga datos de ejemplo en **Pro** y es **efímera**: puedes explorar y editar,
+  pero los cambios **no se guardan** ni tocan la base local. En Ajustes hay un
+  interruptor *"Demo: ver como plan Free"* para explorar los límites y el paywall.
+- La **cuenta local** es la base de la Fase 1: usa un `AuthRepository` (patrón
+  repositorio) preparado para sustituirse por el backend en la Fase 2 (RF-53) sin
+  tocar la interfaz. No hay servidor ni nube todavía.
 - **La persistencia funciona en web:** crea o edita algo y **recarga la página**;
   tus datos siguen ahí (se guardan en el `localStorage` del navegador).
 - Prueba el respaldo (Ajustes → Datos → Crear/Restaurar), los formularios con sus

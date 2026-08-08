@@ -6,10 +6,19 @@
 >
 > El estado del MVP vive en `docs/ESTADO_MVP.md`. Última actualización: 2026-08-05.
 
-La Fase 1 es **local-first, sin backend**: los datos viven en el dispositivo, sin
-cuenta ni login, con planes **Free** y **Pro** (pago único). La Fase 2 añade
-**backend, cuenta de usuario, sincronización en la nube, hogar compartido y plan
-Premium** (suscripción). La app conserva su funcionamiento offline (local-first).
+La Fase 1 es **local-first, sin backend**: los datos viven en el dispositivo, con
+planes **Free** y **Pro** (pago único). Incluye un **gate de cuenta local**
+(login/registro con credenciales guardadas solo en el dispositivo — no hay nube) y
+un **acceso a demo efímero** para exhibición. Esa cuenta local usa un
+`AuthRepository` (patrón repositorio); la Fase 2 sustituye su implementación por
+una contra el backend, sin tocar la interfaz. La Fase 2 añade **backend, cuenta de
+usuario en la nube, sincronización, hogar compartido y plan Premium** (suscripción),
+conservando el funcionamiento offline (local-first).
+
+> Nota Fase 1 → Fase 2: **RF-53** (crear cuenta, iniciar sesión) queda parcialmente
+> cubierto en local por la cuenta del dispositivo; falta la parte remota (correo /
+> Google / Apple, recuperar contraseña) y **RF-54** (migrar los datos locales a la
+> cuenta al conectarse al backend).
 
 ---
 

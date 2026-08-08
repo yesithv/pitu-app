@@ -52,6 +52,58 @@ Widget? _noCounter(BuildContext context,
         {required int currentLength, required bool isFocused, int? maxLength}) =>
     null;
 
+/// Campo de contraseña: oculta el texto y ofrece un botón de ojo para
+/// mostrar/ocultar. Reutiliza la misma decoración del sistema que [AppTextField].
+class AppPasswordField extends StatefulWidget {
+  const AppPasswordField({
+    super.key,
+    required this.controller,
+    this.hint,
+    this.onChanged,
+    this.textInputAction,
+    this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String? hint;
+  final ValueChanged<String>? onChanged;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
+
+  @override
+  State<AppPasswordField> createState() => _AppPasswordFieldState();
+}
+
+class _AppPasswordFieldState extends State<AppPasswordField> {
+  bool _obscured = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return TextField(
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      obscureText: _obscured,
+      textInputAction: widget.textInputAction,
+      onSubmitted: widget.onSubmitted,
+      enableSuggestions: false,
+      autocorrect: false,
+      style: AppText.body(c.text),
+      decoration: _decoration(context, widget.hint).copyWith(
+        suffixIcon: IconButton(
+          onPressed: () => setState(() => _obscured = !_obscured),
+          icon: Icon(
+            _obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+            size: 20,
+            color: c.text3,
+          ),
+          tooltip: _obscured ? 'Mostrar' : 'Ocultar',
+        ),
+      ),
+    );
+  }
+}
+
 /// Campo de texto multilínea (notas, tratamiento).
 class AppMultilineField extends StatelessWidget {
   const AppMultilineField({

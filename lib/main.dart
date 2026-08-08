@@ -12,6 +12,9 @@ import 'core/observability/crash_reporter.dart';
 import 'core/observability/crash_reporter_providers.dart';
 import 'core/utils/clock.dart';
 import 'core/utils/id_generator.dart';
+import 'features/auth/application/auth_providers.dart';
+import 'features/auth/data/auth_store_factory.dart';
+import 'features/auth/data/local_auth_repository.dart';
 import 'features/care/application/catalog_updater.dart';
 import 'features/reminders/application/reminders_coordinator.dart';
 import 'features/reminders/application/reminders_providers.dart';
@@ -87,6 +90,14 @@ Future<void> main() async {
   final purchases = createPurchaseService();
   await purchases.init();
 
+  // Cuenta local (Fase 1): sin backend. Determina la sesión inicial; si hay una
+  // sesión guardada se entra directo, si no se muestra el login.
+  final authRepository = LocalAuthRepository(createAuthStore(prefs));
+  final initialUser = await authRepository.currentSession();
+  final initialSession = initialUser != null
+      ? AuthSession(SessionStatus.authenticated, user: initialUser)
+      : AuthSession.loggedOut;
+
   runApp(
     ProviderScope(
       overrides: [
@@ -96,6 +107,8 @@ Future<void> main() async {
         appLockProvider.overrideWithValue(appLock),
         purchaseServiceProvider.overrideWithValue(purchases),
         crashReporterProvider.overrideWithValue(crashReporter),
+        authRepositoryProvider.overrideWithValue(authRepository),
+        initialSessionProvider.overrideWithValue(initialSession),
       ],
       child: const PituApp(),
     ),
