@@ -35,6 +35,14 @@ migrate_working_dir/
 # analyze/test; no se versiona.
 *.g.dart
 
+# Localizaciones generadas por `flutter gen-l10n` (config en l10n.yaml). Se
+# regeneran en `flutter pub get`/CI a partir de los ARB de lib/l10n; no se versionan.
+/lib/l10n/app_localizations*.dart
+
+# Lockfile de pub y registrant de plugins: los regenera Flutter en cada máquina/CI.
+pubspec.lock
+/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+
 # Symbolication related
 app.*.symbols
 

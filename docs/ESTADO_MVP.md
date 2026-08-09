@@ -4,7 +4,8 @@
 > especificación (`PetBienestar-Especificacion-Requisitos.md`). Sustituye a la
 > matriz del `README.md` como referencia de estado.
 >
-> Última auditoría: **2026-08-05** (contraste spec ↔ código real).
+> Última auditoría: **2026-08-08** (contraste spec ↔ código real + cobertura de
+> pruebas unitarias, §6).
 > Documentos relacionados: `docs/ROADMAP_V2.md` (Fase 2),
 > `docs/WEB_IRONCODING.md` (ficha para la web/tienda),
 > `docs/PRODUCCION_PENDIENTES.md` (guía técnica de publicación).
@@ -170,7 +171,49 @@ Resumen; el detalle y el "cómo continuar" están en `docs/PRODUCCION_PENDIENTES
 
 ---
 
-## 6. Criterios de aceptación del MVP (ERS §9)
+## 6. Cobertura de pruebas unitarias
+
+La lógica de negocio de Fase 1 está cubierta por **pruebas unitarias** que se
+ejecutan en CI (`flutter test`) — hoy **132 pruebas en verde** y `flutter analyze`
+sin issues. La estrategia es probar el **dominio y la capa de aplicación** (puros,
+sin UI): repositorios sobre la base en memoria, servicios y utilidades. Los
+plugins nativos (notificaciones, biometría, compras, archivos) se validan en
+dispositivo, no por unidad.
+
+| Área / Requisito | Archivo de prueba |
+|---|---|
+| Programación y cumplimiento (RF-12, RF-36/37) | `scheduling_service_test.dart`, `widget_test.dart` |
+| Frecuencias y cálculo de fechas (RF-12) | `care_frequency_test.dart` |
+| Ciclo de vida de mascota: archivar/desarchivar/eliminar (RF-03–07) | `pet_repository_test.dart` |
+| Ejecución de cuidados: marcar hecho, deshacer, personalizados, cumpleaños (RF-11/14/16/17) | `care_repository_test.dart` |
+| Onboarding + catálogo por especie (RF-08, RF-13) | `pet_onboarding_service_test.dart` |
+| Línea de tiempo integrada + orden de pesos (RF-22, RF-24) | `clinical_timeline_test.dart` |
+| Cambio de estado de diagnóstico (RF-21) | `clinical_status_change_test.dart` |
+| Autosugerencia de próxima dosis (RF-19) | `vaccine_scheduling_test.dart` |
+| Aviso de variación de peso >10% (RF-23) | `weight_analysis_test.dart` |
+| Selección de contenido del reporte (RF-38) | `report_options_test.dart` |
+| Respaldo: exportar/importar/combinar por UUID/errores (RF-41–45) | `backup_service_test.dart` |
+| Catálogo versionado sin sobrescribir (RF-13, RN-09) | `catalog_updater_test.dart` |
+| Límites y entitlement de plan (RN-01–07) | `plan_limits_test.dart`, `entitlement_seed_test.dart` |
+| Adjuntos y espacio de documentos (RF-28/29, RNF-06) | `attachment_file_store_test.dart`, `byte_format_test.dart` |
+| Persistencia cifrada y códec (RNF-08/10) | `drift_persistence_test.dart`, `db_codec_test.dart`, `snapshot_migration_test.dart` |
+| Metadatos de sincronización: UUID, timestamps, borrado lógico (RD-18) | `sync_metadata_test.dart` |
+| Cuenta local (RF-53 base) | `local_auth_repository_test.dart` |
+| Borrar todos mis datos (RNF-13) | `wipe_service_test.dart` |
+| Observabilidad | `crash_reporter_test.dart` |
+
+**Nota de diseño:** para poder validar RF-19 y RF-23 por unidad, su lógica se
+extrajo de la UI a `clinical/domain/services/` (`vaccine_scheduling.dart` y
+`weight_analysis.dart`); las pantallas solo arman el texto localizado.
+
+**Pendiente de pruebas (no bloqueante):** las pantallas (widgets) no tienen
+*widget tests*; los filtros del historial (RF-25) y el gating visual de límites de
+plan se validan hoy de forma manual en la web. Es la siguiente ampliación natural
+de la suite.
+
+---
+
+## 7. Criterios de aceptación del MVP (ERS §9)
 
 | # | Criterio | Estado |
 |---|---|---|

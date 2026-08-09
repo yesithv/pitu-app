@@ -11,6 +11,7 @@ import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/modal_form_scaffold.dart';
 import '../../pets/presentation/pets_providers.dart';
 import '../domain/entities/vaccine.dart';
+import '../domain/services/vaccine_scheduling.dart';
 import '../../attachments/presentation/attachment_add_button.dart';
 import 'record_delete_button.dart';
 
@@ -69,8 +70,7 @@ class _VaccineFormScreenState extends ConsumerState<VaccineFormScreen> {
     _nextDose = _suggestNext(_applied);
   }
 
-  static DateTime _suggestNext(DateTime from) =>
-      DateTime(from.year + 1, from.month, from.day);
+  static DateTime _suggestNext(DateTime from) => suggestNextVaccineDose(from);
 
   @override
   void dispose() {
