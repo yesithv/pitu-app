@@ -510,5 +510,14 @@
   "reportColUpcoming": "Próximo",
   "reportPetNotFound": "No encontramos la mascota.",
   "reportDownloaded": "Reporte PDF descargado (revisa tus descargas).",
-  "reportSavedTo": "Reporte guardado en: {path}"
+  "reportSavedTo": "Reporte guardado en: {path}",
+  "reportGeneratedOnAt": "Generado el {date} a las {time}",
+  "reportBirthDate": "Fecha de nacimiento",
+  "reportSectionCareHistory": "Historial de cuidados",
+  "reportEmptyCareHistory": "Sin cuidados registrados.",
+  "reportStatWeight": "Peso",
+  "reportStatVaccines": "Vacunas",
+  "reportStatVisits": "Visitas",
+  "reportStatNextCare": "Próximo cuidado",
+  "reportFooterTagline": "Hecho con cariño para {name}"
 }

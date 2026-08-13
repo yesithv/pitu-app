@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:pitu_app/l10n/app_localizations.dart';
 
 import '../../../core/data/in_memory_database.dart';
@@ -58,7 +59,7 @@ class PetReportService {
       return PetReportResult.of(false, l10n.reportPetNotFound);
     }
     final data = _collect(pet, options, l10n, localeName);
-    final bytes = await buildPetReportPdf(data, _strings(l10n));
+    final bytes = await buildPetReportPdf(data, _strings(l10n, pet.name));
     final path =
         await _files.saveBytes(_fileName(pet), bytes, mime: 'application/pdf');
     return PetReportResult.of(
@@ -67,20 +68,29 @@ class PetReportService {
     );
   }
 
-  PetReportStrings _strings(AppLocalizations l10n) => PetReportStrings(
+  PetReportStrings _strings(AppLocalizations l10n, String petName) =>
+      PetReportStrings(
         title: l10n.reportTitle,
         guardian: l10n.reportGuardian(_db.ownerName),
         footer: (page, total) => l10n.reportFooter(page, total),
+        footerTagline: l10n.reportFooterTagline(petName),
+        birthDateLabel: l10n.reportBirthDate,
+        statWeight: l10n.reportStatWeight,
+        statVaccines: l10n.reportStatVaccines,
+        statVisits: l10n.reportStatVisits,
+        statNextCare: l10n.reportStatNextCare,
         sectionDiagnoses: l10n.reportSectionDiagnoses,
         sectionVisits: l10n.reportSectionVisits,
         sectionVaccines: l10n.reportSectionVaccines,
         sectionWeights: l10n.reportSectionWeights,
         sectionCares: l10n.reportSectionCares,
+        sectionCareHistory: l10n.reportSectionCareHistory,
         emptyDiagnoses: l10n.reportEmptyDiagnoses,
         emptyVisits: l10n.reportEmptyVisits,
         emptyVaccines: l10n.reportEmptyVaccines,
         emptyWeights: l10n.reportEmptyWeights,
         emptyCares: l10n.reportEmptyCares,
+        emptyCareHistory: l10n.reportEmptyCareHistory,
         colCondition: l10n.reportColCondition,
         colStatus: l10n.reportColStatus,
         colSince: l10n.reportColSince,
@@ -129,15 +139,31 @@ class PetReportService {
         .where((s) => s.isActive && !onlyVac)
         .toList()
       ..sort((a, b) => a.nextDate.compareTo(b.nextDate));
+    // Cuidados ya realizados (RF-17): baños, uñas, desparasitaciones, etc.
+    final careHistory = _db.executions
+        .where((e) =>
+            e.petId == pet.id &&
+            !e.meta.isDeleted &&
+            !onlyVac &&
+            options.includes(e.date))
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
 
+    final now = DateTime.now();
     return PetReportData(
       ownerName: _db.ownerName,
-      generatedAtText:
-          l10n.reportGeneratedOn(AppDates.longDate(DateTime.now(), localeName)),
+      generatedAtText: l10n.reportGeneratedOnAt(
+        AppDates.longDate(now, localeName),
+        DateFormat.Hm(localeName).format(now),
+      ),
       petName: pet.name,
       speciesLabel: pet.species.localized(l10n),
       breed: pet.breed,
       ageText: pet.ageText,
+      birthDateText: pet.birthDate == null
+          ? null
+          : AppDates.longDate(pet.birthDate!, localeName),
+      photoBase64: pet.photoBase64,
       weightText: pet.weight == null
           ? null
           : '${_trim(pet.weight!)} ${pet.weightUnit.label}',
@@ -181,6 +207,13 @@ class PetReportService {
             careDisplayName(l10n, s.kind, s.name),
             careFrequencyLabel(l10n, s.frequency),
             AppDates.shortDateYear(s.nextDate, localeName),
+          ),
+      ],
+      careHistory: [
+        for (final e in careHistory)
+          ReportCareDone(
+            e.name,
+            AppDates.shortDateYear(e.date, localeName),
           ),
       ],
     );

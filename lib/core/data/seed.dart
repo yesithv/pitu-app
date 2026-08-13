@@ -54,9 +54,9 @@ class DatabaseSeeder {
     final pitufo = _pet(
       name: 'Pitufo',
       species: Species.dog,
-      breed: 'Labrador',
+      breed: 'Criollo',
       ageText: '4 años',
-      weight: 28,
+      weight: 5,
       birthDate: DateTime(_now.year - 4, birthday.month, birthday.day),
     );
     final luna = _pet(
@@ -249,20 +249,20 @@ class DatabaseSeeder {
           notes: 'Limpieza dental profesional bajo sedación.');
     }
 
-    // Curva de peso: cachorro (6 kg) a adulto (28 kg).
+    // Curva de peso: cachorro (0.6 kg) a adulto pequeño (~5 kg).
     const weightCurve = <int, double>{
-      1400: 6.0,
-      1300: 11.0,
-      1200: 16.0,
-      1100: 21.0,
-      1000: 24.0,
-      850: 26.0,
-      700: 26.8,
-      500: 27.2,
-      300: 27.5,
-      150: 27.8,
-      60: 28.0,
-      0: 28.0,
+      1400: 0.6,
+      1300: 1.4,
+      1200: 2.3,
+      1100: 3.2,
+      1000: 4.0,
+      850: 4.5,
+      700: 4.8,
+      500: 5.0,
+      300: 5.1,
+      150: 5.0,
+      60: 5.0,
+      0: 5.0,
     };
     weightCurve.forEach((daysAgo, value) {
       _addWeight(pet, value, daysAgo: daysAgo);

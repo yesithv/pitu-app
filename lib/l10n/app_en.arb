@@ -576,5 +576,16 @@
   "reportPetNotFound": "We couldn't find the pet.",
   "reportDownloaded": "PDF report downloaded (check your downloads).",
   "reportSavedTo": "Report saved to: {path}",
-  "@reportSavedTo": { "placeholders": { "path": { "type": "String" } } }
+  "@reportSavedTo": { "placeholders": { "path": { "type": "String" } } },
+  "reportGeneratedOnAt": "Generated on {date} at {time}",
+  "@reportGeneratedOnAt": { "placeholders": { "date": { "type": "String" }, "time": { "type": "String" } } },
+  "reportBirthDate": "Date of birth",
+  "reportSectionCareHistory": "Care history",
+  "reportEmptyCareHistory": "No care records.",
+  "reportStatWeight": "Weight",
+  "reportStatVaccines": "Vaccines",
+  "reportStatVisits": "Visits",
+  "reportStatNextCare": "Next care",
+  "reportFooterTagline": "Made with love for {name}",
+  "@reportFooterTagline": { "placeholders": { "name": { "type": "String" } } }
 }
