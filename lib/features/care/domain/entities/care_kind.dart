@@ -5,6 +5,7 @@ enum CareKind {
   deworming('Desparasitación'),
   dental('Limpieza dental'),
   bath('Baño'),
+  grooming('Cepillado'),
   nails('Corte de uñas'),
   weight('Control de peso'),
   vetVisit('Consulta veterinaria'),

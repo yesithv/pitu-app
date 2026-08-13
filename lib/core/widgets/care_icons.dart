@@ -11,6 +11,7 @@ IconData iconForCareKind(CareKind kind) {
     CareKind.deworming => Icons.pest_control_outlined,
     CareKind.dental => Icons.cleaning_services_outlined,
     CareKind.bath => Icons.bathtub_outlined,
+    CareKind.grooming => Icons.brush_outlined,
     CareKind.nails => Icons.content_cut,
     CareKind.weight => Icons.monitor_weight_outlined,
     CareKind.vetVisit => Icons.medical_services_outlined,
