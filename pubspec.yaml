@@ -48,6 +48,13 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Fuentes Nunito (OFL) embebidas en el PDF del reporte veterinario para que
+  # los signos tipográficos (guion largo, etc.) se rendericen y la exportación
+  # sea coherente con la marca. Se leen como bytes con rootBundle (no se
+  # registran como `fonts:` porque solo las usa el paquete `pdf`).
+  assets:
+    - assets/fonts/Nunito-Regular.ttf
+    - assets/fonts/Nunito-Bold.ttf
   # Genera la clase de localizaciones (AppLocalizations) a partir de los ARB en
   # lib/l10n al hacer `flutter pub get` (config en l10n.yaml). Autodetección de
   # idioma con inglés por defecto (es, en, fr, pt, de).

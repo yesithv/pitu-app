@@ -510,5 +510,14 @@
   "reportColUpcoming": "Anstehend",
   "reportPetNotFound": "Wir konnten das Haustier nicht finden.",
   "reportDownloaded": "PDF-Bericht heruntergeladen (prüfe deine Downloads).",
-  "reportSavedTo": "Bericht gespeichert unter: {path}"
+  "reportSavedTo": "Bericht gespeichert unter: {path}",
+  "reportGeneratedOnAt": "Erstellt am {date} um {time}",
+  "reportBirthDate": "Geburtsdatum",
+  "reportSectionCareHistory": "Pflegeverlauf",
+  "reportEmptyCareHistory": "Keine Pflege erfasst.",
+  "reportStatWeight": "Gewicht",
+  "reportStatVaccines": "Impfungen",
+  "reportStatVisits": "Besuche",
+  "reportStatNextCare": "Nächste Pflege",
+  "reportFooterTagline": "Mit Liebe erstellt für {name}"
 }

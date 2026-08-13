@@ -510,5 +510,14 @@
   "reportColUpcoming": "À venir",
   "reportPetNotFound": "Nous n'avons pas trouvé l'animal.",
   "reportDownloaded": "Rapport PDF téléchargé (vérifiez vos téléchargements).",
-  "reportSavedTo": "Rapport enregistré dans : {path}"
+  "reportSavedTo": "Rapport enregistré dans : {path}",
+  "reportGeneratedOnAt": "Généré le {date} à {time}",
+  "reportBirthDate": "Date de naissance",
+  "reportSectionCareHistory": "Historique des soins",
+  "reportEmptyCareHistory": "Aucun soin enregistré.",
+  "reportStatWeight": "Poids",
+  "reportStatVaccines": "Vaccins",
+  "reportStatVisits": "Visites",
+  "reportStatNextCare": "Prochain soin",
+  "reportFooterTagline": "Fait avec amour pour {name}"
 }
