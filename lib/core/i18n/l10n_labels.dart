@@ -34,6 +34,7 @@ extension CareKindL10n on CareKind {
         CareKind.deworming => l10n.careDeworming,
         CareKind.dental => l10n.careDental,
         CareKind.bath => l10n.careBath,
+        CareKind.grooming => l10n.careGrooming,
         CareKind.nails => l10n.careNails,
         CareKind.weight => l10n.careWeightControl,
         CareKind.vetVisit => l10n.careVetVisit,

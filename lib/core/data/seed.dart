@@ -63,8 +63,9 @@ class DatabaseSeeder {
       name: 'Luna',
       species: Species.cat,
       breed: 'Criollo',
-      ageText: '2 años',
+      ageText: '3 años',
       weight: 4,
+      birthDate: DateTime(_now.year - 3, 11, 2),
     );
     _db.pets.addAll([pitufo, luna]);
 
@@ -98,8 +99,9 @@ class DatabaseSeeder {
     _seedSchedulesFor(luna, overrides: {
       CareKind.vaccine: _daysFromNow(3), // "En 3 días"
       CareKind.deworming: _daysFromNow(30),
+      CareKind.vetVisit: _daysFromNow(40),
       CareKind.dental: _daysFromNow(90),
-      CareKind.bath: _daysFromNow(45),
+      CareKind.grooming: _daysFromNow(5),
       CareKind.nails: _daysFromNow(15),
       CareKind.weight: _daysFromNow(10),
     });
@@ -124,6 +126,7 @@ class DatabaseSeeder {
     ));
 
     _seedPitufoHistory(pitufo);
+    _seedLunaHistory(luna);
     _seedFirulaisHistory(firulais);
   }
 
@@ -260,6 +263,87 @@ class DatabaseSeeder {
       150: 27.8,
       60: 28.0,
       0: 28.0,
+    };
+    weightCurve.forEach((daysAgo, value) {
+      _addWeight(pet, value, daysAgo: daysAgo);
+    });
+  }
+
+  /// Historial clínico y de cuidados de Luna, congruente con una gata adulta de
+  /// ~3 años (desde gatita hasta hoy): serie de vacunas felinas (FVRCP,
+  /// antirrábica, leucemia FeLV) y refuerzos anuales, controles de bienestar,
+  /// desparasitaciones, limpiezas dentales, cepillados, cortes de uñas y una
+  /// curva de peso de gatita a adulta.
+  void _seedLunaHistory(Pet pet) {
+    const clinic = 'Clínica Veterinaria del Norte';
+    const feline = 'Centro Felino Bigotes';
+
+    // Vacunas: serie de gatita (FVRCP + antirrábica + FeLV) y refuerzos anuales.
+    _addVaccine(pet, 'Triple felina (FVRCP) — 1.ª dosis', daysAgo: 1000, clinic: feline);
+    _addVaccine(pet, 'Triple felina (FVRCP) — 2.ª dosis', daysAgo: 975, clinic: feline);
+    _addVaccine(pet, 'Leucemia felina (FeLV) — 1.ª dosis', daysAgo: 970, clinic: feline);
+    _addVaccine(pet, 'Triple felina (FVRCP) — 3.ª dosis', daysAgo: 945, clinic: feline);
+    _addVaccine(pet, 'Leucemia felina (FeLV) — 2.ª dosis', daysAgo: 940, clinic: feline);
+    _addVaccine(pet, 'Vacuna antirrábica', daysAgo: 935, clinic: feline);
+    _addVaccine(pet, 'Triple felina (FVRCP) — refuerzo anual', daysAgo: 730, clinic: clinic);
+    _addVaccine(pet, 'Vacuna antirrábica', daysAgo: 725, clinic: clinic);
+    // Refuerzo más reciente: la próxima dosis cae en ~3 días (casa con el
+    // semáforo de "vacuna en 3 días").
+    _addVaccine(pet, 'Triple felina (FVRCP) — refuerzo anual',
+        daysAgo: 362, nextInDays: 3, clinic: clinic);
+
+    // Controles de bienestar y una consulta puntual resuelta.
+    _addVisit(pet,
+        daysAgo: 1005,
+        reason: 'Revisión inicial de gatita',
+        clinic: feline,
+        treatment: 'Desparasitación y plan de vacunación felino.');
+    _addVisit(pet,
+        daysAgo: 730,
+        reason: 'Control de bienestar anual',
+        clinic: clinic,
+        treatment: 'Examen general y limpieza dental.');
+    _addVisit(pet,
+        daysAgo: 500,
+        reason: 'Cistitis idiopática felina',
+        clinic: clinic,
+        diagnosis: 'Cistitis idiopática',
+        treatment: 'Dieta húmeda, aumento de ingesta de agua y manejo del estrés.');
+    _addVisit(pet,
+        daysAgo: 365,
+        reason: 'Control de bienestar anual',
+        clinic: clinic,
+        treatment: 'Examen general sin hallazgos relevantes.');
+
+    // Diagnóstico dental típico felino, ya resuelto.
+    _addDiagnosis(pet, 'Gingivitis leve',
+        daysAgo: 520, status: DiagnosisStatus.resolved);
+
+    // Ejecuciones de cuidado del último año (quedan en el historial, RF-17).
+    for (var d = 14; d <= 420; d += 21) {
+      _addExecution(pet, CareKind.grooming, daysAgo: d);
+    }
+    for (var d = 20; d <= 420; d += 35) {
+      _addExecution(pet, CareKind.nails, daysAgo: d);
+    }
+    for (var d = 150; d <= 1000; d += 190) {
+      _addExecution(pet, CareKind.deworming, daysAgo: d);
+    }
+    for (final d in const [730, 365]) {
+      _addExecution(pet, CareKind.dental, daysAgo: d,
+          notes: 'Limpieza dental profesional bajo sedación.');
+    }
+
+    // Curva de peso: gatita (1.5 kg) a adulta (~4 kg).
+    const weightCurve = <int, double>{
+      1000: 1.5,
+      900: 2.4,
+      800: 3.0,
+      600: 3.6,
+      400: 3.9,
+      200: 4.0,
+      60: 4.1,
+      0: 4.0,
     };
     weightCurve.forEach((daysAgo, value) {
       _addWeight(pet, value, daysAgo: daysAgo);
