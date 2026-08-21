@@ -62,9 +62,13 @@ jobs:
         # `versionCode` incremental via CI; `versionName` sale de pubspec.yaml.
         run: flutter build appbundle --release --build-number=${{ github.run_number }}
 
-      - name: Subir el AAB como artefacto
+      - name: Subir el AAB como artefacto (⚠ sin firmar salvo que haya keystore)
+        # Sin `android/key.properties`, este AAB está firmado en DEBUG y NO es
+        # válido para publicar en Google Play. El nombre lo deja explícito para
+        # que nadie lo suba a la tienda por error. Para un AAB publicable, provee
+        # el keystore (ver docs/RELEASE_ANDROID.md).
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
+          name: pituapp-aab-sin-firmar-no-publicable
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error

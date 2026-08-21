@@ -8,6 +8,22 @@ El proyecto nativo vive en `android/` (`applicationId = com.ironcoding.pituapp`)
 - Flutter (canal stable) y JDK 17.
 - Android SDK (platform 34).
 
+> ### ⚠ Validación pendiente del toolchain de Android
+>
+> El toolchain se subió a los mínimos que exige el Flutter stable actual: **Gradle
+> 8.14** (wrapper), **Android Gradle Plugin 8.11.1** y **Kotlin 2.2.20**. El CI solo
+> compila un **APK debug**, así que estos saltos (sobre todo Kotlin 1.9 → 2.2) **aún
+> no están validados** para un release real. Antes de confiar en ellos y de fijar
+> versiones:
+>
+> 1. `flutter build appbundle --release` compila localmente sin errores.
+> 2. Instalar en un dispositivo Android y ejercitar las funciones nativas: recordatorios
+>    y **alarmas exactas**, biometría, compras in-app y guardar/seleccionar archivos.
+> 3. Solo después: decidir **fijar la versión de Flutter** (`flutter-version`) en los
+>    workflows de `.github/workflows/` para que el CI sea reproducible y no vuelva a
+>    romperse solo al actualizarse Flutter stable — la causa raíz de que hubiera que
+>    subir el toolchain.
+
 ## 1. Restaurar los binarios que no se versionan
 
 Dos archivos binarios **no** están en el repo (no se pueden versionar como texto):

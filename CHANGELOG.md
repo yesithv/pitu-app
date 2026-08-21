@@ -58,9 +58,21 @@ corrida de CI) y publica el `.aab` como artefacto. El nombre de versión se toma
 - Documentado en código el límite de escala esperado del modelo en memoria
   (`InMemoryDatabase`).
 
+### Corregido
+- Enlaces del changelog que apuntaban a un tag `v0.1.0` inexistente; la sección
+  0.1.0 se aclara como línea base aún sin publicar.
+- `release.yml`: el artefacto del AAB se renombra a `pituapp-aab-sin-firmar-no-publicable`
+  para dejar claro que sin keystore está firmado en debug y no es válido para Play.
+- `docs/RELEASE_ANDROID.md`: se documenta la validación pendiente del toolchain
+  (Kotlin 2.2 / AGP 8.11) y el pin de Flutter como causa raíz a fijar después.
+
 ---
 
-## [0.1.0] — 2026-08-08
+## 0.1.0 — línea base del MVP (aún sin publicar)
+
+> Estado del código a 2026-08-08. **Todavía no se ha tageado ni publicado ninguna
+> versión**; esta sección describe la línea base que se etiquetará como `v0.1.0` en
+> el primer release (ver "Tags y releases" arriba).
 
 Primera línea base del MVP (Fase 1, local-first). Todos los requisitos funcionales
 de Fase 1 (RF-01–50) implementados en código. Detalle y trazabilidad por requisito
@@ -82,5 +94,6 @@ en `docs/ESTADO_MVP.md`.
 - Bloqueo biométrico opcional, perfil local editable, tema claro/oscuro e i18n
   (es, en, fr, pt, de).
 
-[Sin publicar]: https://github.com/yesithv/pitu-app/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yesithv/pitu-app/releases/tag/v0.1.0
+<!-- Aún no existe el tag v0.1.0; el enlace de comparación se hará contra el tag
+     cuando se cree el primer release. Por ahora se compara contra main. -->
+[Sin publicar]: https://github.com/yesithv/pitu-app/compare/main...HEAD
