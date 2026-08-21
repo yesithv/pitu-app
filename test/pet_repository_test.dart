@@ -4,8 +4,6 @@ import 'package:pitu_app/core/domain/sync_metadata.dart';
 import 'package:pitu_app/core/utils/clock.dart';
 import 'package:pitu_app/features/attachments/domain/entities/attachment.dart';
 import 'package:pitu_app/features/care/domain/entities/care_execution.dart';
-import 'package:pitu_app/features/care/domain/entities/care_frequency.dart';
-import 'package:pitu_app/features/care/domain/entities/care_kind.dart';
 import 'package:pitu_app/features/care/domain/entities/care_schedule.dart';
 import 'package:pitu_app/features/clinical/domain/entities/diagnosis.dart';
 import 'package:pitu_app/features/clinical/domain/entities/medical_visit.dart';
@@ -14,6 +12,8 @@ import 'package:pitu_app/features/clinical/domain/entities/weight_record.dart';
 import 'package:pitu_app/features/pets/data/pet_repository_impl.dart';
 import 'package:pitu_app/features/pets/domain/entities/pet.dart';
 import 'package:pitu_app/features/pets/domain/entities/species.dart';
+
+import 'support/care_fixtures.dart';
 
 /// Cobertura del ciclo de vida de una mascota en el repositorio: archivar
 /// (RF-03/RF-04), desarchivar (RF-05), eliminar definitivamente (RF-06),
@@ -36,14 +36,13 @@ void main() {
         status: status,
       );
 
-  CareSchedule schedule(String id, String petId, DateTime next) => CareSchedule(
-        meta: SyncMetadata.create(id: id, now: clock.now()),
+  CareSchedule schedule(String id, String petId, DateTime next) => careSchedule(
+        next,
+        now: clock.now(),
+        id: id,
         petId: petId,
         careTypeId: 'ct-$id',
         name: 'Baño',
-        kind: CareKind.bath,
-        frequency: const CareFrequency(1, FrequencyUnit.months),
-        nextDate: next,
       );
 
   group('listado y búsqueda (RF-07)', () {

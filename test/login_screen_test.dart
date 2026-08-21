@@ -45,23 +45,21 @@ void main() {
 
   testWidgets('Crear cuenta: revela nombre y confirmación; el botón exige que las contraseñas coincidan',
       (tester) async {
-    // Viewport alto: en registro hay más campos y el `ListView` virtualiza; con
-    // el tamaño por defecto (800x600) el campo de confirmación queda fuera de
-    // pantalla y no se construye. Se restablece al terminar.
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
+    // En registro hay más campos y el `ListView` virtualiza: con un lienzo de
+    // teléfono todos se construyen (el arnés lo restablece al terminar), sin
+    // tener que scrollear ni manipular el viewport en el cuerpo del test.
+    await pumpApp(tester, const LoginScreen(), surfaceSize: const Size(1080, 2400));
 
-    await pumpApp(tester, const LoginScreen());
-
-    // Cambiar a la pestaña de registro (única aparición del texto en modo login).
+    // La pestaña de registro (única aparición del texto en modo login).
     await tester.tap(find.text('Crear cuenta'));
     await tester.pumpAndSettle();
 
-    // Ahora hay cuatro campos: nombre, email, contraseña y confirmación.
-    final fields = find.byType(TextField);
-    expect(fields, findsNWidgets(4));
+    // Se revelan los campos exclusivos del registro (prueba semántica: la etiqueta
+    // de confirmación no existía en modo login).
+    expect(find.text('Confirmar contraseña'), findsOneWidget);
 
+    // Cuatro campos en orden: nombre, email, contraseña, confirmación.
+    final fields = find.byType(TextField);
     await tester.enterText(fields.at(0), 'Ana');
     await tester.enterText(fields.at(1), 'ana@correo.com');
     await tester.enterText(fields.at(2), '123456');

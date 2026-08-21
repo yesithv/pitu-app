@@ -5,6 +5,8 @@ import 'package:pitu_app/core/di/providers.dart';
 import 'package:pitu_app/core/widgets/app_buttons.dart';
 import 'package:pitu_app/features/plan/domain/plan.dart';
 import 'package:pitu_app/features/plan/presentation/plans_screen.dart';
+import 'package:pitu_app/features/purchases/application/purchases_providers.dart';
+import 'package:pitu_app/features/purchases/domain/purchase_service.dart';
 
 import 'support/pump_app.dart';
 
@@ -20,6 +22,9 @@ void main() {
           db.planType = plan;
           return db;
         }),
+        // Aísla la pantalla del servicio real: PlansScreen.initState llama a
+        // loadProProduct(); el no-op lo hace determinista y sin canales nativos.
+        purchaseServiceProvider.overrideWithValue(const NoopPurchaseService()),
       ];
 
   testWidgets('En Free se ofrece desbloquear Pro y Free figura como plan actual',

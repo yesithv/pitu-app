@@ -1,10 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pitu_app/core/domain/sync_metadata.dart';
-import 'package:pitu_app/features/care/domain/entities/care_frequency.dart';
-import 'package:pitu_app/features/care/domain/entities/care_kind.dart';
 import 'package:pitu_app/features/care/domain/entities/care_schedule.dart';
 import 'package:pitu_app/features/care/domain/entities/compliance.dart';
 import 'package:pitu_app/features/care/domain/services/scheduling_service.dart';
+
+import 'support/care_fixtures.dart';
 
 /// Indicador de cumplimiento por mascota (RF-36) con estados **mixtos**
 /// (overdue + due + ok a la vez) y sus bordes de `ratio`/`percent`, que las
@@ -13,15 +12,7 @@ void main() {
   const service = SchedulingService(); // dueWindowDays = 7
   final now = DateTime(2026, 7, 22);
 
-  CareSchedule schedule(DateTime next) => CareSchedule(
-        meta: SyncMetadata.create(id: next.toIso8601String(), now: now),
-        petId: 'p1',
-        careTypeId: 'c1',
-        name: 'Cuidado',
-        kind: CareKind.bath,
-        frequency: const CareFrequency(1, FrequencyUnit.months),
-        nextDate: next,
-      );
+  CareSchedule schedule(DateTime next) => careSchedule(next, now: now);
 
   test('estados mixtos: percent/ratio se calculan sobre lo no atrasado', () {
     final schedules = [

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pitu_app/features/care/domain/entities/care_frequency.dart';
-import 'package:pitu_app/features/care/domain/entities/care_kind.dart';
 import 'package:pitu_app/features/care/domain/entities/care_schedule.dart';
 import 'package:pitu_app/features/care/domain/entities/compliance.dart';
 import 'package:pitu_app/features/care/domain/services/scheduling_service.dart';
-import 'package:pitu_app/core/domain/sync_metadata.dart';
+
+import 'support/care_fixtures.dart';
 
 void main() {
   const service = SchedulingService();
@@ -53,15 +53,7 @@ void main() {
   });
 
   group('SchedulingService.complianceOf', () {
-    CareSchedule schedule(DateTime next) => CareSchedule(
-          meta: SyncMetadata.create(id: next.toIso8601String(), now: now),
-          petId: 'p1',
-          careTypeId: 'c1',
-          name: 'Cuidado',
-          kind: CareKind.bath,
-          frequency: const CareFrequency(1, FrequencyUnit.months),
-          nextDate: next,
-        );
+    CareSchedule schedule(DateTime next) => careSchedule(next, now: now);
 
     test('cuenta atrasados y al día', () {
       final schedules = [
