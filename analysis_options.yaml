@@ -1,4 +1,23 @@
 include: package:flutter_lints/flutter.yaml
 
+# Reglas explícitas además de flutter_lints, para blindar el estilo que el
+# proyecto ya practica. CI corre `flutter analyze --fatal-infos`, así que estas
+# reglas se hacen cumplir de forma estricta en cada PR.
 linter:
   rules:
+    # Constructores/params modernos (ya se usa `super.key` en todo el árbol).
+    - use_super_parameters
+    # Inmutabilidad local por defecto en bucles y declaraciones.
+    - prefer_final_in_for_each
+    - prefer_const_declarations
+    # Elimina ruido sintáctico.
+    - unnecessary_parenthesis
+    - unnecessary_lambdas
+    - unnecessary_raw_strings
+    - unnecessary_null_aware_assignments
+    - unnecessary_statements
+    # Operadores nulos idiomáticos.
+    - prefer_if_null_operators
+    - prefer_null_aware_method_calls
+    # Evita pasar valores que ya son el default del parámetro.
+    - avoid_redundant_argument_values
