@@ -19,6 +19,23 @@ import '../../features/plan/domain/plan.dart';
 /// Extiende [ChangeNotifier] para que la capa de presentación (Riverpod) se
 /// re-renderice reactivamente ante cualquier mutación, conservando la
 /// sensación local-first de guardado instantáneo (RNF-02).
+///
+/// ## Límite de escala esperado
+///
+/// Todo el estado vive **en memoria** (estas listas) y se persiste como un
+/// **snapshot completo** (códec JSON → SQLite/localStorage). Las consultas de los
+/// repositorios son **barridos lineales** sobre las listas y cada guardado
+/// reserializa el snapshot entero. Es más que suficiente para el caso de uso de la
+/// Fase 1 —un hogar con unas pocas mascotas y su historial de años: del orden de
+/// **decenas de mascotas** y **miles de registros por colección**—, donde el costo
+/// es imperceptible.
+///
+/// No está diseñado para volúmenes mucho mayores (p. ej. decenas de miles de
+/// registros por colección): ahí los barridos lineales y la reserialización total
+/// del snapshot en cada mutación empezarían a notarse. Cuando eso importe —o al
+/// llegar la sincronización de la Fase 2— la ruta es mover las consultas a la BD
+/// (Drift ya está en el proyecto) con índices y escrituras incrementales, sin tocar
+/// el dominio (patrón repositorio, ERS §8.3).
 class InMemoryDatabase extends ChangeNotifier {
   final List<Pet> pets = [];
   final List<CareType> careTypes = [];
