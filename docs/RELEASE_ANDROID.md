@@ -64,6 +64,22 @@ flutter build appbundle --release                          # -> build/app/output
 
 Sube el `.aab` a Google Play Console.
 
+### Versionado automático (recomendado)
+
+En lugar de compilar a mano, empuja un tag SemVer y deja que CI arme el AAB con un
+`versionCode` incremental (así nunca subes dos artefactos con el mismo `versionCode`,
+requisito de Play):
+
+```bash
+git tag v0.1.0        # MAYOR.MENOR.PARCHE; ver CHANGELOG.md → "Política de versionado"
+git push origin v0.1.0
+```
+
+El workflow `.github/workflows/release.yml` compila el App Bundle con
+`--build-number=<corrida CI>` y lo publica como artefacto. El `versionName` sale de
+`pubspec.yaml`; el `versionCode` lo fija CI. Para un AAB **firmado**, configura los
+secretos del keystore (pasos 2–3) en el runner o firma localmente.
+
 ## 5. Iconos definitivos (opcional, recomendado)
 
 Los iconos restaurados son los genéricos de Flutter. Para los definitivos, genera

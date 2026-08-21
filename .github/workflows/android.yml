@@ -54,4 +54,7 @@ jobs:
           done
 
       - name: Compilar APK debug (verificación)
-        run: flutter build apk --debug
+        # `--build-number` inyecta el `versionCode` de forma incremental (usa el
+        # número de corrida de CI), ejercitando el mismo camino de versionado que
+        # el release por tag. Ver CHANGELOG.md → "Política de versionado".
+        run: flutter build apk --debug --build-number=${{ github.run_number }}
