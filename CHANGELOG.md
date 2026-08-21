@@ -50,8 +50,9 @@ corrida de CI) y publica el `.aab` como artefacto. El nombre de versión se toma
 ### Cambiado
 - El CI de Android (`android.yml`) compila con `--build-number` incremental para
   ejercitar el mismo camino de versionado que el release.
-- Toolchain de Android al día con Flutter stable: Gradle 8.14 (wrapper) y Android
-  Gradle Plugin 8.11.1, mínimos exigidos por la versión actual de Flutter.
+- Toolchain de Android al día con Flutter stable: Gradle 8.14 (wrapper), Android
+  Gradle Plugin 8.11.1 y Kotlin 2.2.20, mínimos exigidos por la versión actual de
+  Flutter.
 - README: la matriz de estado por requisito (RF) deja de duplicarse; ahora vive
   solo en `docs/ESTADO_MVP.md` (fuente única de verdad), y el README enlaza a ella.
 - Documentado en código el límite de escala esperado del modelo en memoria
