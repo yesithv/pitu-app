@@ -3,6 +3,14 @@ include: package:flutter_lints/flutter.yaml
 # Reglas explícitas además de flutter_lints, para blindar el estilo que el
 # proyecto ya practica. CI corre `flutter analyze --fatal-infos`, así que estas
 # reglas se hacen cumplir de forma estricta en cada PR.
+#
+# Todas las reglas de esta lista se verificaron con cero violaciones en el árbol
+# actual. Se evaluaron y descartaron a propósito dos reglas que chocan con
+# decisiones deliberadas del proyecto:
+#   - avoid_redundant_argument_values: las pruebas pasan valores por defecto de
+#     forma explícita para dejar el caso legible; no es ruido que convenga forzar.
+#   - unnecessary_raw_strings: los raw strings se usan en expresiones regulares,
+#     donde son la forma más clara y a prueba de doble-escape.
 linter:
   rules:
     # Constructores/params modernos (ya se usa `super.key` en todo el árbol).
@@ -13,11 +21,8 @@ linter:
     # Elimina ruido sintáctico.
     - unnecessary_parenthesis
     - unnecessary_lambdas
-    - unnecessary_raw_strings
-    - unnecessary_null_aware_assignments
     - unnecessary_statements
+    - unnecessary_null_aware_assignments
     # Operadores nulos idiomáticos.
     - prefer_if_null_operators
     - prefer_null_aware_method_calls
-    # Evita pasar valores que ya son el default del parámetro.
-    - avoid_redundant_argument_values
