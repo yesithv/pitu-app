@@ -45,6 +45,13 @@ void main() {
 
   testWidgets('Crear cuenta: revela nombre y confirmación; el botón exige que las contraseñas coincidan',
       (tester) async {
+    // Viewport alto: en registro hay más campos y el `ListView` virtualiza; con
+    // el tamaño por defecto (800x600) el campo de confirmación queda fuera de
+    // pantalla y no se construye. Se restablece al terminar.
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     await pumpApp(tester, const LoginScreen());
 
     // Cambiar a la pestaña de registro (única aparición del texto en modo login).
