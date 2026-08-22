@@ -37,6 +37,10 @@ corrida de CI) y publica el `.aab` como artefacto. El nombre de versión se toma
 ## [Sin publicar]
 
 ### Añadido
+- Recorrido Pro en la demo (`docs/DEMO_ENFOQUE.md` §3.1 y §3.3): hoja de bienvenida
+  al entrar al demo con las funciones estrella (marcando las exclusivas de Pro) y un
+  conmutador Free↔Pro **visible** en la barra del demo para hacer palpable qué
+  desbloquea el Pro. Reutiliza el paywall, el teaser y los distintivos ya existentes.
 - `CHANGELOG.md` con política de versionado (SemVer) y convención de tags.
 - Workflow `release.yml`: compila el AAB en cada tag `v*` con `versionCode`
   incremental inyectado por CI.

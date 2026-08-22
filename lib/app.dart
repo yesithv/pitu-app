@@ -7,12 +7,15 @@ import 'core/i18n/locale_controller.dart';
 import 'core/data/seed.dart';
 import 'core/di/providers.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_dimens.dart';
 import 'core/theme/app_text.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/clock.dart';
 import 'core/utils/id_generator.dart';
 import 'features/auth/application/auth_providers.dart';
 import 'features/auth/presentation/login_screen.dart';
+import 'features/demo/presentation/demo_plan_pill.dart';
+import 'features/demo/presentation/demo_welcome_sheet.dart';
 import 'features/plan/presentation/entitlement_sync.dart';
 import 'features/security/presentation/app_lock_gate.dart';
 import 'features/shell/home_shell.dart';
@@ -119,11 +122,30 @@ class _DemoSession extends StatelessWidget {
   }
 }
 
-class _DemoScaffold extends ConsumerWidget {
+class _DemoScaffold extends ConsumerStatefulWidget {
   const _DemoScaffold();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_DemoScaffold> createState() => _DemoScaffoldState();
+}
+
+class _DemoScaffoldState extends ConsumerState<_DemoScaffold> {
+  bool _welcomeShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Hoja de bienvenida una sola vez por sesión de demo (§3.1). El scope del
+    // demo se recrea en cada entrada, así que un flag de instancia basta.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _welcomeShown) return;
+      _welcomeShown = true;
+      showDemoWelcomeSheet(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
@@ -134,26 +156,46 @@ class _DemoScaffold extends ConsumerWidget {
             bottom: false,
             child: Material(
               color: c.accent.withValues(alpha: 0.22),
-              child: InkWell(
-                onTap: () =>
-                    ref.read(sessionControllerProvider.notifier).exitDemo(),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Row(
-                    children: [
-                      Icon(Icons.play_circle_outline, size: 18, color: c.accentInk),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          l10n.demoBanner,
-                          style: AppText.metaStrong(c.accentInk),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  children: [
+                    // Zona de salida del demo (icono + texto + "Salir").
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: Radii.pillAll,
+                        onTap: () => ref
+                            .read(sessionControllerProvider.notifier)
+                            .exitDemo(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.chevron_left,
+                                  size: 18, color: c.accentInk),
+                              const SizedBox(width: 4),
+                              Text(l10n.demoExit,
+                                  style: AppText.button(c.accentInk)
+                                      .copyWith(fontSize: 14)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  l10n.demoBanner,
+                                  style: AppText.metaStrong(c.accentInk),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Text(l10n.demoExit, style: AppText.button(c.accentInk).copyWith(fontSize: 14)),
-                      Icon(Icons.chevron_right, size: 18, color: c.accentInk),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Conmutador Free↔Pro visible en el recorrido (§3.3).
+                    const DemoPlanPill(),
+                  ],
                 ),
               ),
             ),
