@@ -55,98 +55,18 @@ En https://yesithv.github.io/pitu-app/ :
 
 ## 3. Estado por funcionalidad
 
-Leyenda: ✅ implementado · ⚠️ implementado con observación · 📱 real solo en móvil
-(no-op/limitado en web).
+> **Fuente única de verdad: [`docs/ESTADO_MVP.md`](docs/ESTADO_MVP.md).** Ahí vive la
+> matriz completa y canónica por requisito (RF-01–50 y RNF), con su estado, la nota
+> por requisito y el archivo que lo implementa. Este README ya **no duplica** esa
+> tabla para evitar que ambas versiones diverjan.
 
-### Gestión de mascotas
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-01 | Crear mascota (nombre, especie, nacimiento/edad, peso, raza, **foto**) | ✅ | |
-| RF-02 | Editar mascota | ✅ | |
-| RF-03 | Archivar (detiene recordatorios, sale del conteo, conserva historial) | ✅ | |
-| RF-04 | Motivo de archivado opcional | ✅ | |
-| RF-05 | Desarchivar (recalcula próximas fechas) | ✅ | |
-| RF-06 | Eliminar definitivamente (doble confirmación) | ✅ | Purga los datos asociados de la mascota |
-| RF-07 | Lista de activas + archivadas (lectura) | ✅ | |
-
-### Catálogo, programación y ejecución de cuidados
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-08 | Catálogo precargado por especie | ✅ | |
-| RF-09 | Editar frecuencia de un cuidado | ✅ | |
-| RF-10 | Desactivar un cuidado | ✅ | |
-| RF-11 | Cuidados personalizados (con límite de plan) | ✅ | |
-| RF-12 | Cálculo automático de la próxima fecha | ✅ | |
-| RF-13 | Catálogo versionado sin sobrescribir personalizaciones | ✅ | `CatalogUpdater` aditivo e idempotente (RN-09) |
-| RF-14 | Marcar como hecho (1 toque) + recálculo | ✅ | |
-| RF-15 | Registro con detalle (fecha no futura, notas, adjuntos) | ✅ | Adjuntos también desde el registro de cuidado |
-| RF-16 | Deshacer un registro reciente | ✅ | |
-| RF-17 | Ejecución guardada en el historial | ✅ | |
-| — | **Cumpleaños** como actividad pendiente anual (extra) | ✅ | Recordatorio 🎂 al fijar la fecha de nacimiento |
-
-### Historial clínico
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-18 | Visita médica (editar/eliminar) | ✅ | |
-| RF-19 | Vacuna con próxima dosis autosugerida (editar/eliminar) | ✅ | |
-| RF-20 | Diagnóstico con estado (alta directa, editar/eliminar) | ✅ | |
-| RF-21 | Cambiar estado del diagnóstico | ✅ | Cada cambio se registra como entrada propia del historial (esquema v4) |
-| RF-22 | Registro de peso (editar/eliminar) | ✅ | |
-| RF-23 | Aviso informativo de variación de peso (>10%) | ✅ | No diagnóstico |
-| RF-24 | Línea de tiempo integrada (incluye diagnósticos) | ✅ | |
-| RF-25 | Buscar/filtrar historial por tipo y rango de fechas | ✅ | |
-
-### Documentos adjuntos
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-26 | Adjuntar a mascota, visitas, vacunas y cuidados | ✅ | Incluye adjuntar desde el registro de un cuidado |
-| RF-27 | Galería con filtro por tipo | ✅ | |
-| RF-28 | Compresión de imágenes (<500 KB objetivo) | ✅ | |
-| RF-29 | Archivos en filesystem, BD guarda referencia | ✅ 📱 | Bytes en `<appDocs>/attachments/`; la BD guarda la ruta. En web quedan en el snapshot. Falta validar en dispositivo |
-
-### Recordatorios y notificaciones
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-30 | Notificaciones locales por próxima fecha | ✅ 📱 | |
-| RF-31 | Del día / vencido persistente / anticipados (1/3/7, Pro) | ✅ 📱 | |
-| RF-32 | Tocar la notificación abre el cuidado/mascota | ✅ 📱 | |
-| RF-33 | Reprogramar tras reinstalar/restaurar/cambios | ✅ 📱 | Fija la zona local del dispositivo y reprograma al reanudar si cambió. Falta validar en dispositivo |
-| RF-34 | Respetar el límite de 64 de iOS (por ventanas) | ✅ 📱 | |
-| RF-35 | Alarmas exactas Android + avisar permiso denegado | ✅ 📱 | Pide `SCHEDULE_EXACT_ALARM` y usa `exactAllowWhileIdle` si está concedido; declarado en el manifiesto. Falta validar en dispositivo |
-
-### Cumplimiento y reporte
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-36 | Indicador de cumplimiento por mascota | ✅ | |
-| RF-37 | Resumen de cumplimiento (función Pro) | ✅ | |
-| RF-38 | Reporte PDF con selección (completo/vacunas/rango) | ✅ | Función Pro |
-| RF-39 | PDF con encabezado + hoja de compartir | ✅ | |
-
-### Respaldo y portabilidad
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-41 | Exportar respaldo (gratis) | ✅ | JSON con registros y adjuntos |
-| RF-42 | Resumen del contenido antes de importar | ✅ | |
-| RF-43 | Reemplazar vs. **combinar por UUID** | ✅ | |
-| RF-44 | Reprogramar notificaciones tras importar | ✅ | |
-| RF-45 | Manejo de errores (corrupto / versión nueva / sin espacio) | ✅ | |
-| RF-46 | Recordatorio de respaldo + "último respaldo hace X" | ✅ | |
-
-### Planes y compras
-| Req | Función | Estado | Observación |
-|---|---|---|---|
-| RF-47 | Planes Free y Pro | ✅ | |
-| RF-48 | Compra con StoreKit/Play + entitlement persistido | ✅ 📱 | El entitlement se persiste; en web el desbloqueo es de demostración |
-| RF-49 | Restaurar compra | ✅ 📱 | |
-| RF-50 | Estado del plan + comparativa + candado honesto | ✅ | |
-
-### Perfil, validaciones y calidad
-| Área | Estado | Observación |
-|---|---|---|
-| Perfil local editable (nombre) | ✅ | |
-| Bloqueo biométrico opcional (RNF-11) | ✅ 📱 | |
-| Validaciones de entrada (border cases) | ✅ | Cotas de peso y frecuencia, `maxLength` en textos, filtros numéricos; se rechazan letras, negativos, vacíos y valores desmedidos |
-| Interfaz en español, tema claro/oscuro | ✅ | |
+Resumen: **todos los requisitos funcionales de Fase 1 (RF-01–50) están implementados
+en código**, incluidos los adjuntos al filesystem (RF-29), los recordatorios
+(RF-33/RF-35) y la persistencia cifrada (RNF-10). Las funciones que dependen de
+hardware móvil (📱 notificaciones, biometría, compras, archivos nativos) están
+implementadas con aislamiento por plataforma y quedan **pendientes de validación en
+dispositivo**. El detalle por requisito, la leyenda (✅ / ⚠️ / 📱) y el mapa de
+pruebas están en `docs/ESTADO_MVP.md`.
 
 ---
 

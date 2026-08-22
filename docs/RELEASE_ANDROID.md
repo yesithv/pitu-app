@@ -8,6 +8,23 @@ El proyecto nativo vive en `android/` (`applicationId = com.ironcoding.pituapp`)
 - Flutter (canal stable) y JDK 17.
 - Android SDK (platform 34).
 
+> ### ⚠ Validación pendiente del toolchain de Android
+>
+> El toolchain se subió a los mínimos que exige el Flutter stable actual: **Gradle
+> 8.14** (wrapper), **Android Gradle Plugin 8.11.1** y **Kotlin 2.2.20**. El CI solo
+> compila un **APK debug**, así que estos saltos (sobre todo Kotlin 1.9 → 2.2) **aún
+> no están validados** para un release real. Antes de confiar en ellos y de fijar
+> versiones:
+>
+> 1. `flutter build appbundle --release` compila localmente sin errores.
+> 2. Instalar en un dispositivo Android y ejercitar las funciones nativas: recordatorios
+>    y **alarmas exactas**, biometría, compras in-app y guardar/seleccionar archivos.
+> 3. La **versión de Flutter ya está fijada** (`flutter-version: 3.47.1`) en los 4
+>    workflows de `.github/workflows/`, para que el CI sea reproducible y no vuelva a
+>    romperse solo al actualizarse Flutter stable (la causa raíz del drift). Lo que
+>    sigue pendiente es la **validación en dispositivo** de los puntos 1–2; al subir
+>    Flutter en el futuro, actualiza ese literal en los 4 workflows y revalida.
+
 ## 1. Restaurar los binarios que no se versionan
 
 Dos archivos binarios **no** están en el repo (no se pueden versionar como texto):
@@ -63,6 +80,22 @@ flutter build appbundle --release                          # -> build/app/output
 ```
 
 Sube el `.aab` a Google Play Console.
+
+### Versionado automático (recomendado)
+
+En lugar de compilar a mano, empuja un tag SemVer y deja que CI arme el AAB con un
+`versionCode` incremental (así nunca subes dos artefactos con el mismo `versionCode`,
+requisito de Play):
+
+```bash
+git tag v0.1.0        # MAYOR.MENOR.PARCHE; ver CHANGELOG.md → "Política de versionado"
+git push origin v0.1.0
+```
+
+El workflow `.github/workflows/release.yml` compila el App Bundle con
+`--build-number=<corrida CI>` y lo publica como artefacto. El `versionName` sale de
+`pubspec.yaml`; el `versionCode` lo fija CI. Para un AAB **firmado**, configura los
+secretos del keystore (pasos 2–3) en el runner o firma localmente.
 
 ## 5. Iconos definitivos (opcional, recomendado)
 

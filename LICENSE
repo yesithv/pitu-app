@@ -1,0 +1,25 @@
+Copyright (c) 2026 IronCoding. Todos los derechos reservados.
+All rights reserved.
+
+PituApp — PetBienestar (el "Software") es software propietario. Este repositorio
+se hace público únicamente con fines de demostración y revisión.
+
+Salvo autorización previa y por escrito del titular de los derechos (IronCoding),
+NO se concede permiso para usar, copiar, modificar, fusionar, publicar, distribuir,
+sublicenciar ni vender copias del Software, en su totalidad o en parte.
+
+Ver, clonar o hacer un fork del repositorio con el fin de revisar el código o
+ejecutar la demostración local es aceptable; cualquier uso comercial, redistribución
+o creación de obras derivadas requiere permiso expreso por escrito.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUIDAS, ENTRE OTRAS, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA
+UN FIN PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO EL TITULAR SERÁ RESPONSABLE DE
+NINGUNA RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD DERIVADA DEL SOFTWARE O DE SU USO.
+
+---
+
+Nota: si en el futuro se decide liberar el proyecto bajo una licencia de código
+abierto (p. ej. MIT o Apache-2.0), basta con reemplazar el contenido de este
+archivo por el texto de esa licencia. Cambiar este archivo es la única acción
+necesaria para cambiar los términos.
