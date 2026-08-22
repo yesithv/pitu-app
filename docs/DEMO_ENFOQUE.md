@@ -1,9 +1,13 @@
 # Enfoque del demo — mostrar funcionalidades, no solo datos
 
-> **Estado: propuesta documentada (no implementada).** Este documento describe el
-> foco y el objetivo del demo de exhibición. Recoge la recomendación de la revisión
-> de arquitectura. La implementación en UI queda para una iteración posterior; aquí
-> solo se deja **documentado el enfoque**.
+> **Estado: parcialmente implementado.** Este documento describe el foco y el
+> objetivo del demo de exhibición. Recoge la recomendación de la revisión de
+> arquitectura.
+>
+> - ✅ **§3.1 Hoja de bienvenida** y ✅ **§3.3 conmutador Free↔Pro visible** están
+>   implementadas (ver `lib/features/demo/presentation/`).
+> - ⏳ §3.2 (CTAs a lo enterrado), §3.4 (multi-mascota, más allá de la línea en la
+>   bienvenida) y §3.5 (capturas en el README) quedan para una iteración posterior.
 
 ## 1. El problema hoy
 
@@ -27,7 +31,7 @@ y *por qué le importa*, y que perciba con claridad la diferencia entre **Free**
 
 ## 3. Propuestas de enfoque (orden de impacto)
 
-### 3.1 Hoja de bienvenida al entrar al demo (una sola vez)
+### 3.1 Hoja de bienvenida al entrar al demo (una sola vez) — ✅ implementada
 Al pulsar **"Ver demo"**, mostrar una hoja/overlay con 3–4 funciones estrella y un
 botón "Explorar". Foco en **funcionalidades**, no en registros:
 
@@ -41,9 +45,11 @@ El dashboard solo muestra "hoy" y "próximos". Añadir *call-to-actions* visible
 lleven a las funciones enterradas: "Mira el historial de Pitufo", "Genera un reporte
 PDF", "Revisa la curva de peso".
 
-### 3.3 Hacer visible el contraste Free vs. Pro dentro del recorrido
-Ver §4. Hoy el conmutador "ver como Free" está escondido en Ajustes; debería ser
-parte visible del tour para que se entienda qué desbloquea el Pro.
+### 3.3 Hacer visible el contraste Free vs. Pro dentro del recorrido — ✅ implementada
+Ver §4. El conmutador "ver como Free" ya no está escondido en Ajustes: es un pill
+**visible en la barra del demo** (`DemoPlanPill`), parte del tour, para que se
+entienda qué desbloquea el Pro. Al pasar a Free, el dashboard muestra el teaser con
+candado y las acciones Pro abren el paywall existente.
 
 ### 3.4 Transmitir el soporte multi-mascota
 El demo entra enfocado en la primera mascota. El overview debería mencionar "2
@@ -90,6 +96,8 @@ un límite.
 
 ## 6. Alcance
 
-Este documento es **solo la especificación del enfoque**. La implementación (hoja de
-bienvenida, CTAs, tour Pro/Free) se planificará aparte. El resto de mejoras de la
-revisión sí se desarrollan en esta misma rama.
+La hoja de bienvenida (§3.1) y el conmutador Free↔Pro visible (§3.3) ya están
+implementados en `lib/features/demo/presentation/` (`demo_welcome_sheet.dart`,
+`demo_plan_pill.dart`), cableados desde `_DemoScaffold` en `lib/app.dart` y cubiertos
+por `test/demo_pro_highlight_test.dart`. Las piezas restantes (§3.2 CTAs a lo
+enterrado, §3.5 capturas en el README) se planificarán aparte.
