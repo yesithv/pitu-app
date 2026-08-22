@@ -19,10 +19,11 @@ El proyecto nativo vive en `android/` (`applicationId = com.ironcoding.pituapp`)
 > 1. `flutter build appbundle --release` compila localmente sin errores.
 > 2. Instalar en un dispositivo Android y ejercitar las funciones nativas: recordatorios
 >    y **alarmas exactas**, biometría, compras in-app y guardar/seleccionar archivos.
-> 3. Solo después: decidir **fijar la versión de Flutter** (`flutter-version`) en los
->    workflows de `.github/workflows/` para que el CI sea reproducible y no vuelva a
->    romperse solo al actualizarse Flutter stable — la causa raíz de que hubiera que
->    subir el toolchain.
+> 3. La **versión de Flutter ya está fijada** (`flutter-version: 3.47.1`) en los 4
+>    workflows de `.github/workflows/`, para que el CI sea reproducible y no vuelva a
+>    romperse solo al actualizarse Flutter stable (la causa raíz del drift). Lo que
+>    sigue pendiente es la **validación en dispositivo** de los puntos 1–2; al subir
+>    Flutter en el futuro, actualiza ese literal en los 4 workflows y revalida.
 
 ## 1. Restaurar los binarios que no se versionan
 

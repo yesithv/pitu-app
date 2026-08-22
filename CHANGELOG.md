@@ -53,6 +53,8 @@ corrida de CI) y publica el `.aab` como artefacto. El nombre de versión se toma
 - Toolchain de Android al día con Flutter stable: Gradle 8.14 (wrapper), Android
   Gradle Plugin 8.11.1 y Kotlin 2.2.20, mínimos exigidos por la versión actual de
   Flutter.
+- CI reproducible: se fija `flutter-version: 3.47.1` en los 4 workflows (antes
+  seguían `channel: stable` sin versión), la causa raíz del drift del toolchain.
 - README: la matriz de estado por requisito (RF) deja de duplicarse; ahora vive
   solo en `docs/ESTADO_MVP.md` (fuente única de verdad), y el README enlaza a ella.
 - Documentado en código el límite de escala esperado del modelo en memoria
